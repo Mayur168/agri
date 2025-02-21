@@ -1,0 +1,496 @@
+/* General Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Container */
+.container-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* min-height: 100vh; */
+  background: #f5f5f5;
+  padding: 20px;
+}
+
+/* Login Box */
+.login-box {
+  background: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  /* text-align: center; */
+}
+
+/* Title */
+.login-box h1 {
+  margin-bottom: 15px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+/* Form */
+.login-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-box label {
+  font-weight: 500;
+  text-align: left;
+  color: #333;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+}
+
+.login-box input:focus {
+  border-color: #007bff;
+}
+
+/* Button */
+.submit-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s;
+  width: 100%;
+}
+
+.submit-button:hover {
+  background: #0056b3;
+}
+
+.submit-button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
+/* Bottom Text */
+.login-box span {
+  display: block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #555;
+}
+
+.login-box span a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-box span a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-box {
+    padding: 20px;
+  }
+
+  .login-box h1 {
+    font-size: 20px;
+  }
+}
+
+ /* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Centering the Signup Form */
+.container-Signup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f4f4f4;
+  padding: 20px;
+}
+
+/* Signup Form Box */
+.signup {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* Title */
+.signup h1 {
+  margin-bottom: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Form Styling */
+.signup form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Labels */
+.signup label {
+  font-weight: 600;
+  text-align: left;
+  display: block;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+/* Input Fields */
+.signup input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.signup input:focus {
+  border-color: #007bff;
+}
+
+/* Submit Button */
+.submit-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.submit-button:hover {
+  background: #0056b3;
+}
+
+/* Bottom Text */
+.signup span {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.signup span a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.signup span a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .signup {
+    padding: 20px;
+  }
+
+  .signup h1 {
+    font-size: 20px;
+  }
+
+  .submit-button {
+    font-size: 14px;
+  }
+}
+
+  /* Sheti.css */
+  .navbar-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #198754; /* Bootstrap success green */
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative; /* Ensure relative positioning for absolute children */
+  }
+  
+  /* Back to Home Button (Top-Left) */
+  /* .back-to-home-btn {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    color: #198754;
+    font-weight: bold;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    position: absolute;
+    top: 2px;  /* Moves button to top */
+    /* left: 2px; 
+  } */
+   
+  /* .back-to-home-btn:hover {
+    background-color: #145c32;
+    color: white;
+  }
+  
+  .back-emoji {
+    font-size: 0px;
+    margin-right: 5px;
+  }
+   */
+  /* Responsive Design */
+  /* @media (max-width: 768px) {
+    .back-to-home-btn {
+      font-size: 12px;
+      padding: 6px 10px;
+    }
+  
+    .back-emoji {
+      font-size: 16px;
+    }
+  
+    .navbar-brand {
+      font-size: 18px;
+    }
+  
+    .form-control {
+      width: 100px;
+    }
+  } */
+  
+
+  .nav-link{
+    text-align: -webkit-center
+  }
+  
+  /* sheti navbar */
+  .navbar-custom {
+    background-color: #198754; /* Green background */
+    padding: 15px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+  
+  /* Navbar Title */
+  .navbar-title {
+    font-size: 19px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    flex-grow: 0;
+    margin-left: 4px;
+  } /* Centering */
+  
+  
+  /* Back Button */
+  /* .back-to-home-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .back-to-home-btn:hover {
+    color: #f8f9fa;
+  } */
+  
+  /* Search Form */
+  .search-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .search-container input {
+    width: 250px;
+    border-radius: 5px;
+    padding: 5px;
+  }
+  
+  .search-container button {
+    border-radius: 5px;
+  }
+  
+  /* Sheti1.css */
+  /* Form Container */
+  .sheti-form-container {
+    max-width: 300px;
+    padding: 0px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0px 6px 18px rgba(0, 0, 0, 0.12);
+    transition: transform 0.3s ease-in-out;
+    text-align: center;
+    margin: auto;
+  }
+  
+  .sheti-form-container:hover {
+    transform: translateY(-4px);
+  }
+  
+  /* Form Title */
+  .sheti-form-title {
+    font-size: 26px;
+    font-weight: bold;
+    color: white; /* Text color */
+    background-color: #198754; /* Background color */
+    padding: 10px 20px; /* Space inside the box */
+    border-radius: 8px; /* Rounded corners */
+    display: inline-block; /* Ensures the box wraps around the text */
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  }
+  
+  
+  /* Form Group */
+  .sheti-form-group {
+    margin-bottom: 18px;
+    text-align: left;
+  }
+  
+  /* Labels */
+  .sheti-form-label {
+    font-weight: 600;
+    color: #34495e;
+    display: block;
+    margin-bottom: 6px;
+    margin-top: 21px;
+    margin-left: 9px;
+  }
+  
+  /* Input Fields */
+  .sheti-form-control,
+  .sheti-form-select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #d1d1d1;
+    font-size: 16px;
+    transition: all 0.3s ease-in-out;
+    background-color: #f7f7f7;
+  }
+  
+  .sheti-form-control:focus,
+  .sheti-form-select:focus {
+    border-color: #2980b9;
+    box-shadow: 0px 0px 8px rgba(41, 128, 185, 0.3);
+    background-color: #ffffff;
+  }
+  
+  /* Submit Button */
+  .sheti-submit-btn {
+    background: #198754;
+    color: white;
+    font-weight: bold;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    width: 100%;
+    transition: background 0.3s ease-in-out, transform 0.2s;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  .sheti-submit-btn:hover {
+    background: linear-gradient(135deg, #1a5276, #154360);
+    transform: scale(1.05);
+  }
+  
+  .sheti-submit-btn:disabled {
+    background: #b2bec3;
+    cursor: not-allowed;
+  }
+  
+  /* Error Message */
+  .sheti-error-message {
+    color: #e74c3c;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  
+  /* spinner */
+  .spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8); /* Light background for better visibility */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* Ensure it's on top */
+  }
+  
+  /* Make sure the Spinner is clearly visible */
+  .spinner-overlay .spinner {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .backbtn{
+    background-color: rgb(190, 100, 44) !important;
+  }
+
+  /* add city */
+  .add-city-container {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    margin-top: -18px; /* Adjust spacing from city grid */
+    margin-left: 155px;
+  }
+  
+  .add-city-btn {
+    font-size: 14px;
+    padding: 5px 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    margin-left: 168px;
+  }
+  
+  .add-city-btn:hover {
+    background: #0056b3;
+  }
+  
