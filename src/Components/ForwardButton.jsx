@@ -7,6 +7,7 @@ function ForwardButton() {
   const navigate = useNavigate();
   const goForward = () => {
     navigate(+1);
+    console.log("hello")
   };
 
   return (
