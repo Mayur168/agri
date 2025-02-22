@@ -163,7 +163,7 @@
 
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import bgimage from "../../assets/img/demo.jpg"; // Import image
+import bgimage from "../../assets/img/image.png"; // Import image
 import { useLanguage } from "../../contexts/LanguageContext"; // Import language context
 
 const Home = () => {

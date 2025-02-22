@@ -409,15 +409,16 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./cities.css";
 import BackButton from "../../Components/BackButton";
 import { useLanguage } from "../../contexts/LanguageContext"; // Importing language context
+
 
 const Cities = () => {
   const navigate = useNavigate();
   const { language } = useLanguage(); // Get current language from context
 
-  // Retrieve stored cities from localStorage or use default list
   const getStoredCities = () => {
     const storedCities = localStorage.getItem("cities");
     return storedCities
@@ -437,47 +438,79 @@ const Cities = () => {
 
   const [cities, setCities] = useState(getStoredCities);
   const [searchQuery, setSearchQuery] = useState("");
-  const [newCity, setNewCity] = useState(""); // New state for city input
+  const [newCity, setNewCity] = useState(""); // New city input
   const [showModal, setShowModal] = useState(false); // Modal visibility
+  const [loading, setLoading] = useState(false); // Loading state for API call
+  const [error, setError] = useState(null); // Error state
 
-  // Save cities to localStorage whenever the list changes
   useEffect(() => {
     localStorage.setItem("cities", JSON.stringify(cities));
   }, [cities]);
 
-  // Navigate to Sheti page with the selected city
   const handleCityClick = (city) => {
     navigate(`/sheti/${city}`);
   };
 
-  // Function to add a new city from modal
-  const handleAddCity = () => {
+  const handleAddCity = async () => {
     if (newCity.trim() === "") {
       alert("Please enter a valid city name.");
       return;
     }
 
-    // Check if city already exists (case insensitive)
     const cityExists = cities.some(
       (city) => city.toLowerCase() === newCity.toLowerCase()
     );
 
     if (cityExists) {
       alert("City already exists!");
-    } else {
-      setCities([...cities, newCity.trim()]);
+      return;
     }
 
-    // Reset input field and close modal
-    setNewCity("");
-    setShowModal(false);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem("token"); // Retrieve token for authentication
+
+      if (!token) {
+        alert("Unauthorized: No token found.");
+        setLoading(false);
+        return;
+      }
+
+      const payload = {
+        action: "postCity",
+        name: newCity.trim(),
+      };
+
+      const response = await axios.post(
+        "https://agri-management-main-ywm4.vercel.app/master_data/",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Update local state with new city
+      setCities([...cities, response.data.name]); // Assuming backend returns the new city name
+
+      setShowModal(false);
+      setNewCity("");
+    } catch (err) {
+      setError(err.response?.data?.message || "An error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Translation map for language
   const translations = {
     en: {
       title: "🌍 Popular Cities",
       addCity: " Add City",
+      AllFarms: "All Farms",
       searchPlaceholder: "Search",
       modalTitle: "Add New City",
       cityNamePlaceholder: "Enter city name",
@@ -487,6 +520,7 @@ const Cities = () => {
     mr: {
       title: "🌍 लोकप्रिय शहरे",
       addCity: " शहर जोडा",
+      AllFarms: "सर्व शेत",
       searchPlaceholder: "शोधा",
       modalTitle: "नवीन शहर जोडा",
       cityNamePlaceholder: "शहराचे नाव प्रविष्ट करा",
@@ -495,7 +529,6 @@ const Cities = () => {
     },
   };
 
-  // Filter cities based on search input
   const filteredCities = cities.filter((city) =>
     city.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -508,33 +541,39 @@ const Cities = () => {
       </div>
 
       {/* Search Bar and Add City Button */}
-      <div className="container my-2">
-        <div className="d-flex align-items-center">
-          <div className="input-group rounded flex-grow-1 w-50">
+      <div className="container my-1">
+        <div className="d-flex align-items-center gap-1">
+          {/* Search Bar */}
+          <div className="input-group flex-grow-1" style={{ maxWidth: "90px" }}>
             <input
               type="search"
               className="form-control rounded"
               placeholder={translations[language].searchPlaceholder}
               aria-label="Search"
-              aria-describedby="search-addon"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)} // Update search query
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <span className="input-group-text border-0" id="search-addon">
-              <i className="fa fa-search"></i>
-            </span>
           </div>
+
+          {/* Add City Button */}
           <button
-            className="btn btn-success btn-sm fw-bold ms-3 p-2 rounded"
-            onClick={() => setShowModal(true)} // Open modal
+            className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
+            onClick={() => setShowModal(true)}
           >
-            <i className="bi bi-plus-lg text-white"></i>{" "}
             {translations[language].addCity}
+          </button>
+
+          {/* Get Farm Button */}
+          <button
+            className="btn btn-success btn-sm fw-bold p-2"
+            onClick={() => navigate("/allfarms")}
+          >
+            {translations[language].AllFarms}
           </button>
         </div>
       </div>
 
-      {/* Cities Grid - Only shows filtered results */}
+      {/* Cities Grid */}
       <div className="cities-grid">
         {filteredCities.length > 0 ? (
           filteredCities.map((city, index) => (
@@ -563,6 +602,7 @@ const Cities = () => {
               value={newCity}
               onChange={(e) => setNewCity(e.target.value)}
             />
+            {error && <p className="text-danger">{error}</p>}
             <div className="modal-actions">
               <button
                 className="btn btn-danger"
@@ -570,8 +610,12 @@ const Cities = () => {
               >
                 {translations[language].cancel}
               </button>
-              <button className="btn btn-success" onClick={handleAddCity}>
-                {translations[language].submit}
+              <button
+                className="btn btn-success"
+                onClick={handleAddCity}
+                disabled={loading}
+              >
+                {loading ? "Submitting..." : translations[language].submit}
               </button>
             </div>
           </div>

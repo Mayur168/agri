@@ -269,7 +269,7 @@ function Sheti() {
       }
 
       const response = await fetch(
-        "https://agri-management-main-ywm4.vercel.app/users/?action=getFarm",
+        "https://agri-management-main-ywm4.vercel.app/?action=getFarm",
         {
           method: "GET",
           headers: {
