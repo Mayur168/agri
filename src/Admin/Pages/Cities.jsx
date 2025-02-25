@@ -1021,12 +1021,12 @@ const Cities = () => {
     <div className="cities-container mb-5">
       <div className="mb-3 d-flex gap-2 align-items-center py-3 header-container">
         <BackButton className="backbtn fs-4" />
-        <h2 className="fs-2 text-white">{translations[language].title}</h2>
+        <h2 className="fs-2 text-white ms-3">{translations[language].title}</h2>
       </div>
 
       {/* Search Bar and Add City Button */}
       <div className="container my-1">
-        <div className="d-flex align-items-center gap-1">
+        <div className="d-flex align-items-center gap-1 ms-5">
           {/* Search Bar */}
           <div className="input-group flex-grow-1" style={{ maxWidth: "90px" }}>
             <input

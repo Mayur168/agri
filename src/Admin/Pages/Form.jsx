@@ -314,13 +314,13 @@ const Form = () => {
   return (
     <div className="sheti-form-container mb-5">
       <ToastContainer />
-      <h2 className="sheti-form-title">
+      <h2 className="sheti-form-title ms-4">
         {language === "en" ? "Farm Details Form" : "शेती तपशील फॉर्म"}
       </h2>
       {error && <div className="sheti-error-message">{error}</div>}
       <form onSubmit={handleSubmit}>
         {/* Farm Name */}
-        <div className="sheti-form-group">
+        <div className="sheti-form-group my-3">
           <label className="sheti-form-label">{formLabels[language].farm_name}</label>
           <input
             type="text"
