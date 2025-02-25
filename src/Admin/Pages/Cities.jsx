@@ -414,7 +414,6 @@
 // import BackButton from "../../Components/BackButton";
 // import { useLanguage } from "../../contexts/LanguageContext"; // Importing language context
 
-
 // const Cities = () => {
 //   const navigate = useNavigate();
 //   const { language } = useLanguage(); // Get current language from context
@@ -627,7 +626,6 @@
 
 // export default Cities;
 
-
 // import React, { useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 // import axios from "axios";
@@ -662,10 +660,10 @@
 //         const response = await axios.get(
 //           "https://agri-management-main.vercel.app/master_data/?action=getCity"
 //         );
-  
+
 //         if (response.data && Array.isArray(response.data.data)) {
 //           setCities(response.data.data);
-  
+
 //           // **Update local storage**
 //           localStorage.setItem("cities", JSON.stringify(response.data.data));
 //         }
@@ -674,10 +672,9 @@
 //         setCities([]);
 //       }
 //     };
-  
+
 //     fetchCities();
 //   }, []);
-  
 
 //   const handleCityClick = (city) => {
 //     navigate(`/sheti/${city}`);
@@ -688,33 +685,33 @@
 //       alert("Please enter a valid city name.");
 //       return;
 //     }
-  
+
 //     const cityExists = cities.some(
 //       (city) => typeof city === "string" && city.toLowerCase() === newCity.toLowerCase()
 //     );
-  
+
 //     if (cityExists) {
 //       alert("City already exists!");
 //       return;
 //     }
-  
+
 //     setLoading(true);
 //     setError(null);
-  
+
 //     try {
 //       const token = localStorage.getItem("token");
-  
+
 //       if (!token) {
 //         alert("Unauthorized: No token found.");
 //         setLoading(false);
 //         return;
 //       }
-  
+
 //       const payload = {
 //         action: "postCity",
 //         name: newCity.trim(),
 //       };
-  
+
 //       const response = await axios.post(
 //         "https://agri-management-main.vercel.app/master_data/",
 //         payload,
@@ -725,17 +722,17 @@
 //           },
 //         }
 //       );
-  
+
 //       // Ensure response structure is correct
 //       if (!response.data || !response.data.data || !response.data.data.name) {
 //         throw new Error("Invalid response from server.");
 //       }
-  
+
 //       const addedCity = response.data.data.name; // Extracting correct city name
-  
+
 //       // Update local state with the new city
 //       setCities([...cities, addedCity]);
-  
+
 //       setShowModal(false);
 //       setNewCity("");
 //     } catch (err) {
@@ -745,7 +742,6 @@
 //       setLoading(false);
 //     }
 //   };
-  
 
 //   const translations = {
 //     en: {
@@ -878,7 +874,7 @@ import axios from "axios";
 import "./cities.css";
 import BackButton from "../../Components/BackButton";
 import { useLanguage } from "../../contexts/LanguageContext";
-import { toast,ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Cities = () => {
@@ -1018,17 +1014,24 @@ const Cities = () => {
     : [];
 
   return (
+    // <div className="cities-container mb-5">
+    //   <div className="mb-3 d-flex gap-2 align-items-center py-3 header-container">
+    //     <BackButton className="backbtn fs-4" />
+    //     <h2 className="fs-2 text-white ms-3">{translations[language].title}</h2>
+    //   </div>
     <div className="cities-container mb-5">
-      <div className="mb-3 d-flex gap-2 align-items-center py-3 header-container">
+      <div className="mb-3 d-flex align-items-center py-3 header-container">
         <BackButton className="backbtn fs-4" />
-        <h2 className="fs-2 text-white ms-3">{translations[language].title}</h2>
+        <h2 className="fs-2 text-white flex-grow-1 text-center m-0">
+          {translations[language].title}
+        </h2>
       </div>
 
       {/* Search Bar and Add City Button */}
-      <div className="container my-1">
-        <div className="d-flex align-items-center gap-1 ms-5">
-          {/* Search Bar */}
-          <div className="input-group flex-grow-1" style={{ maxWidth: "90px" }}>
+      {/* <div className="container ">
+        <div className="d-flex align-items-center gap-1 "> */}
+      {/* Search Bar */}
+      {/* <div className="input-group flex-grow-1" style={{ maxWidth: "90px" }}>
             <input
               type="search"
               className="form-control rounded"
@@ -1037,25 +1040,60 @@ const Cities = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </div>
+          </div> */}
 
-          {/* Add City Button */}
-          <button
+      {/* Add City Button */}
+      {/* <button
             className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
             onClick={() => setShowModal(true)}
           >
             {translations[language].addCity}
-          </button>
+          </button> */}
 
-          {/* Get Farm Button */}
-          <button
+      {/* Get Farm Button */}
+      {/* <button
             className="btn btn-success btn-sm fw-bold p-2"
             onClick={() => navigate("/allfarms")}
           >
             {translations[language].AllFarms}
           </button>
         </div>
-      </div>
+      </div> */}
+<div className="container">
+  <div className="d-flex flex-nowrap align-items-center justify-content-center gap-1 flex-md-wrap">
+    {/* Search Bar */}
+    <div className="input-group" style={{ flex: "1", minWidth: "120px", maxWidth: "200px" }}>
+      <input
+        type="search"
+        className="form-control rounded"
+        placeholder={translations[language].searchPlaceholder}
+        aria-label="Search"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+    </div>
+
+    {/* Add City Button */}
+    <button
+      className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
+      style={{ whiteSpace: "nowrap" }}
+      onClick={() => setShowModal(true)}
+    >
+      {translations[language].addCity}
+    </button>
+
+    {/* Get Farm Button */}
+    <button
+      className="btn btn-success btn-sm fw-bold p-2"
+      style={{ whiteSpace: "nowrap" }}
+      onClick={() => navigate("/allfarms")}
+    >
+      {translations[language].AllFarms}
+    </button>
+  </div>
+</div>
+
+
 
       {/* Cities Grid */}
       <div className="cities-grid">
@@ -1105,7 +1143,7 @@ const Cities = () => {
           </div>
         </div>
       )}
-      <ToastContainer/>
+      <ToastContainer />
     </div>
   );
 };

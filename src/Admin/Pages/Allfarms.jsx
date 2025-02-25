@@ -275,7 +275,7 @@ import React, { useState, useEffect } from "react";
 import BackButton from "../../Components/BackButton";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast,ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
+import "react-toastify/dist/ReactToastify.css";
 
 function Allfarms() {
   const [farms, setFarms] = useState([]);
@@ -478,7 +478,7 @@ function Allfarms() {
             className="modal-dialog modal-dialog-centered modal-lg"
             role="document"
           >
-            <div className="modal-content">
+            <div className="modal-content mx-auto">
               <div className="modal-header">
                 <h4 className="modal-title">Edit Farm</h4>
                 <button
