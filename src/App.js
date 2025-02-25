@@ -126,7 +126,7 @@ function App() {
 
 
           {/* Redirect unknown routes */}
-          <Route path="*" element={<Navigate to={isAuthenticated() ? "/" : "/login"} />} />
+          <Route path="/*" element={<Navigate to={isAuthenticated() ? "/" : "/login"} />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider> 

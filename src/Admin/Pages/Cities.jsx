@@ -976,6 +976,9 @@ const Cities = () => {
 
       setShowModal(false);
       setNewCity("");
+      toast.success(" City added successfully!", {
+              position: "top-center",
+            });
     } catch (err) {
       console.error("API Error:", err);
       toast.error(err.response?.data?.message || "An error occurred");
@@ -1059,41 +1062,42 @@ const Cities = () => {
           </button>
         </div>
       </div> */}
-<div className="container">
-  <div className="d-flex flex-nowrap align-items-center justify-content-center gap-1 flex-md-wrap">
-    {/* Search Bar */}
-    <div className="input-group" style={{ flex: "1", minWidth: "120px", maxWidth: "200px" }}>
-      <input
-        type="search"
-        className="form-control rounded"
-        placeholder={translations[language].searchPlaceholder}
-        aria-label="Search"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
-    </div>
+      <div className="container">
+        <div className="d-flex flex-nowrap align-items-center justify-content-center gap-1 flex-md-wrap">
+          {/* Search Bar */}
+          <div
+            className="input-group"
+            style={{ flex: "1", minWidth: "120px", maxWidth: "200px" }}
+          >
+            <input
+              type="search"
+              className="form-control rounded"
+              placeholder={translations[language].searchPlaceholder}
+              aria-label="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
-    {/* Add City Button */}
-    <button
-      className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
-      style={{ whiteSpace: "nowrap" }}
-      onClick={() => setShowModal(true)}
-    >
-      {translations[language].addCity}
-    </button>
+          {/* Add City Button */}
+          <button
+            className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
+            style={{ whiteSpace: "nowrap" }}
+            onClick={() => setShowModal(true)}
+          >
+            {translations[language].addCity}
+          </button>
 
-    {/* Get Farm Button */}
-    <button
-      className="btn btn-success btn-sm fw-bold p-2"
-      style={{ whiteSpace: "nowrap" }}
-      onClick={() => navigate("/allfarms")}
-    >
-      {translations[language].AllFarms}
-    </button>
-  </div>
-</div>
-
-
+          {/* Get Farm Button */}
+          <button
+            className="btn btn-success btn-sm fw-bold p-2"
+            style={{ whiteSpace: "nowrap" }}
+            onClick={() => navigate("/allfarms")}
+          >
+            {translations[language].AllFarms}
+          </button>
+        </div>
+      </div>
 
       {/* Cities Grid */}
       <div className="cities-grid">
