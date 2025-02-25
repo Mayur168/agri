@@ -407,13 +407,479 @@
 
 // export default Cities;
 
+// import React, { useState, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
+// import axios from "axios";
+// import "./cities.css";
+// import BackButton from "../../Components/BackButton";
+// import { useLanguage } from "../../contexts/LanguageContext"; // Importing language context
+
+
+// const Cities = () => {
+//   const navigate = useNavigate();
+//   const { language } = useLanguage(); // Get current language from context
+
+//   const getStoredCities = () => {
+//     const storedCities = localStorage.getItem("cities");
+//     return storedCities
+//       ? JSON.parse(storedCities)
+//       : [
+//           "Nashik",
+//           "Mumbai",
+//           "Jalgaon",
+//           "Pune",
+//           "Nagpur",
+//           "Chatrapati Sambhaji Nagar",
+//           "Thane",
+//           "Solapur",
+//           "Amravati",
+//         ];
+//   };
+
+//   const [cities, setCities] = useState(getStoredCities);
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [newCity, setNewCity] = useState(""); // New city input
+//   const [showModal, setShowModal] = useState(false); // Modal visibility
+//   const [loading, setLoading] = useState(false); // Loading state for API call
+//   const [error, setError] = useState(null); // Error state
+
+//   useEffect(() => {
+//     localStorage.setItem("cities", JSON.stringify(cities));
+//   }, [cities]);
+
+//   const handleCityClick = (city) => {
+//     navigate(`/sheti/${city}`);
+//   };
+
+//   const handleAddCity = async () => {
+//     if (newCity.trim() === "") {
+//       alert("Please enter a valid city name.");
+//       return;
+//     }
+
+//     const cityExists = cities.some(
+//       (city) => city.toLowerCase() === newCity.toLowerCase()
+//     );
+
+//     if (cityExists) {
+//       alert("City already exists!");
+//       return;
+//     }
+
+//     setLoading(true);
+//     setError(null);
+
+//     try {
+//       const token = localStorage.getItem("token"); // Retrieve token for authentication
+
+//       if (!token) {
+//         alert("Unauthorized: No token found.");
+//         setLoading(false);
+//         return;
+//       }
+
+//       const payload = {
+//         action: "postCity",
+//         name: newCity.trim(),
+//       };
+
+//       const response = await axios.post(
+//         "https://agri-management-main-ywm4.vercel.app/master_data/",
+//         payload,
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       );
+
+//       // Update local state with new city
+//       setCities([...cities, response.data.name]); // Assuming backend returns the new city name
+
+//       setShowModal(false);
+//       setNewCity("");
+//     } catch (err) {
+//       setError(err.response?.data?.message || "An error occurred");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const translations = {
+//     en: {
+//       title: "🌍 Popular Cities",
+//       addCity: " Add City",
+//       AllFarms: "All Farms",
+//       searchPlaceholder: "Search",
+//       modalTitle: "Add New City",
+//       cityNamePlaceholder: "Enter city name",
+//       submit: "Submit",
+//       cancel: "Cancel",
+//     },
+//     mr: {
+//       title: "🌍 लोकप्रिय शहरे",
+//       addCity: " शहर जोडा",
+//       AllFarms: "सर्व शेत",
+//       searchPlaceholder: "शोधा",
+//       modalTitle: "नवीन शहर जोडा",
+//       cityNamePlaceholder: "शहराचे नाव प्रविष्ट करा",
+//       submit: "सबमिट करा",
+//       cancel: "रद्द करा",
+//     },
+//   };
+
+//   const filteredCities = cities.filter((city) =>
+//     city.toLowerCase().includes(searchQuery.toLowerCase())
+//   );
+
+//   return (
+//     <div className="cities-container mb-5">
+//       <div className="mb-3 d-flex gap-2 align-items-center py-3 header-container">
+//         <BackButton className="backbtn fs-4" />
+//         <h2 className="fs-2 text-white">{translations[language].title}</h2>
+//       </div>
+
+//       {/* Search Bar and Add City Button */}
+//       <div className="container my-1">
+//         <div className="d-flex align-items-center gap-1">
+//           {/* Search Bar */}
+//           <div className="input-group flex-grow-1" style={{ maxWidth: "90px" }}>
+//             <input
+//               type="search"
+//               className="form-control rounded"
+//               placeholder={translations[language].searchPlaceholder}
+//               aria-label="Search"
+//               value={searchQuery}
+//               onChange={(e) => setSearchQuery(e.target.value)}
+//             />
+//           </div>
+
+//           {/* Add City Button */}
+//           <button
+//             className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
+//             onClick={() => setShowModal(true)}
+//           >
+//             {translations[language].addCity}
+//           </button>
+
+//           {/* Get Farm Button */}
+//           <button
+//             className="btn btn-success btn-sm fw-bold p-2"
+//             onClick={() => navigate("/allfarms")}
+//           >
+//             {translations[language].AllFarms}
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* Cities Grid */}
+//       <div className="cities-grid">
+//         {filteredCities.length > 0 ? (
+//           filteredCities.map((city, index) => (
+//             <div
+//               key={index}
+//               className="city-card"
+//               onClick={() => handleCityClick(city)}
+//             >
+//               {city}
+//             </div>
+//           ))
+//         ) : (
+//           <p className="text-center text-muted">No cities found</p>
+//         )}
+//       </div>
+
+//       {/* Add City Modal */}
+//       {showModal && (
+//         <div className="modal-overlay">
+//           <div className="modal-content">
+//             <h4>{translations[language].modalTitle}</h4>
+//             <input
+//               type="text"
+//               className="form-control"
+//               placeholder={translations[language].cityNamePlaceholder}
+//               value={newCity}
+//               onChange={(e) => setNewCity(e.target.value)}
+//             />
+//             {error && <p className="text-danger">{error}</p>}
+//             <div className="modal-actions">
+//               <button
+//                 className="btn btn-danger"
+//                 onClick={() => setShowModal(false)}
+//               >
+//                 {translations[language].cancel}
+//               </button>
+//               <button
+//                 className="btn btn-success"
+//                 onClick={handleAddCity}
+//                 disabled={loading}
+//               >
+//                 {loading ? "Submitting..." : translations[language].submit}
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default Cities;
+
+
+// import React, { useState, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
+// import axios from "axios";
+// import "./cities.css";
+// import BackButton from "../../Components/BackButton";
+// import { useLanguage } from "../../contexts/LanguageContext"; // Importing language context
+
+// const Cities = () => {
+//   const navigate = useNavigate();
+//   const { language } = useLanguage(); // Get current language from context
+
+//   const getStoredCities = () => {
+//     const storedCities = localStorage.getItem("cities");
+//     try {
+//       const parsedCities = JSON.parse(storedCities);
+//       return Array.isArray(parsedCities) ? parsedCities : [];
+//     } catch (error) {
+//       return [];
+//     }
+//   };
+
+//   const [cities, setCities] = useState(getStoredCities);
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [newCity, setNewCity] = useState(""); // New city input
+//   const [showModal, setShowModal] = useState(false); // Modal visibility
+//   const [loading, setLoading] = useState(false); // Loading state for API call
+//   const [error, setError] = useState(null); // Error state
+
+//   useEffect(() => {
+//     const fetchCities = async () => {
+//       try {
+//         const response = await axios.get(
+//           "https://agri-management-main.vercel.app/master_data/?action=getCity"
+//         );
+  
+//         if (response.data && Array.isArray(response.data.data)) {
+//           setCities(response.data.data);
+  
+//           // **Update local storage**
+//           localStorage.setItem("cities", JSON.stringify(response.data.data));
+//         }
+//       } catch (err) {
+//         console.error("Error fetching cities:", err);
+//         setCities([]);
+//       }
+//     };
+  
+//     fetchCities();
+//   }, []);
+  
+
+//   const handleCityClick = (city) => {
+//     navigate(`/sheti/${city}`);
+//   };
+
+//   const handleAddCity = async () => {
+//     if (newCity.trim() === "") {
+//       alert("Please enter a valid city name.");
+//       return;
+//     }
+  
+//     const cityExists = cities.some(
+//       (city) => typeof city === "string" && city.toLowerCase() === newCity.toLowerCase()
+//     );
+  
+//     if (cityExists) {
+//       alert("City already exists!");
+//       return;
+//     }
+  
+//     setLoading(true);
+//     setError(null);
+  
+//     try {
+//       const token = localStorage.getItem("token");
+  
+//       if (!token) {
+//         alert("Unauthorized: No token found.");
+//         setLoading(false);
+//         return;
+//       }
+  
+//       const payload = {
+//         action: "postCity",
+//         name: newCity.trim(),
+//       };
+  
+//       const response = await axios.post(
+//         "https://agri-management-main.vercel.app/master_data/",
+//         payload,
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             "Content-Type": "application/json",
+//           },
+//         }
+//       );
+  
+//       // Ensure response structure is correct
+//       if (!response.data || !response.data.data || !response.data.data.name) {
+//         throw new Error("Invalid response from server.");
+//       }
+  
+//       const addedCity = response.data.data.name; // Extracting correct city name
+  
+//       // Update local state with the new city
+//       setCities([...cities, addedCity]);
+  
+//       setShowModal(false);
+//       setNewCity("");
+//     } catch (err) {
+//       console.error("API Error:", err);
+//       setError(err.response?.data?.message || "An error occurred");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+  
+
+//   const translations = {
+//     en: {
+//       title: "🌍 Popular Cities",
+//       addCity: " Add City",
+//       AllFarms: "All Farms",
+//       searchPlaceholder: "Search",
+//       modalTitle: "Add New City",
+//       cityNamePlaceholder: "Enter city name",
+//       submit: "Submit",
+//       cancel: "Cancel",
+//     },
+//     mr: {
+//       title: "🌍 लोकप्रिय शहरे",
+//       addCity: " शहर जोडा",
+//       AllFarms: "सर्व शेत",
+//       searchPlaceholder: "शोधा",
+//       modalTitle: "नवीन शहर जोडा",
+//       cityNamePlaceholder: "शहराचे नाव प्रविष्ट करा",
+//       submit: "सबमिट करा",
+//       cancel: "रद्द करा",
+//     },
+//   };
+
+//   // Debugging - Log cities state
+//   console.log("Cities state:", cities);
+
+//   // Ensure cities is always an array and filter safely
+//   const filteredCities = Array.isArray(cities)
+//     ? cities.filter((city) => typeof city === "string" && city.toLowerCase().includes(searchQuery.toLowerCase()))
+//     : [];
+
+//   return (
+//     <div className="cities-container mb-5">
+//       <div className="mb-3 d-flex gap-2 align-items-center py-3 header-container">
+//         <BackButton className="backbtn fs-4" />
+//         <h2 className="fs-2 text-white">{translations[language].title}</h2>
+//       </div>
+
+//       {/* Search Bar and Add City Button */}
+//       <div className="container my-1">
+//         <div className="d-flex align-items-center gap-1">
+//           {/* Search Bar */}
+//           <div className="input-group flex-grow-1" style={{ maxWidth: "90px" }}>
+//             <input
+//               type="search"
+//               className="form-control rounded"
+//               placeholder={translations[language].searchPlaceholder}
+//               aria-label="Search"
+//               value={searchQuery}
+//               onChange={(e) => setSearchQuery(e.target.value)}
+//             />
+//           </div>
+
+//           {/* Add City Button */}
+//           <button
+//             className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
+//             onClick={() => setShowModal(true)}
+//           >
+//             {translations[language].addCity}
+//           </button>
+
+//           {/* Get Farm Button */}
+//           <button
+//             className="btn btn-success btn-sm fw-bold p-2"
+//             onClick={() => navigate("/allfarms")}
+//           >
+//             {translations[language].AllFarms}
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* Cities Grid */}
+//       <div className="cities-grid">
+//         {filteredCities.length > 0 ? (
+//           filteredCities.map((city, index) => (
+//             <div
+//               key={index}
+//               className="city-card"
+//               onClick={() => handleCityClick(city)}
+//             >
+//               {city}
+//             </div>
+//           ))
+//         ) : (
+//           <p className="text-center text-muted">No cities found</p>
+//         )}
+//       </div>
+
+//       {/* Add City Modal */}
+//       {showModal && (
+//         <div className="modal-overlay">
+//           <div className="modal-content">
+//             <h4>{translations[language].modalTitle}</h4>
+//             <input
+//               type="text"
+//               className="form-control"
+//               placeholder={translations[language].cityNamePlaceholder}
+//               value={newCity}
+//               onChange={(e) => setNewCity(e.target.value)}
+//             />
+//             {error && <p className="text-danger">{error}</p>}
+//             <div className="modal-actions">
+//               <button
+//                 className="btn btn-danger"
+//                 onClick={() => setShowModal(false)}
+//               >
+//                 {translations[language].cancel}
+//               </button>
+//               <button
+//                 className="btn btn-success"
+//                 onClick={handleAddCity}
+//                 disabled={loading}
+//               >
+//                 {loading ? "Submitting..." : translations[language].submit}
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default Cities;
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./cities.css";
 import BackButton from "../../Components/BackButton";
-import { useLanguage } from "../../contexts/LanguageContext"; // Importing language context
-
+import { useLanguage } from "../../contexts/LanguageContext";
+import { toast,ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Cities = () => {
   const navigate = useNavigate();
@@ -421,19 +887,12 @@ const Cities = () => {
 
   const getStoredCities = () => {
     const storedCities = localStorage.getItem("cities");
-    return storedCities
-      ? JSON.parse(storedCities)
-      : [
-          "Nashik",
-          "Mumbai",
-          "Jalgaon",
-          "Pune",
-          "Nagpur",
-          "Chatrapati Sambhaji Nagar",
-          "Thane",
-          "Solapur",
-          "Amravati",
-        ];
+    try {
+      const parsedCities = JSON.parse(storedCities);
+      return Array.isArray(parsedCities) ? parsedCities : [];
+    } catch (error) {
+      return [];
+    }
   };
 
   const [cities, setCities] = useState(getStoredCities);
@@ -444,25 +903,41 @@ const Cities = () => {
   const [error, setError] = useState(null); // Error state
 
   useEffect(() => {
-    localStorage.setItem("cities", JSON.stringify(cities));
-  }, [cities]);
+    const fetchCities = async () => {
+      try {
+        const response = await axios.get(
+          "https://agri-management-main.vercel.app/master_data/?action=getCity"
+        );
+
+        if (response.data && Array.isArray(response.data.data)) {
+          setCities(response.data.data);
+          localStorage.setItem("cities", JSON.stringify(response.data.data));
+        }
+      } catch (err) {
+        console.error("Error fetching cities:", err);
+        setCities([]);
+      }
+    };
+
+    fetchCities();
+  }, []);
 
   const handleCityClick = (city) => {
-    navigate(`/sheti/${city}`);
+    navigate(`/sheti/${city.name}`);
   };
 
   const handleAddCity = async () => {
     if (newCity.trim() === "") {
-      alert("Please enter a valid city name.");
+      toast.error("Please enter a valid city name.");
       return;
     }
 
     const cityExists = cities.some(
-      (city) => city.toLowerCase() === newCity.toLowerCase()
+      (city) => city.name.toLowerCase() === newCity.toLowerCase()
     );
 
     if (cityExists) {
-      alert("City already exists!");
+      toast.error("City already exists!");
       return;
     }
 
@@ -470,10 +945,10 @@ const Cities = () => {
     setError(null);
 
     try {
-      const token = localStorage.getItem("token"); // Retrieve token for authentication
+      const token = localStorage.getItem("token");
 
       if (!token) {
-        alert("Unauthorized: No token found.");
+        toast.error("Unauthorized: No token found.");
         setLoading(false);
         return;
       }
@@ -484,7 +959,7 @@ const Cities = () => {
       };
 
       const response = await axios.post(
-        "https://agri-management-main-ywm4.vercel.app/master_data/",
+        "https://agri-management-main.vercel.app/master_data/",
         payload,
         {
           headers: {
@@ -494,13 +969,20 @@ const Cities = () => {
         }
       );
 
-      // Update local state with new city
-      setCities([...cities, response.data.name]); // Assuming backend returns the new city name
+      if (!response.data || !response.data.data || !response.data.data.name) {
+        throw new Error("Invalid response from server.");
+      }
+
+      const addedCity = response.data.data;
+
+      setCities([...cities, addedCity]);
+      localStorage.setItem("cities", JSON.stringify([...cities, addedCity]));
 
       setShowModal(false);
       setNewCity("");
     } catch (err) {
-      setError(err.response?.data?.message || "An error occurred");
+      console.error("API Error:", err);
+      toast.error(err.response?.data?.message || "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -529,9 +1011,11 @@ const Cities = () => {
     },
   };
 
-  const filteredCities = cities.filter((city) =>
-    city.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredCities = Array.isArray(cities)
+    ? cities.filter((city) =>
+        city.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   return (
     <div className="cities-container mb-5">
@@ -576,13 +1060,13 @@ const Cities = () => {
       {/* Cities Grid */}
       <div className="cities-grid">
         {filteredCities.length > 0 ? (
-          filteredCities.map((city, index) => (
+          filteredCities.map((city) => (
             <div
-              key={index}
+              key={city.id}
               className="city-card"
               onClick={() => handleCityClick(city)}
             >
-              {city}
+              {city.name}
             </div>
           ))
         ) : (
@@ -621,6 +1105,7 @@ const Cities = () => {
           </div>
         </div>
       )}
+      <ToastContainer/>
     </div>
   );
 };

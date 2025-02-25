@@ -24,10 +24,10 @@
 //     e.preventDefault();
 //     setLoading(true);
 //     setError(null);
-  
+
 //     try {
 //       const token = localStorage.getItem("token"); // Get token from local storage
-  
+
 //       const response = await axios.post(
 //         "https://your-backend-url.com/api/farms",
 //         {
@@ -40,7 +40,7 @@
 //           },
 //         }
 //       );
-  
+
 //       console.log("Form Submitted:", response.data);
 //       alert("Farm details submitted successfully!");
 //     } catch (err) {
@@ -50,7 +50,6 @@
 //       setLoading(false);
 //     }
 //   };
-  
 
 //   // const handleSubmit = async (e) => {
 //   //   e.preventDefault();
@@ -68,14 +67,13 @@
 //   //     setLoading(false);
 //   //   }
 //   // };
-  
 
 //   return (
 //     <div className="sheti-form-container mb-5">
 //       <h2 className="sheti-form-title">Farm Details Form</h2>
 //       {error && <div className="sheti-error-message">{error}</div>}
 //       <form onSubmit={handleSubmit}>
-        
+
 //         {/* Farming Type */}
 //         <div className="sheti-form-group">
 //           <label className="sheti-form-label mt-5">Farming Type</label>
@@ -134,22 +132,20 @@
 
 // export default Form;
 
+
 import React, { useState, useEffect } from "react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // Import styles
+import "react-toastify/dist/ReactToastify.css";
 
 const Form = () => {
   const [formData, setFormData] = useState({
+    farm_name: "",
+    address: "",
+    location_url: "",
     city: "",
-    farmingType: "",
-    profit: "",
-    loss: "",
-    farmPeak: "",
-    totalLabors: "",
-    rentPerDay: "",
-    peakDuration: "",
+    farm_size: "",
   });
 
   const [cities, setCities] = useState([]);
@@ -162,6 +158,10 @@ const Form = () => {
 
   useEffect(() => {
     fetchCities();
+    setFormData((prevState) => ({
+      ...prevState,
+      city: "",
+    }));
   }, []);
 
   const fetchCities = async () => {
@@ -169,9 +169,15 @@ const Form = () => {
       const response = await axios.get(
         "https://agri-management-main-ywm4.vercel.app/master_data/?action=getCity"
       );
-      setCities(response.data || []);
+
+      if (response.data && Array.isArray(response.data.data)) {
+        setCities(response.data.data);
+      } else {
+        setCities([]);
+      }
     } catch (err) {
       console.error("Error fetching cities:", err);
+      setCities([]);
     }
   };
 
@@ -180,34 +186,67 @@ const Form = () => {
   };
 
   const handleCitySelect = (selectedCity) => {
-    setFormData({ ...formData, city: selectedCity });
+    setFormData((prevState) => ({
+      ...prevState,
+      city: selectedCity,
+    }));
     setShowDropdown(false);
   };
 
   const handleAddCity = async () => {
-    if (!newCity) {
+    if (!newCity.trim()) {
       toast.warn("Please enter a city name!", { position: "top-center" });
       return;
     }
-
+  
     try {
-      await axios.post(
-        "https://agri-management-main-ywm4.vercel.app/master_data/",
+      const existingCity = cities.find(
+        (city) => city.name.toLowerCase() === newCity.toLowerCase()
+      );
+  
+      if (existingCity) {
+        toast.error("City already exists!", { position: "top-center" });
+        return;
+      }
+  
+      const response = await axios.post(
+        "https://agri-management-main.vercel.app/master_data/",
         {
-          action: "addCity",
-          city: newCity,
+          action: "postCity",
+          name: newCity,
         }
       );
-
-      toast.success("✅ City added successfully!", { position: "top-center" });
-      setNewCity("");
-      fetchCities();
+  
+      if (response.data && response.data.message === "City Created!" && response.data.data) {
+        const newAddedCity = response.data.data;
+  
+        toast.success(`✅ ${newAddedCity.name} added successfully!`, {
+          position: "top-center",
+        });
+  
+        const updatedCities = [...cities, newAddedCity];
+  
+        // **Update local storage**
+        localStorage.setItem("cities", JSON.stringify(updatedCities));
+  
+        setCities(updatedCities);
+  
+        setFormData((prevState) => ({
+          ...prevState,
+          city: newAddedCity.name,
+        }));
+  
+        setShowDropdown(false);
+        setNewCity("");
+      } else {
+        throw new Error("Unexpected API response");
+      }
     } catch (err) {
       console.error("Error adding city:", err);
-      toast.error(" Failed to add city. Please try again.");
+      toast.error("❌ Failed to add city. Please try again.");
     }
   };
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -217,8 +256,11 @@ const Form = () => {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "https://your-backend-url.com/api/farms",
-        { action: "postFarmRecord", ...formData },
+        "https://agri-management-main.vercel.app/users/farms/",
+        {
+          action: "postFarmRecord",
+          ...formData,
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -227,17 +269,13 @@ const Form = () => {
       });
 
       setFormData({
+        farm_name: "",
+        address: "",
+        location_url: "",
         city: "",
-        farmingType: "",
-        profit: "",
-        loss: "",
-        farmPeak: "",
-        totalLabors: "",
-        rentPerDay: "",
-        peakDuration: "",
+        farm_size: "",
       });
     } catch (err) {
-      setError("Failed to submit the form. Please try again.");
       toast.error("❌ Submission failed! Try again.", {
         position: "top-center",
       });
@@ -248,93 +286,79 @@ const Form = () => {
 
   const formLabels = {
     en: {
+      farm_name: "Farm Name",
+      address: "Address",
+      location_url: "Location URL",
       city: "City",
-      farmingType: "Farming Type",
-      profit: "Profit (₹)",
-      loss: "Loss (₹)",
-      farmPeak: "Farm Peak (Date)",
-      totalLabors: "Total Labors",
-      rentPerDay: "Rent Per Day (₹)",
-      peakDuration: "Duration of Farm Peak (Days)",
+      farm_size: "Farm Size",
       submit: "Submit",
       submitting: "Submitting...",
-      selectFarmingType: "Select Farming Type",
-      agriculture: "Agriculture",
-      other: "Other",
       selectCity: "Select City",
       addCity: "Add City",
+      enterNewCity: "Enter new city",
     },
     mr: {
+      farm_name: "शेताचे नाव",
+      address: "पत्ता",
+      location_url: "स्थान URL",
       city: "शहर",
-      farmingType: "शेती प्रकार",
-      profit: "नफा (₹)",
-      loss: "तोटा (₹)",
-      farmPeak: "शेत पीक (तारीख)",
-      totalLabors: "एकूण श्रमिक",
-      rentPerDay: "प्रति दिन भाडे (₹)",
-      peakDuration: "शेत पीक कालावधी (दिवस)",
+      farm_size: "शेताचा आकार",
       submit: "सबमिट करा",
       submitting: "सबमिट करत आहे...",
-      selectFarmingType: "शेती प्रकार निवडा",
-      agriculture: "कृषी",
-      other: "इतर",
       selectCity: "शहर निवडा",
       addCity: "शहर जोडा",
+      enterNewCity: "नवीन शहर प्रविष्ट करा",
     },
   };
 
   return (
     <div className="sheti-form-container mb-5">
-      <ToastContainer /> {/* Toast notifications container */}
+      <ToastContainer />
       <h2 className="sheti-form-title">
         {language === "en" ? "Farm Details Form" : "शेती तपशील फॉर्म"}
       </h2>
       {error && <div className="sheti-error-message">{error}</div>}
       <form onSubmit={handleSubmit}>
-
-
-        {/* City Dropdown */}
-        {/* <div className="sheti-form-group">
-          <label className="sheti-form-label">{formLabels[language].city}</label>
-          <div className="dropdown-container">
-            <input
-              type="text"
-              className="sheti-form-control"
-              name="city"
-              value={formData.city}
-              readOnly
-              placeholder={formLabels[language].selectCity}
-            />
-            <button type="button" onClick={() => setShowDropdown(!showDropdown)}>
-              ▼
-            </button>
-          </div>
-          {showDropdown && (
-            <ul className="dropdown-list">
-              {cities.map((city) => (
-                <li key={city.id} onClick={() => handleCitySelect(city.name)}>
-                  {city.name}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div> */}
-
-        {/* Add City */}
-        {/* <div className="sheti-form-group">
+        {/* Farm Name */}
+        <div className="sheti-form-group">
+          <label className="sheti-form-label">{formLabels[language].farm_name}</label>
           <input
             type="text"
             className="sheti-form-control"
-            placeholder="Enter new city"
-            value={newCity}
-            onChange={(e) => setNewCity(e.target.value)}
+            name="farm_name"
+            value={formData.farm_name}
+            onChange={handleChange}
+            required
           />
-          <button type="button" onClick={handleAddCity}>
-            {formLabels[language].addCity}
-          </button>
-        </div> */}
+        </div>
 
-        
+        {/* Address */}
+        <div className="sheti-form-group">
+          <label className="sheti-form-label">{formLabels[language].address}</label>
+          <input
+            type="text"
+            className="sheti-form-control"
+            name="address"
+            value={formData.address}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* Location URL */}
+        <div className="sheti-form-group">
+          <label className="sheti-form-label">{formLabels[language].location_url}</label>
+          <input
+            type="text"
+            className="sheti-form-control"
+            name="location_url"
+            value={formData.location_url}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        {/* City Selection */}
         <div className="sheti-form-group">
           <label className="sheti-form-label">{formLabels[language].city}</label>
           <input
@@ -349,16 +373,20 @@ const Form = () => {
 
           {showDropdown && (
             <div className="dropdown-menu show w-100">
-              {cities.map((city) => (
-                <button
-                  key={city.id}
-                  className="dropdown-item"
-                  type="button"
-                  onClick={() => handleCitySelect(city.name)}
-                >
-                  {city.name}
-                </button>
-              ))}
+              {cities.length > 0 ? (
+                cities.map((city) => (
+                  <button
+                    key={city.id}
+                    className="dropdown-item"
+                    type="button"
+                    onClick={() => handleCitySelect(city.name)}
+                  >
+                    {city.name}
+                  </button>
+                ))
+              ) : (
+                <div className="dropdown-item text-muted">No cities available</div>
+              )}
 
               <div className="dropdown-divider"></div>
               <div className="px-3">
@@ -372,6 +400,7 @@ const Form = () => {
                 <button
                   className="btn btn-primary w-100"
                   onClick={handleAddCity}
+                  type="button"
                 >
                   {formLabels[language].addCity}
                 </button>
@@ -380,50 +409,14 @@ const Form = () => {
           )}
         </div>
 
-        {/* Farming Type */}
+        {/* Farm Size */}
         <div className="sheti-form-group">
-          <label className="sheti-form-label">
-            {formLabels[language].farmingType}
-          </label>
-          <select
-            className="sheti-form-select"
-            name="farmingType"
-            value={formData.farmingType}
-            onChange={handleChange}
-            required
-          >
-            <option value="">{formLabels[language].selectFarmingType}</option>
-            <option value="Aquaculture">
-              {formLabels[language].agriculture}
-            </option>
-            <option value="Other">{formLabels[language].other}</option>
-          </select>
-        </div>
-
-        {/* Profit & Loss */}
-        <div className="sheti-form-group">
-          <label className="sheti-form-label">
-            {formLabels[language].profit}
-          </label>
+          <label className="sheti-form-label">{formLabels[language].farm_size}</label>
           <input
             type="number"
             className="sheti-form-control"
-            name="profit"
-            value={formData.profit}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="sheti-form-group">
-          <label className="sheti-form-label">
-            {formLabels[language].loss}
-          </label>
-          <input
-            type="number"
-            className="sheti-form-control"
-            name="loss"
-            value={formData.loss}
+            name="farm_size"
+            value={formData.farm_size}
             onChange={handleChange}
             required
           />
@@ -431,9 +424,7 @@ const Form = () => {
 
         {/* Submit Button */}
         <button type="submit" className="sheti-submit-btn" disabled={loading}>
-          {loading
-            ? formLabels[language].submitting
-            : formLabels[language].submit}
+          {loading ? formLabels[language].submitting : formLabels[language].submit}
         </button>
       </form>
     </div>

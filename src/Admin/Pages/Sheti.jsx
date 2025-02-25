@@ -249,7 +249,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { FaEdit, FaTrash, FaSave } from "react-icons/fa";
 import BackButton from "../../Components/BackButton";
 import { Link } from "react-router-dom";
-import { useLanguage } from "../../contexts/LanguageContext"; // Import useLanguage
+import { useLanguage } from "../../contexts/LanguageContext"; 
+import { toast,ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 function Sheti() {
   const { city } = useParams();
@@ -264,12 +267,12 @@ function Sheti() {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        console.error("No token found! Please log in.");
+        toast.error("No token found! Please log in.");
         return;
       }
 
       const response = await fetch(
-        "https://agri-management-main-ywm4.vercel.app/?action=getFarm",
+        "https://agri-management-main.vercel.app/users/farms/?action=getFarm",
         {
           method: "GET",
           headers: {
@@ -289,11 +292,9 @@ function Sheti() {
         setFarms(data);
         filterFarms(data, city);
       } else {
-        console.warn("No farm data found.");
         setFilteredFarms([]);
       }
     } catch (error) {
-      console.error("Error fetching farms:", error);
       setFilteredFarms([]);
     }
   }, [city]);
