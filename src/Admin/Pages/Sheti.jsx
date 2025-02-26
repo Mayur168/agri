@@ -361,7 +361,7 @@ function Sheti() {
 
   return (
     <>
-      <div className="container-fluid py-2 bg-success">
+      <div className="container-fluid py-3 bg-success my-2">
         <nav className="container d-flex align-items-center">
           <BackButton className="backbtn" />
           <span className="fs-5 text-white fw-bold text-center ms-3">
@@ -388,7 +388,7 @@ function Sheti() {
         <Link
           to="/Form"
           state={{ selectedCity: city }} // Pass the selected city as state
-          className="btn btn-success btn-sm fw-bold m-3 p-1 rounded"
+          className="btn btn-success btn-sm fw-bold m-2 p-1 rounded"
         >
           <i className="bi bi-plus-lg text-white"></i>
           {language === "en" ? "Add Farm" : "शेती जोडा"}
