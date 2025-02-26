@@ -348,7 +348,7 @@
   
   /* Sheti1.css */
   /* Form Container */
-  .sheti-form-container {
+  /* .sheti-form-container {
     max-width: 500px;
     width: 90%;
     margin: auto;
@@ -362,36 +362,40 @@
   .sheti-form-container:hover {
     transform: translateY(-4px);
   }
-  
+   */
   /* Form Title */
-  .sheti-form-title {
+  /* .sheti-form-title {
     font-size: 26px;
     font-weight: bold;
     color: white; /* Text color */
-    background-color: #198754; /* Background color */
-    padding: 10px 20px; /* Space inside the box */
-    border-radius: 8px; /* Rounded corners */
-    display: inline-block; /* Ensures the box wraps around the text */
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-  }
+    /* background-color: #198754; /* Background color */
+    /* padding: 10px 20px;  */
+    /* Space inside the box */
+    /* border-radius: 8px;  */
+    /* Rounded corners */
+    /* display: inline-block;  */
+    /* Ensures the box wraps around the text */
+    /* text-transform: uppercase; */
+    /* letter-spacing: 1px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);  */
+    /* Soft shadow for depth */
+  /* }  */
   
   
   /* Form Group */
-  .sheti-form-group {
+  /* .sheti-form-group {
     margin-bottom: 15px;
   }
-  
+   */
   /* Labels */
   
-.sheti-form-label {
+/* .sheti-form-label {
   display: block;
   font-weight: bold;
   margin-bottom: 5px;
-}
+} */
   /* Input Fields */
-  .sheti-form-control,
+  /* .sheti-form-control,
   .sheti-form-select {
      
       width: 100%;
@@ -406,10 +410,10 @@
     border-color: #2980b9;
     box-shadow: 0px 0px 8px rgba(41, 128, 185, 0.3);
     background-color: #ffffff;
-  }
+  } */
   
   /* Submit Button */
-  .sheti-submit-btn {
+  /* .sheti-submit-btn {
     background: #198754;
     color: white;
     font-weight: bold;
@@ -430,10 +434,10 @@
   .sheti-submit-btn:disabled {
     background: #b2bec3;
     cursor: not-allowed;
-  }
+  } */
   
   /* Error Message */
-  .sheti-error-message {
+  /* .sheti-error-message {
     color: #e74c3c;
     font-weight: bold;
     text-align: center;
@@ -472,7 +476,7 @@
       padding: 8px;
     }
   }
-  
+   */
   
   
   /* spinner */

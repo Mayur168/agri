@@ -244,28 +244,26 @@
 // export default Sheti;
 
 import React, { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Added useNavigate
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FaEdit, FaTrash, FaSave } from "react-icons/fa";
 import BackButton from "../../Components/BackButton";
 import { Link } from "react-router-dom";
-import { useLanguage } from "../../contexts/LanguageContext"; 
-import { toast,ToastContainer } from "react-toastify";
+import { useLanguage } from "../../contexts/LanguageContext";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 
 function Sheti() {
   const { city } = useParams();
-  const { language } = useLanguage(); // Get current language from context
+  const { language } = useLanguage();
+  const navigate = useNavigate(); // For potential future navigation
   const [farms, setFarms] = useState([]);
   const [filteredFarms, setFilteredFarms] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch farms from API with authentication
   const fetchFarmsData = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
-
       if (!token) {
         toast.error("No token found! Please log in.");
         return;
@@ -287,7 +285,6 @@ function Sheti() {
       }
 
       const data = await response.json();
-
       if (Array.isArray(data) && data.length > 0) {
         setFarms(data);
         filterFarms(data, city);
@@ -299,7 +296,6 @@ function Sheti() {
     }
   }, [city]);
 
-  // Filter farms based on selected city
   const filterFarms = (farmData, selectedCity) => {
     if (!selectedCity) {
       setFilteredFarms(farmData);
@@ -310,16 +306,13 @@ function Sheti() {
       (farm) =>
         (farm.location || "").toLowerCase() === selectedCity.toLowerCase()
     );
-
     setFilteredFarms(filtered);
   };
 
-  // Fetch data when component mounts or city changes
   useEffect(() => {
     fetchFarmsData();
   }, [fetchFarmsData]);
 
-  // Handle search filtering
   const handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
@@ -329,11 +322,9 @@ function Sheti() {
         farm.name.toLowerCase().includes(query) &&
         farm.location.toLowerCase() === city.toLowerCase()
     );
-
     setFilteredFarms(filtered);
   };
 
-  // Enable edit mode
   const handleEdit = (id) => {
     setFilteredFarms((prevFarms) =>
       prevFarms.map((farm) =>
@@ -342,7 +333,6 @@ function Sheti() {
     );
   };
 
-  // Save edited data
   const handleSave = (id) => {
     const updatedFarms = filteredFarms.map((farm) => {
       if (farm.id === id) {
@@ -355,18 +345,15 @@ function Sheti() {
           farmPeak: document.getElementById(`farmPeak-${farm.id}`).value,
           totalLabors: document.getElementById(`totalLabors-${farm.id}`).value,
           rentPerDay: document.getElementById(`rentPerDay-${farm.id}`).value,
-          peakDuration: document.getElementById(`peakDuration-${farm.id}`)
-            .value,
+          peakDuration: document.getElementById(`peakDuration-${farm.id}`).value,
           editable: false,
         };
       }
       return farm;
     });
-
     setFilteredFarms(updatedFarms);
   };
 
-  // Delete a farm entry
   const handleDelete = (id) => {
     const updatedFarms = filteredFarms.filter((farm) => farm.id !== id);
     setFilteredFarms(updatedFarms);
@@ -374,27 +361,14 @@ function Sheti() {
 
   return (
     <>
-      <div className="container-fluid py-2 bg-success ">
-        {/* Navbar */}
-        <nav className="container d-flex align-items-center ">
-          {/* Left: Back Button */}
+      <div className="container-fluid py-2 bg-success">
+        <nav className="container d-flex align-items-center">
           <BackButton className="backbtn" />
-
-          {/* Center: Farming in {city} */}
-          <span className="fs-6 text-white fw-bold text-center ms-3">
+          <span className="fs-5 text-white fw-bold text-center ms-3">
             {language === "en" ? <>Farming in : {city}</> : <>शेती : {city}</>}
           </span>
-
-          {/* Right: Add Farm Button */}
-          {/* <Link
-            to="/Form"
-            className="btn btn-danger btn-sm fw-bold px-1 py-0 rounded"
-          >
-            {language === "en" ? "Add Farm" : "शेती जोडा"}
-          </Link> */}
         </nav>
 
-        {/* Search Bar */}
         <div className="input-group rounded my-2 container">
           <input
             type="search"
@@ -413,14 +387,14 @@ function Sheti() {
       <div className="d-flex justify-content-end">
         <Link
           to="/Form"
+          state={{ selectedCity: city }} // Pass the selected city as state
           className="btn btn-success btn-sm fw-bold m-3 p-1 rounded"
         >
-          <i className="bi bi-plus-lg text-white "></i>
+          <i className="bi bi-plus-lg text-white"></i>
           {language === "en" ? "Add Farm" : "शेती जोडा"}
         </Link>
       </div>
 
-      {/* Cards Display */}
       <div className="row g-4">
         {filteredFarms.length > 0 ? (
           filteredFarms.map((farm) => (
@@ -440,9 +414,7 @@ function Sheti() {
                     )}
                   </h5>
                   <p>
-                    <strong>
-                      {language === "en" ? "Location:" : "स्थान:"}
-                    </strong>{" "}
+                    <strong>{language === "en" ? "Location:" : "स्थान:"}</strong>{" "}
                     {farm.location}
                   </p>
                   <p>
@@ -454,31 +426,22 @@ function Sheti() {
                     {farm.loss}
                   </p>
                   <p>
-                    <strong>
-                      {language === "en" ? "Farm Peak:" : "शेती शिखर:"}
-                    </strong>{" "}
+                    <strong>{language === "en" ? "Farm Peak:" : "शेती शिखर:"}</strong>{" "}
                     {farm.farmPeak}
                   </p>
                   <p>
-                    <strong>
-                      {language === "en" ? "Total Labors:" : "एकूण मजुरी:"}
-                    </strong>{" "}
+                    <strong>{language === "en" ? "Total Labors:" : "एकूण मजुरी:"}</strong>{" "}
                     {farm.totalLabors}
                   </p>
                   <p>
-                    <strong>
-                      {language === "en" ? "Rent Per Day:" : "दैनंदिन भाडे:"}
-                    </strong>{" "}
+                    <strong>{language === "en" ? "Rent Per Day:" : "दैनंदिन भाडे:"}</strong>{" "}
                     ₹{farm.rentPerDay}
                   </p>
                   <p>
-                    <strong>
-                      {language === "en" ? "Peak Duration:" : "शिखर कालावधी:"}
-                    </strong>{" "}
+                    <strong>{language === "en" ? "Peak Duration:" : "शिखर कालावधी:"}</strong>{" "}
                     {farm.peakDuration} {language === "en" ? "Days" : "दिवस"}
                   </p>
 
-                  {/* Buttons */}
                   <div className="d-flex justify-content-center mt-3">
                     {farm.editable ? (
                       <button
@@ -514,6 +477,7 @@ function Sheti() {
           </p>
         )}
       </div>
+      <ToastContainer />
     </>
   );
 }
