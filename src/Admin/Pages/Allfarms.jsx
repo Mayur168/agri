@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react"; 
+import React, { useState, useEffect, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../Spinner/Spinner";
 import { useLanguage } from "../../contexts/LanguageContext";
 import BackButton from "../../Components/BackButton";
+import Swal from 'sweetalert2'; // Add this import at the top of your file
 
 function Allfarms() {
   const { language } = useLanguage();
@@ -107,7 +108,7 @@ function Allfarms() {
     } finally {
       setLoading(false);
     }
-  },[language]);
+  }, [language]);
 
   useEffect(() => {
     fetchFarms();
@@ -193,10 +194,22 @@ function Allfarms() {
     }
   };
 
-  const handleDeleteFarm = async (id) => {
+
+const handleDeleteFarm = async (id) => {
     const token = localStorage.getItem("token");
 
-    if (!window.confirm(labels[language].deleteConfirm)) return;
+    const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: labels[language].deleteConfirm,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const response = await fetch(
@@ -223,25 +236,29 @@ function Allfarms() {
     } catch (error) {
       toast.error(`${labels[language].deleteError}: ${error.message}`);
     }
-  };
-
+};
   return (
     <div className="container mt-4">
-      <div className="bg-success text-white py-2 rounded px-3 d-flex align-items-center justify-content-between flex-column gap-2">
+      <div className="bg-success text-white py-2 rounded px-3 d-flex align-items-center justify-content-between flex-column gap-1">
         <div className="d-flex align-items-center justify-content-between w-100">
-          <BackButton className="backbtn fs-4" />
+          <BackButton className="backbtn fs-4 " />
           <h2 className="text-white m-0 flex-grow-1 text-center me-3">
             {labels[language].title}
           </h2>
         </div>
-        <div className="w-75">
+        <div className="input-group rounded my-2 container">
           <input
-            type="text"
-            className="form-control"
-            placeholder={labels[language].searchPlaceholder}
+            type="search"
+            className="form-control rounded"
+            placeholder={language === "en" ? "Search" : "शोधा"}
+            aria-label="Search"
+            aria-describedby="search-addon"
             value={searchQuery}
             onChange={handleSearch}
           />
+          <span className="input-group-text border-0" id="search-addon">
+            <i className="fa fa-search"></i>
+          </span>
         </div>
       </div>
 

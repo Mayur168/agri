@@ -7,7 +7,7 @@ function PrimaryButton({ children, onClick, className = "", disabled, style, typ
       className={`btn  p-2${className}`}
       onClick={onClick}
       disabled={disabled}
-      style={{ style }}
+      style={ style }
       role="button"
     >
       {children}

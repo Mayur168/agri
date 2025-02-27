@@ -11,9 +11,12 @@ function BackButton() {
 
   return (
     <>
-      <PrimaryButton className="btn text-blue" onClick={goBack}>
-        {" "}
-        <FaArrowLeft size={15} />
+      <PrimaryButton
+        className="btn backbtn fs-4"
+        onClick={goBack}
+        style={{ color: "white" }} 
+      >
+        <FaArrowLeft size={18} />
       </PrimaryButton>
     </>
   );
