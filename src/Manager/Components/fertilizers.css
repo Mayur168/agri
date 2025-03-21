@@ -1,0 +1,48 @@
+/* fertilizers.css */
+.managers-container {
+    padding: 20px;
+  }
+  
+  .header-container {
+    background-color:  rgb(25, 135, 84); /* Dark blue header */
+    border-radius: 8px;
+  }
+  
+  .managers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  
+  .manager-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .manager-name {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  
+  .manager-actions {
+    display: flex;
+    align-items: center;
+  }
+  
+  .eye-icon {
+    font-size: 20px;
+    color: #007bff;
+  }
+  
+  .dropdown-menu {
+    min-width: 120px;
+  }
+  
+  .btn-sm {
+    padding: 5px 10px;
+    font-size: 14px;
+  }

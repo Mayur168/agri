@@ -59,7 +59,7 @@ const Home = () => {
             right: "15px",
             backgroundColor: "#fff",
             border: "none",
-            padding: "6px 10px",
+            padding: "8px 10px",
             borderRadius: "15px",
             cursor: "pointer",
             fontSize: "16px",
@@ -80,9 +80,9 @@ const Home = () => {
         </h1>
 
         {/* Go to My Farm Button (No Container) */}
-        <Link to="/Admin/Villages">
+        <Link to="/Manager/spray-fertilizer">
           <button className="btn btn-success px-3 py-1 mt-2">
-            {language === "en" ? "Go to My Farm" : "माझ्या शेताकडे जा"}
+            {language === "en" ? "Add SprayFertilizerform" : "स्प्रे फर्टिलायझर फॉर्म जोडा"}
           </button>
         </Link>
       </div>

@@ -1,33 +1,26 @@
 
 import React, { useContext } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Home from "./Admin/Pages/Home";
-import Sheti from "./Admin/Pages/Sheti";
-import Form from "./Admin/Pages/Form";
-import Cities from "./Admin/Pages/Cities";
-import NavBar from "./Components/NavBar";
 import SignUp from "./Admin/Auth/Signup";
 import Login from "./Admin/Auth/Login";
-import PrivateRoute from "./Admin/Auth/PrivateRoute";
+import AdminApp from "./Admin/AdminApp";
+import ManagerApp from "./Manager/ManagerApp";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { AuthContext, AuthProvider } from "./contexts/AuthContext";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import Allfarms from "./Admin/Pages/Allfarms";
 
-// Layout component to handle NavBar and redirect
-const Layout = ({ children }) => {
-  const { authenticated } = useContext(AuthContext);
-  return (
-    <>
-      {authenticated && <NavBar />}
-      <div className="pt-5">{children}</div> {/* Added padding-top */}
-    </>
-  );
-};
+function MainApp() {
+  const { authenticated, user } = useContext(AuthContext);
 
-// Wrapper for Routes to handle catch-all redirect
-const AppRoutes = () => {
-  const { authenticated } = useContext(AuthContext);
+  console.log("MainApp - Authenticated:", authenticated, "User:", user); // Debug
+
+  const getDefaultRedirect = () => {
+    if (!authenticated) return "/login";
+    if (user?.role === "admin") return "/Admin";
+    if (user?.role === "manager") return "/Manager";
+    return "/Home"; // Default route
+  };
 
   return (
     <Routes>
@@ -36,27 +29,40 @@ const AppRoutes = () => {
       <Route path="/signup" element={<SignUp />} />
 
       {/* Protected Routes */}
-      <Route path="/" element={<PrivateRoute element={<Home />} />} />
-      <Route path="/sheti" element={<PrivateRoute element={<Sheti />} />} />
-      <Route path="/form" element={<PrivateRoute element={<Form />} />} />
-      <Route path="/cities" element={<PrivateRoute element={<Cities />} />} />
-      <Route path="/sheti/:city" element={<PrivateRoute element={<Sheti />} />} />
-      <Route path="/allfarms" element={<PrivateRoute element={<Allfarms />} />} />
+      <Route
+        path="/Admin/*"
+        element={
+          authenticated && user?.role === "admin" ? (
+            <AdminApp />
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route
+        path="/manager/*"
+        element={
+          authenticated && user?.role === "manager" ? (
+            <ManagerApp />
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
 
-      {/* Redirect unknown routes */}
-      <Route path="/*" element={<Navigate to={authenticated ? "/" : "/login"} />} />
+      {/* Default Route */}
+      <Route path="/Home" element={<div>Welcome to the App</div>} />
+      <Route path="*" element={<Navigate to={getDefaultRedirect()} />} />
     </Routes>
   );
-};
+}
 
 function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
         <BrowserRouter>
-          <Layout>
-            <AppRoutes />
-          </Layout>
+          <MainApp />
         </BrowserRouter>
       </AuthProvider>
     </LanguageProvider>

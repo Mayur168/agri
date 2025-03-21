@@ -1,3 +1,4 @@
+
 /* General Styles */
 * {
   margin: 0;
@@ -232,28 +233,28 @@
 }
 
   /* Sheti.css */
-  .navbar-custom {
+  /* .navbar-custom {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #198754; /* Bootstrap success green */
+    background-color: #198754; 
     padding: 15px;
     border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    position: relative; /* Ensure relative positioning for absolute children */
-  }
+    position: relative; 
+  } */
 
   .nav-link{
     text-align: -webkit-center
   }
   
   /* sheti navbar */
-  .navbar-custom {
-    background-color: #198754; /* Green background */
-    padding: 15px;
+  /* .navbar-custom {
+    background-color: #198754;  */
+    /* padding: 15px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
-  }
+  } */
   
   /* Navbar Title */
   .navbar-title {

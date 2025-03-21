@@ -1,110 +1,60 @@
-
-
-import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom"; // Added useLocation
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { useLanguage } from "../../contexts/LanguageContext";
-import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaMapMarkerAlt } from "react-icons/fa"; 
+import api from "../../src/api/axiosInstance";
 
 const Form = () => {
   const { language } = useLanguage();
-  const location = useLocation(); // Get navigation state
-  const selectedCity = location.state?.selectedCity || ""; // Extract selected city from state
+  const location = useLocation();
+  const selectedCity = location.state?.selectedCity || "";
 
   const [formData, setFormData] = useState({
     farm_name: "",
     address: "",
     location_url: "",
-    city: selectedCity, // Pre-fill with selected city
+    city: selectedCity,
     farm_size: "",
   });
 
-  const [cities, setCities] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [newCity, setNewCity] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchCities();
-  }, []);
-
-  const fetchCities = async () => {
-    try {
-      const response = await axios.get(
-        "https://agri-management-main-ywm4.vercel.app/master_data/?action=getCity"
-      );
-      if (response.data && Array.isArray(response.data.data)) {
-        setCities(response.data.data);
-      } else {
-        setCities([]);
-      }
-    } catch (err) {
-      console.error("Error fetching cities:", err);
-      setCities([]);
-    }
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleCitySelect = (selectedCity) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      city: selectedCity.name, // Use city name instead of ID for display
-    }));
-    setShowDropdown(false);
-  };
-
-  const handleAddCity = async () => {
-    if (!newCity.trim()) {
-      toast.warn("Please enter a city name!", { position: "top-center" });
-      return;
-    }
-
-    try {
-      const existingCity = cities.find(
-        (city) => city.name.toLowerCase() === newCity.toLowerCase()
-      );
-      if (existingCity) {
-        toast.error("City already exists!", { position: "top-center" });
-        return;
-      }
-
-      const response = await axios.post(
-        "https://agri-management-main.vercel.app/master_data/",
-        {
-          action: "postCity",
-          name: newCity,
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      setLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const googleMapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
+          setFormData((prevState) => ({
+            ...prevState,
+            location_url: googleMapsUrl,
+          }));
+          toast.success("Location captured successfully!", {
+            position: "top-center",
+          });
+          setLoading(false);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          toast.error("Failed to get location. Please allow location access.", {
+            position: "top-center",
+          });
+          setLoading(false);
         }
       );
-
-      if (
-        response.data &&
-        response.data.message === "City Created!" &&
-        response.data.data
-      ) {
-        const newAddedCity = response.data.data;
-        toast.success(`✅ ${newAddedCity.name} added successfully!`, {
-          position: "top-center",
-        });
-        const updatedCities = [...cities, newAddedCity];
-        setCities(updatedCities);
-        setFormData((prevState) => ({
-          ...prevState,
-          city: newAddedCity.name, // Set the new city name
-        }));
-        setShowDropdown(false);
-        setNewCity("");
-      } else {
-        throw new Error("Unexpected API response");
-      }
-    } catch (err) {
-      console.error("Error adding city:", err);
-      toast.error("❌ Failed to add city. Please try again.");
+    } else {
+      toast.error("Geolocation is not supported by your browser.", {
+        position: "top-center",
+      });
     }
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -114,22 +64,22 @@ const Form = () => {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
-        "https://agri-management-main.vercel.app/users/farms/",
+      await api.post(
+        "/users/farms/",
         {
           action: "postFarm",
           ...formData,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success(" Farm details submitted successfully!", {
+      toast.success("Farm details submitted successfully!", {
         position: "top-center",
       });
       setFormData({
         farm_name: "",
         address: "",
         location_url: "",
-        city: "", // Reset to empty after submission
+        city: "",
         farm_size: "",
       });
     } catch (err) {
@@ -150,9 +100,6 @@ const Form = () => {
       farm_size: "Farm Size",
       submit: "Submit",
       submitting: "Submitting...",
-      selectCity: "Select City",
-      addCity: "Add City",
-      enterNewCity: "Enter new city",
     },
     mr: {
       farm_name: "शेताचे नाव",
@@ -162,9 +109,6 @@ const Form = () => {
       farm_size: "शेताचा आकार",
       submit: "सबमिट करा",
       submitting: "सबमिट करत आहे...",
-      selectCity: "शहर निवडा",
-      addCity: "शहर जोडा",
-      enterNewCity: "नवीन शहर प्रविष्ट करा",
     },
   };
 
@@ -187,7 +131,7 @@ const Form = () => {
                 className="form-control"
                 name="farm_name"
                 value={formData.farm_name}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               />
             </div>
@@ -199,71 +143,46 @@ const Form = () => {
                 className="form-control"
                 name="address"
                 value={formData.address}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               />
             </div>
 
             <div className="mb-3">
               <label className="form-label">{formLabels[language].location_url}</label>
-              <input
-                type="text"
-                className="form-control"
-                name="location_url"
-                value={formData.location_url}
-                onChange={handleChange}
-                required
-              />
+              <div className="input-group">
+                <input
+                  type="text"
+                  className="form-control"
+                  name="location_url"
+                  value={formData.location_url}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter location URL or use map icon"
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline-primary"
+                  onClick={getCurrentLocation}
+                  disabled={loading}
+                  title={language === "en" ? "Get Current Location" : "वर्तमान स्थान मिळवा"}
+                >
+                  <FaMapMarkerAlt size={20} />
+                  {loading && <span className="ms-2">Loading...</span>}
+                </button>
+              </div>
             </div>
 
-            <div className="mb-3 position-relative">
+            <div className="mb-3">
               <label className="form-label">{formLabels[language].city}</label>
               <input
                 type="text"
-                className="form-control dropdown-toggle"
+                className="form-control"
                 name="city"
                 value={formData.city}
-                onChange={handleChange} // Allow manual changes
-                onClick={() => setShowDropdown(!showDropdown)}
-                placeholder={formLabels[language].selectCity}
-                aria-haspopup="true"
-                aria-expanded={showDropdown}
+                onChange={handleInputChange}
+                required
               />
-              {showDropdown && (
-                <div className="dropdown-menu show w-100" style={{ maxHeight: "200px", overflowY: "auto" }}>
-                  {cities.length > 0 ? (
-                    cities.map((city) => (
-                      <button
-                        key={city.id}
-                        className="dropdown-item"
-                        type="button"
-                        onClick={() => handleCitySelect(city)}
-                      >
-                        {city.name}
-                      </button>
-                    ))
-                  ) : (
-                    <div className="dropdown-item text-muted">No cities available</div>
-                  )}
-                  <hr className="dropdown-divider" />
-                  <div className="p-2">
-                    <input
-                      type="text"
-                      className="form-control mb-2"
-                      placeholder={formLabels[language].enterNewCity}
-                      value={newCity}
-                      onChange={(e) => setNewCity(e.target.value)}
-                    />
-                    <button
-                      className="btn btn-outline-primary w-100"
-                      onClick={handleAddCity}
-                      type="button"
-                    >
-                      {formLabels[language].addCity}
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="mb-3">
@@ -273,7 +192,7 @@ const Form = () => {
                 className="form-control"
                 name="farm_size"
                 value={formData.farm_size}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               />
             </div>

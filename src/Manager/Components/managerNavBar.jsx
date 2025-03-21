@@ -1,15 +1,15 @@
-
-
-
 import React, { useState, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import logo from "../../src/assets/img/logo.png";
-import { AuthContext } from "../../src/contexts/AuthContext"; // Import AuthContext
+import logo from "../../../src/assets/img/logo.png";
+import { AuthContext } from "../../contexts/AuthContext";
+
 
 function NavBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { authenticated, logout } = useContext(AuthContext); // Use context
+  const { authenticated, user, logout } = useContext(AuthContext);
+
+  console.log("NavBar - authenticated:", authenticated, "user:", user);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -20,8 +20,16 @@ function NavBar() {
   };
 
   const handleLogout = () => {
-    logout(); // Use logout from context
+    logout();
     navigate("/login", { replace: true });
+    closeMenu();
+  };
+
+  const getFullName = () => {
+    if (user?.first_name && user?.last_name) {
+      return `${user.first_name} ${user.last_name}`;
+    }
+    return "Profile";
   };
 
   return (
@@ -36,23 +44,29 @@ function NavBar() {
           type="button"
           onClick={toggleMenu}
           aria-expanded={menuOpen ? "true" : "false"}
+          aria-label="Toggle navigation"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
 
         <div className={`collapse navbar-collapse ${menuOpen ? "show" : ""}`} id="navbarNavAltMarkup">
-          <div className="navbar-nav" style={{textAlign:" -webkit-center"}}>
+          <div className="navbar-nav ms-auto" style={{ textAlign: "-webkit-center" }}>
             {authenticated ? (
               <>
-                <NavLink className="nav-link" to="/" onClick={closeMenu}>
+                <NavLink className="nav-link" to="/Manager" onClick={closeMenu}>
                   Home
                 </NavLink>
-                <NavLink className="nav-link" to="/cities" onClick={closeMenu}>
-                  City
+                <NavLink className="nav-link" to="/Manager/daily-expenses" onClick={closeMenu}>
+                  ExpenseForm
                 </NavLink>
-                <NavLink className="nav-link" to="/sheti" onClick={closeMenu}>
-                  Sheti
+                <NavLink className="nav-link" to="/Manager/spray-fertilizer" onClick={closeMenu}>
+                  SprayFertilizerform
                 </NavLink>
+                {user && (
+                  <NavLink className="nav-link" to="/Manager/profile" onClick={closeMenu}>
+                   profile
+                  </NavLink>
+                )}
                 <button
                   className="nav-link btn btn-link"
                   style={{ textAlign: "-webkit-center" }}
@@ -62,14 +76,9 @@ function NavBar() {
                 </button>
               </>
             ) : (
-              <>
-                <NavLink className="nav-link" to="/login" onClick={closeMenu}>
-                  Login
-                </NavLink>
-                <NavLink className="nav-link" to="/signup" onClick={closeMenu}>
-                  Signup
-                </NavLink>
-              </>
+              <NavLink className="nav-link" to="/login" onClick={closeMenu}>
+                Login
+              </NavLink>
             )}
           </div>
         </div>
