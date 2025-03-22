@@ -248,7 +248,7 @@ const Billing = () => {
         travelling_amount: parseFloat(formData.travelling_amount),
       };
 
-      await api.post("/billing/", payload);
+      await api.patch("/billing/", payload);
       Swal.fire("Success", translations[language].submit, "success");
       fetchBillings();
       setIsModalOpen(false);

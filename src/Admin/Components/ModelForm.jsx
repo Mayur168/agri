@@ -16,7 +16,7 @@ import {
   FaCalendarAlt,
   FaFileAlt,
   FaTags,
-  FaTruck,
+  FaTruck, // Added for vehicle_number in billing
 } from "react-icons/fa";
 
 const ModalForm = ({
@@ -31,11 +31,11 @@ const ModalForm = ({
   language,
   getLiveLocation,
   formType = "farm",
-  farms = [],
-  products = [],
-  fetchFarms, // Added to fetch farms on demand
-  isLoadingFarms, // Loading state for farms
-  isLoadingProducts, // Loading state for products
+  farms = [], // Added for billing
+  products = [], // Added for billing
+  fetchFarms, // Added to fetch farms on demand for billing
+  isLoadingFarms, // Loading state for farms in billing
+  isLoadingProducts, // Loading state for products in billing
 }) => {
   if (!isOpen) return null;
 
@@ -67,7 +67,7 @@ const ModalForm = ({
         <div className="modal-content mx-auto">
           <div className="modal-header bg-success text-white">
             <h4 className="modal-title ms-auto">
-              {formData.id
+              {formData.id && isEditing
                 ? labels[language].modalTitle
                 : `Add ${
                     formType === "expense"
@@ -90,6 +90,397 @@ const ModalForm = ({
           <div className="modal-body">
             <form>
               <div className="row g-3">
+                {/* Farm Form */}
+                {formType === "farm" && (
+                  <>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="name"
+                          value={formData.name || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].farmName}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaTractor className="me-2 text-success" />{" "}
+                          {labels[language].farmName}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="address"
+                          value={formData.address || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].address}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaMapPin className="me-2 text-success" />{" "}
+                          {labels[language].address}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="input-group">
+                        <div className="form-floating flex-grow-1">
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="location_url"
+                            value={formData.location_url || ""}
+                            onChange={handleChange}
+                            placeholder={labels[language].locationUrl}
+                            disabled={!isEditing}
+                          />
+                          <label>
+                            <FaGlobe className="me-2 text-success" />{" "}
+                            {labels[language].locationUrl}
+                          </label>
+                        </div>
+                        {isEditing && (
+                          <button
+                            type="button"
+                            className="btn btn-outline-primary"
+                            onClick={getLiveLocation}
+                            disabled={!isEditing}
+                            title={
+                              language === "en"
+                                ? "Get Live Location"
+                                : "लाइव्ह स्थान मिळवा"
+                            }
+                          >
+                            <FaMapMarkerAlt size={20} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="farm_size"
+                          value={formData.farm_size || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].farmSize}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaRuler className="me-2 text-success" />{" "}
+                          {labels[language].farmSize}
+                        </label>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Manager Form */}
+                {formType === "manager" && (
+                  <>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="first_name"
+                          value={formData.first_name || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].firstName}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].firstName}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="last_name"
+                          value={formData.last_name || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].lastName}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].lastName}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="email"
+                          className="form-control"
+                          name="email"
+                          value={formData.email || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].email}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaGlobe className="me-2 text-success" />{" "}
+                          {labels[language].email}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="tel"
+                          className="form-control"
+                          name="phone"
+                          value={formData.phone || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].phone}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaPhone className="me-2 text-success" />{" "}
+                          {labels[language].phone}
+                        </label>
+                      </div>
+                    </div>
+                    {isEditing && !formData.id && (
+                      <>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="password"
+                              className="form-control"
+                              name="password"
+                              value={formData.password || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].password}
+                            />
+                            <label>
+                              <FaLock className="me-2 text-success" />{" "}
+                              {labels[language].password}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="password"
+                              className="form-control"
+                              name="confirm_password"
+                              value={formData.confirm_password || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].confirmPassword}
+                            />
+                            <label>
+                              <FaLock className="me-2 text-success" />{" "}
+                              {labels[language].confirmPassword}
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <select
+                          className="form-select"
+                          name="role"
+                          value={formData.role || ""}
+                          onChange={handleChange}
+                          disabled={!isEditing}
+                        >
+                          <option value="Manager">
+                            {labels[language].manager}
+                          </option>
+                          <option value="Admin">{labels[language].admin}</option>
+                        </select>
+                        <label>
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].role}
+                        </label>
+                      </div>
+                    </div>
+                    {formData.role === "Manager" && (
+                      <>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="farm_name"
+                              value={formData.farm_name || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].farmName}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaTractor className="me-2 text-success" />{" "}
+                              {labels[language].farmName}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="farm_location"
+                              value={formData.farm_location || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].farmLocation}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaMapPin className="me-2 text-success" />{" "}
+                              {labels[language].farmLocation}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="number"
+                              className="form-control"
+                              name="manager_experience"
+                              value={formData.manager_experience || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].managerExperience}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaRuler className="me-2 text-success" />{" "}
+                              {labels[language].managerExperience}
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+
+                {/* Fertilizer Form */}
+                {formType === "fertilizer" && (
+                  <>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="name"
+                          value={formData.name || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].fertilizerName}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].fertilizerName}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="number"
+                          className="form-control"
+                          name="price"
+                          value={formData.price || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].price}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaDollarSign className="me-2 text-success" />{" "}
+                          {labels[language].price}
+                        </label>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Expense Form */}
+                {formType === "expense" && (
+                  <>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="date"
+                          className="form-control"
+                          name="date"
+                          value={formData.date || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].date}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaCalendarAlt className="me-2 text-success" />{" "}
+                          {labels[language].date}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="description"
+                          value={formData.description || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].description}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaFileAlt className="me-2 text-success" />{" "}
+                          {labels[language].description}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="number"
+                          className="form-control"
+                          name="amount"
+                          value={formData.amount || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].amount}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaDollarSign className="me-2 text-success" />{" "}
+                          {labels[language].amount}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="category"
+                          value={formData.category || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].category}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaTags className="me-2 text-success" />{" "}
+                          {labels[language].category}
+                        </label>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Billing Form */}
                 {formType === "billing" && (
                   <>
                     <div className="col-md-6">
