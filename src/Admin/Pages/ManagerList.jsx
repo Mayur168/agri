@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaUserTie } from "react-icons/fa";
+import { FaEye, FaUserTie,FaPlus } from "react-icons/fa";
 import "./villages.css";
 import BackButton from "../Components/BackButton";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -19,7 +19,7 @@ const ManagersList = () => {
     en: {
       title: "Managers List",
       addManager: " Add Manager",
-      searchPlaceholder: "Search by phone",
+      searchPlaceholder: "Search..",
       modalTitle: "Add New Manager",
       view: "View Manager",
       firstName: "First Name",
@@ -58,7 +58,7 @@ const ManagersList = () => {
     mr: {
       title: "प्रशासक यादी",
       addManager: " व्यवस्थापक जोडा",
-      searchPlaceholder: "फोनद्वारे शोधा",
+      searchPlaceholder: "शोधा..",
       modalTitle: "नवीन व्यवस्थापक जोडा",
       view: "व्यवस्थापक पहा",
       firstName: "प्रथम नाव",
@@ -89,7 +89,8 @@ const ManagersList = () => {
         addManagerError: "व्यवस्थापक जोडण्यात अयशस्वी.",
         phoneRequired: "फोन नंबर आवश्यक आहे.",
         noChanges: "कोणतेही बदल आढळले नाहीत.",
-        emailInUse: "हा ईमेल पत्ता आधीपासून दुसऱ्या वापरकर्त्याद्वारे वापरात आहे.",
+        emailInUse:
+          "हा ईमेल पत्ता आधीपासून दुसऱ्या वापरकर्त्याद्वारे वापरात आहे.",
         updateManagerError: "व्यवस्थापक अद्यतनित करण्यात अयशस्वी.",
         managerUpdatedSuccess: "व्यवस्थापक यशस्वीरित्या अद्यतनित केले गेले!",
       },
@@ -172,18 +173,18 @@ const ManagersList = () => {
       if (!token) throw new Error("Unauthorized: No token found.");
 
       // Step 1: Create the user with postUser payload
-      const userPayload = {
-        action: "postUser",
-        first_name: formData.first_name.trim(),
-        last_name: formData.last_name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim(),
-        password: formData.password.trim(), // Added password as required by UI
-        is_admin: formData.role === "Admin",
-        is_manager: formData.role === "Manager",
-      };
+      // const userPayload = {
+      //   action: "postUser",
+      //   first_name: formData.first_name.trim(),
+      //   last_name: formData.last_name.trim(),
+      //   email: formData.email.trim(),
+      //   phone: formData.phone.trim(),
+      //   password: formData.password.trim(), // Added password as required by UI
+      //   is_admin: formData.role === "Admin",
+      //   is_manager: formData.role === "Manager",
+      // };
 
-      const userResponse = await api.post("/users/", userPayload);
+      // const userResponse = await api.post("/users/", userPayload);
 
       // Step 2: If role is Manager, create farm manager with postFarmManager payload
       if (formData.role === "Manager") {
@@ -280,38 +281,74 @@ const ManagersList = () => {
       toast.error(translations[language].toast.phoneRequired);
       return;
     }
-
+  
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Unauthorized: No token found.");
-
+  
       const payload = {
-        action: "patchFarmManager",
         id: editManagerId,
+        action: "patchFarmManager",
+        user: {
+          first_name: formData.first_name.trim(),
+          last_name: formData.last_name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+        },
+        farm_name: formData.farm_name.trim(),
+        farm_location: formData.farm_location.trim(),
+        manager_experience: parseInt(formData.manager_experience) || 0,
       };
-
-      Object.keys(formData).forEach((key) => {
-        if (
-          formData[key] !== initialFormData[key] &&
-          key !== "confirm_password"
-        ) {
-          if (key === "manager_experience") {
-            payload[key] = parseInt(formData[key]) || 0;
-          } else if (formData[key].trim() !== "") {
-            payload[key] = formData[key].trim();
-          }
-        }
-      });
-
-      if (Object.keys(payload).length <= 2) {
+  
+      // Only include fields that have changed
+      const changedPayload = { id: editManagerId, action: "patchFarmManager" };
+      let hasChanges = false;
+  
+      if (formData.first_name.trim() !== initialFormData.first_name) {
+        changedPayload.user = changedPayload.user || {};
+        changedPayload.user.first_name = formData.first_name.trim();
+        hasChanges = true;
+      }
+      if (formData.last_name.trim() !== initialFormData.last_name) {
+        changedPayload.user = changedPayload.user || {};
+        changedPayload.user.last_name = formData.last_name.trim();
+        hasChanges = true;
+      }
+      if (formData.email.trim() !== initialFormData.email) {
+        changedPayload.user = changedPayload.user || {};
+        changedPayload.user.email = formData.email.trim();
+        hasChanges = true;
+      }
+      if (formData.phone.trim() !== initialFormData.phone) {
+        changedPayload.user = changedPayload.user || {};
+        changedPayload.user.phone = formData.phone.trim();
+        hasChanges = true;
+      }
+      if (formData.farm_name.trim() !== initialFormData.farm_name) {
+        changedPayload.farm_name = formData.farm_name.trim();
+        hasChanges = true;
+      }
+      if (formData.farm_location.trim() !== initialFormData.farm_location) {
+        changedPayload.farm_location = formData.farm_location.trim();
+        hasChanges = true;
+      }
+      if (
+        parseInt(formData.manager_experience) !==
+        parseInt(initialFormData.manager_experience)
+      ) {
+        changedPayload.manager_experience = parseInt(formData.manager_experience) || 0;
+        hasChanges = true;
+      }
+  
+      if (!hasChanges) {
         toast.info(translations[language].toast.noChanges);
         setShowEditModal(false);
         setLoading(false);
         return;
       }
-
-      const response = await api.patch("/users/farms/", payload);
+  
+      const response = await api.patch("/users/", changedPayload);
       const updatedManager = response.data.data;
       const updatedManagers = managers.map((m) =>
         m.id === editManagerId ? { ...m, ...updatedManager } : m
@@ -353,25 +390,27 @@ const ManagersList = () => {
       confirmButtonText: translations[language].delete,
       cancelButtonText: translations[language].cancel,
     });
-
+  
     if (!result.isConfirmed) return;
-
+  
     setLoading(true);
-
+  
     try {
       const deletePayload = {
-        role: "farmManager",
-        action: "delFarmManager",
+        role: "farmer", // Assuming this should be "manager" instead of "farmer" based on context
+        action: "delFarmer",
         id: managerId,
       };
-
-      const response = await api.delete("/users/farms/", { data: deletePayload });
-
+  
+      const response = await api.delete("/users/farms/", {
+        data: deletePayload,
+      });
+  
       if (response.status === 200 || response.status === 204) {
         const updatedManagers = managers.filter((m) => m.id !== managerId);
         setManagers(updatedManagers);
         localStorage.setItem("managers", JSON.stringify(updatedManagers));
-
+  
         await Swal.fire({
           title: language === "en" ? "Deleted!" : "हटवले!",
           text:
@@ -381,7 +420,7 @@ const ManagersList = () => {
           icon: "success",
           confirmButtonText: "OK",
         });
-
+  
         setShowEditModal(false);
         setShowViewModal(false);
       } else {
@@ -393,14 +432,14 @@ const ManagersList = () => {
         response: err.response?.data,
         status: err.response?.status,
       });
-
+  
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error_msg ||
         (language === "en"
           ? "Failed to delete manager. Please try again or contact support."
           : "व्यवस्थापक हटविण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा किंवा समर्थनाशी संपर्क साधा.");
-
+  
       await Swal.fire({
         title: language === "en" ? "Error!" : "त्रुटी!",
         text: errorMessage,
@@ -430,12 +469,11 @@ const ManagersList = () => {
 
   return (
     <div className="managers-container mb-5">
-      <div className="mb-3 d-flex align-items-center py-3 header-container">
+      <div className="mb-3 d-flex align-items-center py-3 header-container bg-success">
         <BackButton className="backbtn fs-4 ms-2" />
-        <h2 className="fs-4 text-white flex-grow-1 text-center m-0">
+        <h2 className="fs-4 text-white m-0 d-flex align-items-center justify-content-center flex-grow-1">
           <FaUserTie className="me-2" /> {translations[language].title}
         </h2>
-        <div className="spacer" style={{ width: "40px" }}></div>
       </div>
 
       <div className="container">
@@ -443,7 +481,7 @@ const ManagersList = () => {
           <div className="input-group" style={{ flex: "1", width: "180px" }}>
             <input
               type="search"
-              className="form-control rounded"
+              className="form-control rounded border-success"
               placeholder={translations[language].searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -468,7 +506,7 @@ const ManagersList = () => {
             }}
             disabled={loading}
           >
-            {translations[language].addManager}
+           <FaPlus className="me-2" /> {translations[language].addManager}
           </button>
         </div>
       </div>

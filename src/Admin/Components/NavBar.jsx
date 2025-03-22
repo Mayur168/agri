@@ -113,7 +113,6 @@
 // }
 
 // export default NavBar;
-
 import React, { useState, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Button } from "react-bootstrap";
@@ -157,17 +156,20 @@ function NavBar() {
           <Nav className="ms-auto" style={{ textAlign: "-webkit-center" }}>
             {authenticated ? (
               <>
-                <Nav.Link as={NavLink} to="/Admin" onClick={closeMenu}>
+                <Nav.Link as={NavLink} to="/admin" onClick={closeMenu}>
                   Home
                 </Nav.Link>
-                <Nav.Link as={NavLink} to="/Admin/sheti" onClick={closeMenu}>
+                {/* <Nav.Link as={NavLink} to="/admin/sheti" onClick={closeMenu}>
                   Sheti
-                </Nav.Link>
-                <Nav.Link as={NavLink} to="/Admin/manager-list" onClick={closeMenu}>
+                </Nav.Link> */}
+                <Nav.Link as={NavLink} to="/admin/manager-list" onClick={closeMenu}>
                   ManagerList
                 </Nav.Link>
+                <Nav.Link as={NavLink} to="/admin/billing" onClick={closeMenu}>
+                  Billing
+                </Nav.Link>
                 {user && (
-                  <Nav.Link as={NavLink} to="/Admin/profile" onClick={closeMenu}>
+                  <Nav.Link as={NavLink} to="/admin/profile" onClick={closeMenu}>
                     Profile
                   </Nav.Link>
                 )}

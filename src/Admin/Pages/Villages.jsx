@@ -64,7 +64,8 @@ const Villages = () => {
           fetchTalukasError: "Failed to fetch talukas",
           fetchVillagesError: "Failed to fetch villages",
           selectTalukaVillageError: "Please select both taluka and village",
-          villageExistsError: "This village is already associated with the selected taluka",
+          villageExistsError:
+            "This village is already associated with the selected taluka",
           villageAddedSuccess: "Village added successfully!",
           villageAddError: "Failed to add village",
           timeoutError: "Request timed out. Please try again.",
@@ -88,7 +89,8 @@ const Villages = () => {
           fetchTalukasError: "तालुके आणण्यात अयशस्वी",
           fetchVillagesError: "गावे आणण्यात अयशस्वी",
           selectTalukaVillageError: "कृपया तालुका आणि गाव दोन्ही निवडा",
-          villageExistsError: "हे गाव आधीपासूनच निवडलेल्या तालुक्याशी संबंधित आहे",
+          villageExistsError:
+            "हे गाव आधीपासूनच निवडलेल्या तालुक्याशी संबंधित आहे",
           villageAddedSuccess: "गाव यशस्वीरित्या जोडले गेले!",
           villageAddError: "गाव जोडण्यात अयशस्वी",
           timeoutError: "विनंती वेळ संपली. कृपया पुन्हा प्रयत्न करा.",
@@ -99,14 +101,19 @@ const Villages = () => {
   );
 
   // Utility function for retrying failed requests
-  const fetchWithRetry = async (url, options = {}, retries = 3, delay = 2000) => {
+  const fetchWithRetry = async (
+    url,
+    options = {},
+    retries = 3,
+    delay = 2000
+  ) => {
     for (let i = 0; i < retries; i++) {
       try {
         const response = await api.get(url, { ...options, timeout: 60000 });
         return response;
       } catch (err) {
         if (i === retries - 1) throw err; // Last retry failed
-        if (err.response?.status === 504 || err.code === 'ECONNABORTED') {
+        if (err.response?.status === 504 || err.code === "ECONNABORTED") {
           console.warn(`Retry ${i + 1}/${retries} for ${url} due to timeout`);
           await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
@@ -125,29 +132,39 @@ const Villages = () => {
     }
   }, [language, translations]);
 
-  const fetchDistricts = useCallback(async (stateId) => {
-    try {
-      const response = await fetchWithRetry("/master_data/?action=getDistrict");
-      setDistricts(response.data.data || []);
-    } catch (err) {
-      toast.error(translations[language].toast.fetchDistrictsError);
-    }
-  }, [language, translations]);
+  const fetchDistricts = useCallback(
+    async (stateId) => {
+      try {
+        const response = await fetchWithRetry(
+          "/master_data/?action=getDistrict"
+        );
+        setDistricts(response.data.data || []);
+      } catch (err) {
+        toast.error(translations[language].toast.fetchDistrictsError);
+      }
+    },
+    [language, translations]
+  );
 
-  const fetchTalukas = useCallback(async (districtId) => {
-    try {
-      const response = await fetchWithRetry("/master_data/?action=getTaluka");
-      setTalukas(response.data.data || []);
-    } catch (err) {
-      toast.error(translations[language].toast.fetchTalukasError);
-    }
-  }, [language, translations]);
+  const fetchTalukas = useCallback(
+    async (districtId) => {
+      try {
+        const response = await fetchWithRetry("/master_data/?action=getTaluka");
+        setTalukas(response.data.data || []);
+      } catch (err) {
+        toast.error(translations[language].toast.fetchTalukasError);
+      }
+    },
+    [language, translations]
+  );
 
   const fetchVillagesForTaluka = useCallback(
     async (talukaId) => {
       setLoading(true);
       try {
-        const response = await fetchWithRetry("/master_data/?action=getVillage");
+        const response = await fetchWithRetry(
+          "/master_data/?action=getVillage"
+        );
         if (response.data && Array.isArray(response.data.data)) {
           const filteredVillages = response.data.data.filter(
             (village) =>
@@ -162,7 +179,7 @@ const Villages = () => {
         }
       } catch (err) {
         toast.error(
-          err.response?.status === 504 || err.code === 'ECONNABORTED'
+          err.response?.status === 504 || err.code === "ECONNABORTED"
             ? translations[language].toast.timeoutError
             : translations[language].toast.fetchVillagesError
         );
@@ -178,7 +195,7 @@ const Villages = () => {
     setFetchLoading(true);
     setLoading(true);
     try {
-      const response = await fetchWithRetry("/farm/?action=getFarmVillage");
+      const response = await fetchWithRetry("/master_data/?action=getVillage");
       if (response.data && Array.isArray(response.data.data)) {
         const validVillages = response.data.data.filter(
           (village) =>
@@ -198,7 +215,7 @@ const Villages = () => {
       }
     } catch (err) {
       toast.error(
-        err.response?.status === 504 || err.code === 'ECONNABORTED'
+        err.response?.status === 504 || err.code === "ECONNABORTED"
           ? translations[language].toast.timeoutError
           : translations[language].toast.fetchVillagesError
       );
@@ -316,7 +333,8 @@ const Villages = () => {
       }
     } catch (err) {
       toast.error(
-        err.response?.data?.message || translations[language].toast.villageAddError
+        err.response?.data?.message ||
+          translations[language].toast.villageAddError
       );
     } finally {
       setIsSubmitting(false);
@@ -343,12 +361,11 @@ const Villages = () => {
 
   return (
     <div className="villages-container mb-5">
-      <div className="mb-3 d-flex align-items-center py-3 header-container">
+      <div className="mb-3 d-flex align-items-center py-3 header-container bg-success">
         <BackButton className="backbtn fs-4 ms-2" />
-        <h2 className="fs-2 text-white flex-grow-1 text-center m-0">
+        <h2 className="fs-2 text-white m-0 d-flex align-items-center justify-content-center flex-grow-1">
           <FaGlobe className="me-2" /> {translations[language].title}
         </h2>
-        <div className="spacer" style={{ width: "40px" }}></div>
       </div>
 
       <div className="container">
@@ -356,7 +373,7 @@ const Villages = () => {
           <div className="input-group" style={{ flex: "1", width: "180px" }}>
             <input
               type="search"
-              className="form-control rounded"
+              className="form-control rounded border-success"
               placeholder={translations[language].searchPlaceholder}
               aria-label="Search"
               value={searchQuery}
@@ -485,7 +502,9 @@ const Villages = () => {
                     value={selectedDistrict ? selectedDistrict.id : ""}
                     onChange={(e) => {
                       const districtId = parseInt(e.target.value, 10);
-                      const district = districts.find((d) => d.id === districtId);
+                      const district = districts.find(
+                        (d) => d.id === districtId
+                      );
                       setSelectedDistrict(district || null);
                     }}
                   >
@@ -539,7 +558,9 @@ const Villages = () => {
                     value={selectedVillage ? selectedVillage.id : ""}
                     onChange={(e) => {
                       const villageId = parseInt(e.target.value, 10);
-                      const village = availableVillages.find((v) => v.id === villageId);
+                      const village = availableVillages.find(
+                        (v) => v.id === villageId
+                      );
                       setSelectedVillage(village || null);
                     }}
                   >
@@ -573,7 +594,8 @@ const Villages = () => {
                   onClick={handleSubmitSheti}
                   disabled={loading || isSubmitting || !selectedVillage}
                 >
-                  <FaSave className="me-2" /> {isSubmitting ? "Submitting..." : "Submit"}
+                  <FaSave className="me-2" />{" "}
+                  {isSubmitting ? "Submitting..." : "Submit"}
                 </button>
               </div>
             </div>
