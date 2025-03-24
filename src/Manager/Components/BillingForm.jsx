@@ -290,7 +290,7 @@ const Billing = () => {
           headers: { "Content-Type": "application/json" },
         });
         Swal.fire("Deleted", translations[language].delete, "success");
-        fetchBillings(); // Refresh the billing list
+        fetchBillings(); 
       } catch (error) {
         console.error("Error deleting billing:", error);
         Swal.fire(

@@ -271,19 +271,37 @@ const Billing = () => {
   };
 
   const handleDelete = async (id) => {
-    try {
-      const payload = { action: "deleteBilling", id: id.toString() };
-      await api.post("/billing/", payload);
-      Swal.fire("Deleted", translations[language].delete, "success");
-      fetchBillings();
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Error deleting billing:", error);
-      Swal.fire(
-        "Error",
-        error.response?.data?.message || translations[language].deleteConfirm,
-        "error"
-      );
+    const result = await Swal.fire({
+      title: translations[language].deleteConfirm,
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: translations[language].delete,
+      cancelButtonText: translations[language].cancel,
+    });
+  
+    if (result.isConfirmed) {
+      try {
+        const payload = { action: "deleteBilling", id: id.toString() };
+        await api.delete("/billing/", {
+          data: payload,
+          headers: { "Content-Type": "application/json" },
+        });
+        Swal.fire("Deleted", translations[language].delete, "success");
+        fetchBillings(); 
+      } catch (error) {
+        console.error("Error deleting billing:", error);
+        Swal.fire(
+          "Error",
+          error.response?.data?.message || translations[language].deleteConfirm,
+          "error"
+        );
+      }
+    } else {
+      // User canceled the deletion
+      Swal.fire("Cancelled", "Billing was not deleted.", "info");
     }
   };
 
