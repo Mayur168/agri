@@ -1,22 +1,56 @@
 import React, { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
+import { useLanguage } from "../../contexts/LanguageContext"; // Import LanguageContext
 import { Container, Card, Row, Col, Badge } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css"; // Ensure Bootstrap CSS is imported
 
 function Profile() {
   const { user } = useContext(AuthContext);
+  const { language } = useLanguage(); // Get the current language from context
+
+  // Define translations for English and Marathi
+  const translations = {
+    en: {
+      profile: "Profile",
+      id: "ID",
+      email: "Email",
+      firstName: "First Name",
+      lastName: "Last Name",
+      phone: "Phone",
+      role: "Role",
+      adminStatus: "Admin Status",
+      managerStatus: "Manager Status",
+      yes: "Yes",
+      no: "No",
+      loading: "Loading user data...",
+    },
+    mr: {
+      profile: "प्रोफाइल",
+      id: "आयडी",
+      email: "ईमेल",
+      firstName: "प्रथम नाव",
+      lastName: "आडनाव",
+      phone: "फोन",
+      role: "भूमिका",
+      adminStatus: "प्रशासक स्थिती",
+      managerStatus: "व्यवस्थापक स्थिती",
+      yes: "होय",
+      no: "नाही",
+      loading: "वापरकर्ता डेटा लोड होत आहे...",
+    },
+  };
 
   const getUserRole = () => {
-    if (user?.is_admin) return "Admin";
-    if (user?.is_manager) return "Manager";
-    return "User";
+    if (user?.is_admin) return translations[language].role === "Role" ? "Admin" : "प्रशासक";
+    if (user?.is_manager) return translations[language].role === "Role" ? "Manager" : "व्यवस्थापक";
+    return translations[language].role === "Role" ? "User" : "वापरकर्ता";
   };
 
   return (
-    <Container className="py-4">
+    <Container className="py-0">
       <Card className="shadow-sm border-0 rounded-3">
         <Card.Header className="bg-success text-white d-flex justify-content-between align-items-center py-3">
-          <h4 className="mb-0 fw-bold">Profile</h4>
+          <h4 className="mb-0 fw-bold">{translations[language].profile}</h4>
           <Badge bg="light" text="dark" className="px-3 py-2 fs-6 fw-normal">
             {user?.role || getUserRole()}
           </Badge>
@@ -42,42 +76,46 @@ function Profile() {
               <Col md={9} xs={12}>
                 <Row className="g-3">
                   <Col md={6} xs={12}>
-                    <small className="text-muted fw-bold d-block mb-1">ID</small>
+                    <small className="text-muted fw-bold d-block mb-1">{translations[language].id}</small>
                     <p className="mb-0 bg-light p-2 rounded-3 border">{user.id || "N/A"}</p>
                   </Col>
                   <Col md={6} xs={12}>
-                    <small className="text-muted fw-bold d-block mb-1">Email</small>
+                    <small className="text-muted fw-bold d-block mb-1">{translations[language].email}</small>
                     <p className="mb-0 bg-light p-2 rounded-3 border">{user.email || "N/A"}</p>
                   </Col>
                   <Col md={6} xs={12}>
-                    <small className="text-muted fw-bold d-block mb-1">First Name</small>
+                    <small className="text-muted fw-bold d-block mb-1">{translations[language].firstName}</small>
                     <p className="mb-0 bg-light p-2 rounded-3 border">{user.first_name || "N/A"}</p>
                   </Col>
                   <Col md={6} xs={12}>
-                    <small className="text-muted fw-bold d-block mb-1">Last Name</small>
+                    <small className="text-muted fw-bold d-block mb-1">{translations[language].lastName}</small>
                     <p className="mb-0 bg-light p-2 rounded-3 border">{user.last_name || "N/A"}</p>
                   </Col>
                   <Col md={6} xs={12}>
-                    <small className="text-muted fw-bold d-block mb-1">Phone</small>
+                    <small className="text-muted fw-bold d-block mb-1">{translations[language].phone}</small>
                     <p className="mb-0 bg-light p-2 rounded-3 border">{user.phone || "N/A"}</p>
                   </Col>
                   <Col md={6} xs={12}>
-                    <small className="text-muted fw-bold d-block mb-1">Role</small>
+                    <small className="text-muted fw-bold d-block mb-1">{translations[language].role}</small>
                     <p className="mb-0 bg-light p-2 rounded-3 border">{user.role || getUserRole()}</p>
                   </Col>
                   <Col md={6} xs={12}>
-                    <small className="text-muted fw-bold d-block mb-1">Admin Status</small>
-                    <p className="mb-0 bg-light p-2 rounded-3 border">{user.is_admin ? "Yes" : "No"}</p>
+                    <small className="text-muted fw-bold d-block mb-1">{translations[language].adminStatus}</small>
+                    <p className="mb-0 bg-light p-2 rounded-3 border">
+                      {user.is_admin ? translations[language].yes : translations[language].no}
+                    </p>
                   </Col>
                   <Col md={6} xs={12}>
-                    <small className="text-muted fw-bold d-block mb-1">Manager Status</small>
-                    <p className="mb-0 bg-light p-2 rounded-3 border">{user.is_manager ? "Yes" : "No"}</p>
+                    <small className="text-muted fw-bold d-block mb-1">{translations[language].managerStatus}</small>
+                    <p className="mb-0 bg-light p-2 rounded-3 border">
+                      {user.is_manager ? translations[language].yes : translations[language].no}
+                    </p>
                   </Col>
                 </Row>
               </Col>
             </Row>
           ) : (
-            <p className="text-center text-muted py-4 fs-5">Loading user data...</p>
+            <p className="text-center text-muted py-4 fs-5">{translations[language].loading}</p>
           )}
         </Card.Body>
       </Card>
