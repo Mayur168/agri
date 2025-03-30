@@ -6,7 +6,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../Spinner/Spinner";
-import api from "../../src/api/axiosInstance";
+import api from "../../Api/axiosInstance";
 import { FaSave, FaTimes, FaGlobe } from "react-icons/fa";
 
 const Villages = () => {
@@ -19,7 +19,7 @@ const Villages = () => {
       const parsedVillages = JSON.parse(storedVillages);
       return Array.isArray(parsedVillages)
         ? parsedVillages.filter(
-            (village) => village && typeof village.name === "string"
+            (village) => village && typeof village.village?.name === "string"
           )
         : [];
     } catch (error) {
@@ -64,8 +64,7 @@ const Villages = () => {
           fetchTalukasError: "Failed to fetch talukas",
           fetchVillagesError: "Failed to fetch villages",
           selectTalukaVillageError: "Please select both taluka and village",
-          villageExistsError:
-            "This village is already associated with the selected taluka",
+          villageExistsError: "This village is already added",
           villageAddedSuccess: "Village added successfully!",
           villageAddError: "Failed to add village",
           timeoutError: "Request timed out. Please try again.",
@@ -89,18 +88,16 @@ const Villages = () => {
           fetchTalukasError: "तालुके आणण्यात अयशस्वी",
           fetchVillagesError: "गावे आणण्यात अयशस्वी",
           selectTalukaVillageError: "कृपया तालुका आणि गाव दोन्ही निवडा",
-          villageExistsError:
-            "हे गाव आधीपासूनच निवडलेल्या तालुक्याशी संबंधित आहे",
+          villageExistsError: "हे गाव आधीपासूनच जोडले गेले आहे",
           villageAddedSuccess: "गाव यशस्वीरित्या जोडले गेले!",
           villageAddError: "गाव जोडण्यात अयशस्वी",
-          timeoutError: "विनंती वेळ संपली. कृपया पुन्हा प्रयत्न करा.",
+          timeoutError: "विनंती वेळ संपली. कृपया पुन्हा प्रयत्न करा。",
         },
       },
     }),
     [language]
   );
 
-  // Utility function for retrying failed requests
   const fetchWithRetry = async (
     url,
     options = {},
@@ -112,13 +109,13 @@ const Villages = () => {
         const response = await api.get(url, { ...options, timeout: 60000 });
         return response;
       } catch (err) {
-        if (i === retries - 1) throw err; // Last retry failed
+        if (i === retries - 1) throw err;
         if (err.response?.status === 504 || err.code === "ECONNABORTED") {
           console.warn(`Retry ${i + 1}/${retries} for ${url} due to timeout`);
           await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         }
-        throw err; // Non-timeout errors, stop retrying
+        throw err;
       }
     }
   };
@@ -134,13 +131,20 @@ const Villages = () => {
 
   const fetchDistricts = useCallback(
     async (stateId) => {
+      setLoading(true);
       try {
         const response = await fetchWithRetry(
-          "/master_data/?action=getDistrict"
+          `/master_data/?action=getDistrict&state_id=${stateId}`
         );
-        setDistricts(response.data.data || []);
+        const filteredDistricts = response.data.data.filter(
+          (district) => district.state?.id === stateId
+        );
+        setDistricts(filteredDistricts || []);
       } catch (err) {
         toast.error(translations[language].toast.fetchDistrictsError);
+        setDistricts([]);
+      } finally {
+        setLoading(false);
       }
     },
     [language, translations]
@@ -148,35 +152,36 @@ const Villages = () => {
 
   const fetchTalukas = useCallback(
     async (districtId) => {
+      setLoading(true);
       try {
-        const response = await fetchWithRetry("/master_data/?action=getTaluka");
-        setTalukas(response.data.data || []);
+        const response = await fetchWithRetry(
+          `/master_data/?action=getTaluka&district_id=${districtId}`
+        );
+        const filteredTalukas = response.data.data.filter(
+          (taluka) => taluka.district?.id === districtId
+        );
+        setTalukas(filteredTalukas || []);
       } catch (err) {
         toast.error(translations[language].toast.fetchTalukasError);
+        setTalukas([]);
+      } finally {
+        setLoading(false);
       }
     },
     [language, translations]
   );
 
   const fetchVillagesForTaluka = useCallback(
-    async (talukaId) => {
+    async (taluka_id) => {
       setLoading(true);
       try {
         const response = await fetchWithRetry(
-          "/master_data/?action=getVillage"
+          `/master_data/?action=getVillage&taluka=${taluka_id}`
         );
-        if (response.data && Array.isArray(response.data.data)) {
-          const filteredVillages = response.data.data.filter(
-            (village) =>
-              village &&
-              village.taluka &&
-              village.taluka.id === talukaId &&
-              typeof village.name === "string"
-          );
-          setAvailableVillages(filteredVillages);
-        } else {
-          setAvailableVillages([]);
-        }
+        const filteredVillages = response.data.data.filter(
+          (village) => village.taluka?.id === taluka_id
+        );
+        setAvailableVillages(filteredVillages || []);
       } catch (err) {
         toast.error(
           err.response?.status === 504 || err.code === "ECONNABORTED"
@@ -195,15 +200,14 @@ const Villages = () => {
     setFetchLoading(true);
     setLoading(true);
     try {
-      const response = await fetchWithRetry("/master_data/?action=getVillage");
+      const response = await fetchWithRetry("/farm/?action=getFarmVillage");
       if (response.data && Array.isArray(response.data.data)) {
         const validVillages = response.data.data.filter(
           (village) =>
             village &&
-            typeof village.name === "string" &&
+            typeof village.village?.name === "string" &&
             village.id &&
-            village.taluka &&
-            village.taluka.id
+            village.village?.id
         );
         setServerVillages(validVillages);
         setVillages(validVillages);
@@ -250,8 +254,8 @@ const Villages = () => {
       setSelectedDistrict(null);
       setTalukas([]);
       setSelectedTaluka(null);
-      setSelectedVillage(null);
       setAvailableVillages([]);
+      setSelectedVillage(null);
     }
   }, [selectedState, fetchDistricts]);
 
@@ -261,8 +265,8 @@ const Villages = () => {
     } else {
       setTalukas([]);
       setSelectedTaluka(null);
-      setSelectedVillage(null);
       setAvailableVillages([]);
+      setSelectedVillage(null);
     }
   }, [selectedDistrict, fetchTalukas]);
 
@@ -284,12 +288,8 @@ const Villages = () => {
     setIsSubmitting(true);
     setLoading(true);
     try {
-      const existingVillage = villages.find(
-        (village) =>
-          village &&
-          village.name === selectedVillage.name &&
-          village.taluka &&
-          village.taluka.id === selectedTaluka.id
+      const existingVillage = serverVillages.find(
+        (village) => village && village.village?.id === selectedVillage.id
       );
 
       if (existingVillage) {
@@ -298,19 +298,32 @@ const Villages = () => {
       }
 
       const payload = {
-        action: "postVillage",
-        taluka_id: selectedTaluka.id,
-        name: selectedVillage.name,
+        action: "postFarmVillage",
+        name: "",
+        description: "",
+        village: selectedVillage.id,
       };
 
-      const response = await api.post("/master_data/", payload, {
-        timeout: 30000, // 30 seconds for POST
+      const response = await api.post("/farm/", payload, {
+        timeout: 30000,
       });
 
-      if (response.data.success) {
+      console.log("POST response:", response.data); // Debug response
+
+      // Broaden success condition to handle common success cases
+      if (
+        response.status === 200 ||
+        response.data.success ||
+        response.data.message === "Village Created!"
+      ) {
         const newVillage = {
-          id: response.data.data.id || Date.now(),
-          name: selectedVillage.name,
+          id: response.data.data?.id || Date.now(),
+          name: response.data.data?.name || "",
+          description: response.data.data?.description || "",
+          village: {
+            id: selectedVillage.id,
+            name: selectedVillage.name,
+          },
           taluka: {
             id: selectedTaluka.id,
             name: selectedTaluka.name,
@@ -319,22 +332,44 @@ const Villages = () => {
           },
         };
 
-        const updatedVillages = [...villages, newVillage];
-        setVillages(updatedVillages);
-        setAvailableVillages([...availableVillages, newVillage]);
-        localStorage.setItem("villages", JSON.stringify(updatedVillages));
+        // Use functional updates to ensure latest state
+        setVillages((prevVillages) => {
+          const updated = [...prevVillages, newVillage];
+          localStorage.setItem("villages", JSON.stringify(updated));
+          return updated;
+        });
+        setServerVillages((prevServerVillages) => [
+          ...prevServerVillages,
+          newVillage,
+        ]);
 
-        toast.success(translations[language].toast.villageAddedSuccess);
+        console.log("Village added to state"); // Debug state update
+        toast.success(translations[language].toast.villageAddedSuccess, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+
         setShowShetiModal(false);
         setSelectedState(null);
         setSelectedDistrict(null);
         setSelectedTaluka(null);
         setSelectedVillage(null);
+      } else {
+        throw new Error("Unexpected response format");
       }
     } catch (err) {
+      console.error("Error adding village:", err);
       toast.error(
         err.response?.data?.message ||
-          translations[language].toast.villageAddError
+          translations[language].toast.villageAddError,
+        {
+          position: "top-right",
+          autoClose: 3000,
+        }
       );
     } finally {
       setIsSubmitting(false);
@@ -352,8 +387,8 @@ const Villages = () => {
         ? serverVillages.filter(
             (village) =>
               village &&
-              typeof village.name === "string" &&
-              village.name.toLowerCase().includes(searchQuery.toLowerCase())
+              typeof village.village?.name === "string" &&
+              village.village.name.toLowerCase().includes(searchQuery.toLowerCase())
           )
         : [],
     [serverVillages, searchQuery]
@@ -414,7 +449,7 @@ const Villages = () => {
                 className="village-name"
                 onClick={() => handleVillageClick(village)}
               >
-                {village.name}
+                {village.village.name}
               </span>
             </div>
           ))
@@ -498,7 +533,7 @@ const Villages = () => {
                   <select
                     id="districtSelect"
                     className="form-select"
-                    disabled={!selectedState}
+                    disabled={!selectedState || loading}
                     value={selectedDistrict ? selectedDistrict.id : ""}
                     onChange={(e) => {
                       const districtId = parseInt(e.target.value, 10);
@@ -509,11 +544,17 @@ const Villages = () => {
                     }}
                   >
                     <option value="">Select District</option>
-                    {districts.map((district) => (
-                      <option key={district.id} value={district.id}>
-                        {district.name}
-                      </option>
-                    ))}
+                    {loading ? (
+                      <option value="">Loading Districts...</option>
+                    ) : districts.length > 0 ? (
+                      districts.map((district) => (
+                        <option key={district.id} value={district.id}>
+                          {district.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">No Districts Available</option>
+                    )}
                   </select>
                 </div>
                 <div className="mb-4">
@@ -527,7 +568,7 @@ const Villages = () => {
                   <select
                     id="talukaSelect"
                     className="form-select"
-                    disabled={!selectedDistrict}
+                    disabled={!selectedDistrict || loading}
                     value={selectedTaluka ? selectedTaluka.id : ""}
                     onChange={(e) => {
                       const talukaId = parseInt(e.target.value, 10);
@@ -536,11 +577,17 @@ const Villages = () => {
                     }}
                   >
                     <option value="">Select Taluka</option>
-                    {talukas.map((taluka) => (
-                      <option key={taluka.id} value={taluka.id}>
-                        {taluka.name}
-                      </option>
-                    ))}
+                    {loading ? (
+                      <option value="">Loading Talukas...</option>
+                    ) : talukas.length > 0 ? (
+                      talukas.map((taluka) => (
+                        <option key={taluka.id} value={taluka.id}>
+                          {taluka.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="">No Talukas Available</option>
+                    )}
                   </select>
                 </div>
                 <div className="mb-4">
@@ -603,7 +650,17 @@ const Villages = () => {
         </div>
       )}
 
-      <ToastContainer />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { toast, ToastContainer } from "react-toastify";
@@ -7,9 +5,9 @@ import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../Spinner/Spinner";
 import { useLanguage } from "../../contexts/LanguageContext";
 import BackButton from "../Components/BackButton";
-import ModalForm from "../Components/ModelForm"; // Assuming this is the correct import path
-import api from "../../src/api/axiosInstance";
-import { FaMapPin, FaGlobe, FaTractor, FaEye } from "react-icons/fa"; // Import Font Awesome icons
+import ModalForm from "../Components/ModelForm";
+import api from "../../Api/axiosInstance";
+import { FaMapPin, FaGlobe, FaTractor, FaEye } from "react-icons/fa";
 import { FaWarehouse } from "react-icons/fa";
 
 function Allfarms() {
@@ -26,6 +24,7 @@ function Allfarms() {
     address: "",
     location_url: "",
     farm_size: "",
+    manager_name: "",
   });
 
   const labels = {
@@ -36,6 +35,7 @@ function Allfarms() {
       address: "Address",
       locationUrl: "Location URL",
       farmSize: "Farm Size (acres)",
+      manager: "Manager",
       view: "View",
       cancel: "Cancel",
       searchPlaceholder: "Search by address or farm size...",
@@ -48,6 +48,7 @@ function Allfarms() {
       address: "पत्ता",
       locationUrl: "स्थान URL",
       farmSize: "शेताचा आकार (एकर)",
+      manager: "व्यवस्थापक",
       view: "पहा",
       cancel: "बंद करा",
       searchPlaceholder: "पत्ता किंवा शेताचा आकार शोधा...",
@@ -75,20 +76,23 @@ function Allfarms() {
       const farmData = Array.isArray(result.data)
         ? result.data
         : [result.data].filter(Boolean);
+
       const normalizedFarms = farmData.map((farm) => ({
         id: farm.id,
-        farm_name: farm.name,
-        address: farm.address,
-        location_url: farm.location_url,
-        farm_size: farm.farm_size,
+        farm_name: farm.name || "N/A",
+        address: farm.address || "N/A",
+        location_url: farm.location_url || "N/A",
+        farm_size: farm.farm_size || "N/A",
+        manager: farm.manager
+          ? { id: farm.manager, name: `Manager ID: ${farm.manager}` }
+          : null,
       }));
+
       setFarms(normalizedFarms);
       setFilteredFarms(normalizedFarms);
     } catch (err) {
       setError(
-        err.response?.data?.message ||
-          err.message ||
-          "An error occurred while fetching farms."
+        err.response?.data?.message || err.message || "Error fetching farms."
       );
     } finally {
       setLoading(false);
@@ -116,10 +120,11 @@ function Allfarms() {
     setSelectedFarm(farm);
     setFormData({
       id: farm.id || "",
-      farm_name: farm.farm_name || farm.name || "",
-      address: farm.address || "",
-      location_url: farm.location_url || "",
-      farm_size: farm.farm_size || "",
+      farm_name: farm.farm_name || "N/A",
+      address: farm.address || "N/A",
+      location_url: farm.location_url || "N/A",
+      farm_size: farm.farm_size || "N/A",
+      manager_name: farm.manager ? farm.manager.name : "No Manager Assigned",
     });
   };
 
@@ -136,13 +141,12 @@ function Allfarms() {
           <input
             type="search"
             className="form-control rounded"
-            placeholder={language === "en" ? "Search" : "शोधा"}
+            placeholder={labels[language].searchPlaceholder}
             aria-label="Search"
-            aria-describedby="search-addon"
             value={searchQuery}
             onChange={handleSearch}
           />
-          <span className="input-group-text border-0" id="search-addon">
+          <span className="input-group-text border-0">
             <i className="fa fa-search"></i>
           </span>
         </div>
@@ -162,47 +166,42 @@ function Allfarms() {
                 <div className="card h-100 shadow-sm">
                   <div className="card-body">
                     <h5 className="card-title">
-                      <strong>{farm.farm_name || "N/A"}</strong>
+                      <strong>{farm.farm_name}</strong>
                     </h5>
                     <div className="d-flex align-items-center mb-2">
                       <FaMapPin className="me-2 text-success" />
-                      <div>
-                        <strong>{labels[language].address}:</strong>{" "}
-                        <span className="" style={{ maxWidth: "200px" }}>
-                          {farm.address || "N/A"}
-                        </span>
-                      </div>
+                      <strong>{labels[language].address}:</strong>{" "}
+                      {farm.address}
                     </div>
                     <div className="d-flex align-items-center mb-2">
                       <FaGlobe className="me-2 text-success" />
-                      <div>
-                        <strong>{labels[language].locationUrl}:</strong>{" "}
-                        <a
-                          href={farm.location_url || "#"}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-truncate d-inline-block"
-                          style={{ maxWidth: "200px" }}
-                        >
-                          {farm.location_url || "N/A"}
-                        </a>
-                      </div>
+                      <strong>{labels[language].locationUrl}:</strong>{" "}
+                      <a
+                        href={farm.location_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="d-inline-block text-truncate text-break w-100"
+                        style={{ maxWidth: "200px" }} // Adjust width as needed
+                      >
+                        {farm.location_url}
+                      </a>
                     </div>
+
                     <div className="d-flex align-items-center mb-2">
                       <FaTractor className="me-2 text-success" />
-                      <div>
-                        <strong>{labels[language].farmSize}:</strong>{" "}
-                        {farm.farm_size || "N/A"}
-                      </div>
+                      <strong>{labels[language].farmSize}:</strong>{" "}
+                      {farm.farm_size}
                     </div>
-                    <div className="d-flex justify-content-end gap-2 mt-3">
-                      <button
-                        className="btn btn-success btn-sm"
-                        onClick={() => handleViewFarm(farm)}
-                      >
-                        <FaEye className="me-1" /> {labels[language].view}
-                      </button>
+                    <div className="d-flex align-items-center mb-2">
+                      <strong>{labels[language].manager}:</strong>{" "}
+                      {farm.manager ? farm.manager.name : "No Manager Assigned"}
                     </div>
+                    <button
+                      className="btn btn-success btn-sm mt-3"
+                      onClick={() => handleViewFarm(farm)}
+                    >
+                      <FaEye className="me-1" /> {labels[language].view}
+                    </button>
                   </div>
                 </div>
               </div>

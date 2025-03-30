@@ -8,7 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../Spinner/Spinner";
 import ModalForm from "../../Admin/Components/ModelForm";
-import api from "../../src/api/axiosInstance";
+import api from "../../Api/axiosInstance";
 import Swal from "sweetalert2";
 
 const ManagersList = () => {
@@ -171,23 +171,9 @@ const ManagersList = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Unauthorized: No token found.");
-
-      // Step 1: Create the user with postUser payload
-      // const userPayload = {
-      //   action: "postUser",
-      //   first_name: formData.first_name.trim(),
-      //   last_name: formData.last_name.trim(),
-      //   email: formData.email.trim(),
-      //   phone: formData.phone.trim(),
-      //   password: formData.password.trim(), // Added password as required by UI
-      //   is_admin: formData.role === "Admin",
-      //   is_manager: formData.role === "Manager",
-      // };
-
-      // const userResponse = await api.post("/users/", userPayload);
-
-      // Step 2: If role is Manager, create farm manager with postFarmManager payload
+  
       if (formData.role === "Manager") {
+        // Single payload for Manager with full user data
         const managerPayload = {
           action: "postFarmManager",
           user: {
@@ -195,22 +181,50 @@ const ManagersList = () => {
             last_name: formData.last_name.trim(),
             email: formData.email.trim(),
             phone: formData.phone.trim(),
+            password: formData.password.trim(),
+            confirm_password: formData.confirm_password.trim(),
+            is_admin: false,
+            is_manager: true,
           },
           farm_name: formData.farm_name.trim(),
           farm_location: formData.farm_location.trim(),
           manager_experience: parseInt(formData.manager_experience) || 0,
         };
-
+  
+        console.log("Manager Payload:", managerPayload); // Debug log
+  
         const managerResponse = await api.post("/users/", managerPayload);
+        console.log("Manager Response:", managerResponse.data); // Debug log
         const newManager = managerResponse.data.data;
         const updatedManagers = [newManager, ...managers];
         setManagers(updatedManagers);
         localStorage.setItem("managers", JSON.stringify(updatedManagers));
         toast.success(translations[language].toast.managerAddedSuccess);
       } else {
+        // Separate payload for Admin
+        const userPayload = {
+          action: "postUser",
+          first_name: formData.first_name.trim(),
+          last_name: formData.last_name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          password: formData.password.trim(),
+          confirm_password: formData.confirm_password.trim(),
+          is_admin: true,
+          is_manager: false,
+        };
+  
+        console.log("Admin Payload:", userPayload); // Debug log
+  
+        const userResponse = await api.post("/users/", userPayload);
+        console.log("Admin Response:", userResponse.data); // Debug log
+        const newAdmin = userResponse.data.data;
+        const updatedManagers = [newAdmin, ...managers];
+        setManagers(updatedManagers);
+        localStorage.setItem("managers", JSON.stringify(updatedManagers));
         toast.success(translations[language].toast.adminAddedSuccess);
       }
-
+  
       setShowModal(false);
       setFormData({
         first_name: "",
@@ -295,6 +309,7 @@ const ManagersList = () => {
           last_name: formData.last_name.trim(),
           email: formData.email.trim(),
           phone: formData.phone.trim(),
+          confirm_password: formData.confirm_password.trim(),
         },
         farm_name: formData.farm_name.trim(),
         farm_location: formData.farm_location.trim(),
@@ -397,12 +412,12 @@ const ManagersList = () => {
   
     try {
       const deletePayload = {
-        role: "farmer", // Assuming this should be "manager" instead of "farmer" based on context
-        action: "delFarmer",
+        // role: "farmmanager", 
+        action: "delFarmManager",
         id: managerId,
       };
   
-      const response = await api.delete("/users/farms/", {
+      const response = await api.delete("/users/", {
         data: deletePayload,
       });
   

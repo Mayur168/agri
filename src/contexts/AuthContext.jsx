@@ -2,7 +2,6 @@
 import React, { createContext, useState } from "react";
 
 export const AuthContext = createContext();
-
 export const AuthProvider = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(
     localStorage.getItem("token") !== null
@@ -13,9 +12,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = (token, userData) => {
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(userData)); // Store full user data
+    localStorage.setItem("user", JSON.stringify(userData)); 
     setAuthenticated(true);
-    setUser(userData); // Set full user object
+    setUser(userData); 
   };
 
   const logout = () => {

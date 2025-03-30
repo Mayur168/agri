@@ -1,14 +1,13 @@
 import React, { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
-import { useLanguage } from "../../contexts/LanguageContext"; // Import LanguageContext
+import { useLanguage } from "../../contexts/LanguageContext";
 import { Container, Card, Row, Col, Badge } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css"; // Ensure Bootstrap CSS is imported
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function Profile() {
   const { user } = useContext(AuthContext);
-  const { language } = useLanguage(); // Get the current language from context
+  const { language } = useLanguage();
 
-  // Define translations for English and Marathi
   const translations = {
     en: {
       profile: "Profile",
@@ -20,6 +19,8 @@ function Profile() {
       role: "Role",
       adminStatus: "Admin Status",
       managerStatus: "Manager Status",
+      managerId: "Manager ID",
+      farmerId: "Farmer ID", // Changed from adminId to farmerId
       yes: "Yes",
       no: "No",
       loading: "Loading user data...",
@@ -34,6 +35,8 @@ function Profile() {
       role: "भूमिका",
       adminStatus: "प्रशासक स्थिती",
       managerStatus: "व्यवस्थापक स्थिती",
+      managerId: "व्यवस्थापक आयडी",
+      farmerId: "शेतकरी आयडी", // Changed from adminId to farmerId
       yes: "होय",
       no: "नाही",
       loading: "वापरकर्ता डेटा लोड होत आहे...",
@@ -45,6 +48,28 @@ function Profile() {
     if (user?.is_manager) return translations[language].role === "Role" ? "Manager" : "व्यवस्थापक";
     return translations[language].role === "Role" ? "User" : "वापरकर्ता";
   };
+
+  // Determine which ID to show based on role
+  const getIdLabelAndValue = () => {
+    if (user?.is_admin) {
+      return {
+        label: translations[language].farmerId, // Use "Farmer ID" for admins
+        value: user.farmer_id !== null && user.farmer_id !== undefined ? user.farmer_id : "N/A",
+      };
+    }
+    if (user?.is_manager) {
+      return {
+        label: translations[language].managerId,
+        value: user.manager_id !== null && user.manager_id !== undefined ? user.manager_id : "N/A",
+      };
+    }
+    return {
+      label: translations[language].id,
+      value: user.id || "N/A", // Default to generic ID for other roles
+    };
+  };
+
+  const { label: idLabel, value: idValue } = getIdLabelAndValue();
 
   return (
     <Container className="py-0">
@@ -76,8 +101,8 @@ function Profile() {
               <Col md={9} xs={12}>
                 <Row className="g-3">
                   <Col md={6} xs={12}>
-                    <small className="text-muted fw-bold d-block mb-1">{translations[language].id}</small>
-                    <p className="mb-0 bg-light p-2 rounded-3 border">{user.id || "N/A"}</p>
+                    <small className="text-muted fw-bold d-block mb-1">{idLabel}</small>
+                    <p className="mb-0 bg-light p-2 rounded-3 border">{idValue}</p>
                   </Col>
                   <Col md={6} xs={12}>
                     <small className="text-muted fw-bold d-block mb-1">{translations[language].email}</small>

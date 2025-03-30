@@ -1,10 +1,9 @@
-
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../../contexts/AuthContext";
-import api from "../../src/api/axiosInstance";
+import api from "../../Api/axiosInstance";
 
 function Login() {
   const navigate = useNavigate();
@@ -46,7 +45,11 @@ function Login() {
 
         // Log success with the determined role
         toast.success(`Login successful as ${userData.role}!`);
-        
+
+        // Store the full response in localStorage with key "storedData"
+        localStorage.setItem("storedData", JSON.stringify(response.data));
+        console.log("Stored in localStorage as storedData:", localStorage.getItem("storedData"));
+
         // Store token and user data in AuthContext
         login(response.data.access, userData);
 
@@ -68,6 +71,7 @@ function Login() {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="container my-5">

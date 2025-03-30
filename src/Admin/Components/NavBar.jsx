@@ -54,6 +54,9 @@ function NavBar() {
                 <Nav.Link as={NavLink} to="/admin/billing" onClick={closeMenu}>
                   Billing
                 </Nav.Link>
+                <Nav.Link as={NavLink} to="/admin/AdminExpense" onClick={closeMenu}>
+                  ExpenseForm
+                </Nav.Link>
                 {user && (
                   <Nav.Link as={NavLink} to="/admin/profile" onClick={closeMenu}>
                     Profile

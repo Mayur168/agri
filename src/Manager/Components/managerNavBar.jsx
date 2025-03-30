@@ -62,9 +62,6 @@ function NavBar() {
                 <NavLink className="nav-link" to="/Manager/spray-fertilizer" onClick={closeMenu}>
                   SprayFertilizerform
                 </NavLink>
-                <NavLink className="nav-link" to="/Manager/billing" onClick={closeMenu}>
-                  Billing
-                </NavLink>
                 {user && (
                   <NavLink className="nav-link" to="/Manager/profile" onClick={closeMenu}>
                    profile

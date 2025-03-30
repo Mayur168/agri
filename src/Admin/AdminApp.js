@@ -10,6 +10,7 @@ import Allfarms from "../Admin/Pages/Allfarms";
 import ManagersList from "../Admin/Pages/ManagerList";
 import Profile from "./Components/Profile"; 
 import BillingForm from "./Pages/BillingForm";
+import AdminExpense from "./Pages/AdminExpense";
 import NavBar from "../Admin/Components/NavBar";
 import PrivateRoute from "../Admin/Auth/PrivateRoute";
 import { AuthContext } from "../../src/contexts/AuthContext";
@@ -48,7 +49,8 @@ const AdminRoutes = () => {
       <Route path="/allfarms" element={<PrivateRoute element={<Allfarms />} requiredRole="admin" />} />
       <Route path="/manager-list" element={<PrivateRoute element={<ManagersList />} requiredRole="admin" />} />
       <Route path="/profile" element={<PrivateRoute element={<Profile />} requiredRole="admin" />} />
-      <Route path="/billing" element={<PrivateRoute element={<BillingForm />} requiredRole="admin" />} /> {/* New Billing Route */}
+      <Route path="/AdminExpense" element={<PrivateRoute element={<AdminExpense />} requiredRole="admin" />} />
+      <Route path="/billing" element={<PrivateRoute element={<BillingForm />} requiredRole="admin" />} /> 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );

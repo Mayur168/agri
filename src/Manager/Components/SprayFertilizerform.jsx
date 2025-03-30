@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import api from "../../src/api/axiosInstance";
+import api from "../../Api/axiosInstance";
 import { FaEye, FaSprayCan, FaPlus } from "react-icons/fa";
 import ModalForm from "../../Admin/Components/ModelForm";
 import Spinner from "../../Admin/Spinner/Spinner";
@@ -15,11 +15,28 @@ function SprayFertilizerForm() {
     id: null,
     name: "",
     price: "",
+    manager_id: null, // Add manager_id to formData
   });
-  const [isEditing, setIsEditing] = useState(true); // Default to true for editing
+  const [isEditing, setIsEditing] = useState(true);
   const [records, setRecords] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+
+  // Retrieve storedData from localStorage
+  const storedData = JSON.parse(localStorage.getItem("storedData")) || {};
+  console.log("Stored Data from localStorage:", storedData);
+
+  // Extract manager_id from storedData.user
+  const defaultManagerId = storedData.user?.manager_id
+    ? Number(storedData.user.manager_id)
+    : null;
+  console.log("defaultManagerId:", defaultManagerId);
+
+  if (defaultManagerId === null) {
+    console.warn(
+      "No manager_id found in localStorage. Ensure login data is stored correctly."
+    );
+  }
 
   const translations = {
     en: {
@@ -38,9 +55,10 @@ function SprayFertilizerForm() {
       cancel: "Close",
       searchPlaceholder: "Search..",
       noRecords: "No records available",
+      noManagerWarning: "Please log in as a manager to view records.",
     },
     mr: {
-      title: "स्प्रे खत",
+      title: "स्प्रे फवारणी",
       addRecord: "खत",
       view: "पहा",
       edit: "संपादन",
@@ -55,16 +73,30 @@ function SprayFertilizerForm() {
       cancel: "बंद करा",
       searchPlaceholder: "शोधा..",
       noRecords: "कोणतेही रेकॉर्ड उपलब्ध नाहीत",
+      noManagerWarning: "कृपया व्यवस्थापक म्हणून लॉग इन करा.",
     },
   };
 
   const labels = translations[language];
 
-  // Fetch all records (GET)
+  // Fetch records for the logged-in manager (GET)
   const fetchRecords = async () => {
+    if (!defaultManagerId) {
+      setRecords([]);
+      setLoading(false);
+      Swal.fire({
+        icon: "warning",
+        title: language === "en" ? "Warning" : "सावधान",
+        text: labels.noManagerWarning,
+      });
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await api.get(`/master_data/?action=getfertilizer`);
+      const response = await api.get(
+        `/master_data/?action=getfertilizer&manager=${defaultManagerId}`
+      );
       console.log("API Response:", response.data);
       const validRecords = Array.isArray(response.data.data)
         ? response.data.data.filter(
@@ -78,7 +110,7 @@ function SprayFertilizerForm() {
         language === "en" ? "Failed to fetch records" : "रेकॉर्ड्स आणण्यात अयशस्वी",
         "error"
       );
-      console.error("Fetch error:", error);
+      console.error("Fetch error:", error.response || error);
       setRecords([]);
     } finally {
       setLoading(false);
@@ -87,12 +119,22 @@ function SprayFertilizerForm() {
 
   // Add new record (POST)
   const handlePostRecord = async () => {
+    if (!defaultManagerId) {
+      Swal.fire({
+        icon: "error",
+        title: language === "en" ? "Error" : "त्रुटी",
+        text: labels.noManagerWarning,
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await api.post(`/master_data/`, {
         action: "postfertilizer",
         name: formData.name,
         price: parseFloat(formData.price),
+        manager_id: defaultManagerId, // Include manager_id in POST
       });
       const savedData = response.data.data;
       setRecords([...records, savedData]);
@@ -108,7 +150,7 @@ function SprayFertilizerForm() {
         language === "en" ? "Failed to add record" : "रेकॉर्ड जोडण्यात अयशस्वी",
         "error"
       );
-      console.error("Post error:", error);
+      console.error("Post error:", error.response || error);
     } finally {
       setLoading(false);
     }
@@ -116,6 +158,15 @@ function SprayFertilizerForm() {
 
   // Update existing record (PATCH)
   const handlePatchRecord = async () => {
+    if (!defaultManagerId) {
+      Swal.fire({
+        icon: "error",
+        title: language === "en" ? "Error" : "त्रुटी",
+        text: labels.noManagerWarning,
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await api.patch(`/master_data/`, {
@@ -123,6 +174,7 @@ function SprayFertilizerForm() {
         id: formData.id,
         name: formData.name,
         price: parseFloat(formData.price),
+        manager_id: defaultManagerId, // Include manager_id in PATCH
       });
       const updatedData = response.data.data;
       setRecords(
@@ -140,7 +192,7 @@ function SprayFertilizerForm() {
         language === "en" ? "Failed to update record" : "रेकॉर्ड अद्यतनित करण्यात अयशस्वी",
         "error"
       );
-      console.error("Patch error:", error);
+      console.error("Patch error:", error.response || error);
     } finally {
       setLoading(false);
     }
@@ -166,7 +218,7 @@ function SprayFertilizerForm() {
         language === "en" ? "Failed to delete record" : "रेकॉर्ड हटविण्यात अयशस्वी",
         "error"
       );
-      console.error("Delete error:", error);
+      console.error("Delete error:", error.response || error);
     } finally {
       setLoading(false);
     }
@@ -174,7 +226,7 @@ function SprayFertilizerForm() {
 
   useEffect(() => {
     fetchRecords();
-  }, []);
+  }, [defaultManagerId]); // Re-fetch if manager_id changes
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -206,26 +258,26 @@ function SprayFertilizerForm() {
   };
 
   const resetForm = () => {
-    setFormData({ id: null, name: "", price: "" });
+    setFormData({ id: null, name: "", price: "", manager_id: defaultManagerId });
     setIsOpen(false);
-    setIsEditing(true); // Reset to editing mode
+    setIsEditing(true);
   };
 
   const handleEdit = (item) => {
-    setFormData(item);
-    setIsEditing(true); // Open in edit mode
+    setFormData({ ...item, manager_id: defaultManagerId });
+    setIsEditing(true);
     setIsOpen(true);
   };
 
   const handleView = (item) => {
-    setFormData(item);
-    setIsEditing(false); // Open in view mode (read-only)
+    setFormData({ ...item, manager_id: defaultManagerId });
+    setIsEditing(false);
     setIsOpen(true);
   };
 
   const handleAdd = () => {
-    setFormData({ id: null, name: "", price: "" });
-    setIsEditing(true); // Open in edit mode for adding
+    setFormData({ id: null, name: "", price: "", manager_id: defaultManagerId });
+    setIsEditing(true);
     setIsOpen(true);
   };
 
@@ -250,7 +302,7 @@ function SprayFertilizerForm() {
         <div className="d-flex align-items-center mb-3">
           <input
             type="text"
-            className="form-control shadow-sm rounded-3 px-3 py-2 me-2 border-success"       
+            className="form-control shadow-sm rounded-3 px-3 py-2 me-2 border-success"
             placeholder={labels.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -259,7 +311,7 @@ function SprayFertilizerForm() {
           <button
             className="btn btn-success fw-bold d-flex align-items-center justify-content-center px-3 py-2 shadow-sm"
             onClick={handleAdd}
-            disabled={loading}
+            disabled={loading || !defaultManagerId} // Disable if no manager_id
             style={{ width: "50%" }}
           >
             <FaPlus className="me-1" /> {labels.addRecord}
@@ -279,7 +331,7 @@ function SprayFertilizerForm() {
                 className="manager-card d-flex justify-content-between align-items-center flex-wrap shadow-sm p-3 rounded-3 bg-light"
               >
                 <span className="manager-name fw-medium">
-                  {item.name} - ${item.price}
+                  {item.name} - ₹{item.price}
                 </span>
                 <div className="manager-actions">
                   <div className="dropdown">

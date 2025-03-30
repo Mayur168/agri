@@ -6,7 +6,6 @@ import ExpenseForm from "../Manager/Components/ExpenseForm";
 import SprayFertilizerForm from "../Manager/Components/SprayFertilizerform";
 import Profile from "../Admin/Components/Profile"; 
 import NavBar from "./Components/managerNavBar"; 
-import BillingForm from "./Components/BillingForm";
 import PrivateRoute from "../Admin/Auth/PrivateRoute";
 import { AuthContext } from "../../src/contexts/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -44,10 +43,6 @@ const ManagerRoutes = () => {
       <Route
         path="/spray-fertilizer"
         element={<PrivateRoute element={<SprayFertilizerForm />} requiredRole="manager" />}
-      />
-       <Route
-        path="/Billing"
-        element={<PrivateRoute element={<BillingForm />} requiredRole="manager" />}
       />
       <Route
         path="/profile"

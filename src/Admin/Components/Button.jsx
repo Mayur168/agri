@@ -1,5 +1,5 @@
 import React from "react";
-import PropTypes from "prop-types"; // Optional: for prop type checking
+import PropTypes from "prop-types"; 
 
 const Button = ({
   variant = "primary",
@@ -11,33 +11,28 @@ const Button = ({
   className = "",
   ...props
 }) => {
-  // Map custom variants to Bootstrap classes
   const variants = {
     primary: "btn-primary",
     secondary: "btn-secondary",
-    // Add more Bootstrap variants as needed (e.g., "danger", "success", "info")
   };
 
-  // Map custom sizes to Bootstrap classes
   const sizes = {
     sm: "btn-sm",
-    md: "", // Bootstrap's default size (no additional class needed)
+    md: "", 
     lg: "btn-lg",
   };
 
-  // Base Bootstrap button class
   const baseStyles = "btn";
 
-  // Combine classes dynamically
   const buttonClasses = [
     baseStyles,
-    variants[variant] || variants.primary, // Fallback to primary if variant not found
-    sizes[size] || "", // Apply size class if defined
-    loading ? "disabled opacity-50" : "", // Bootstrap's disabled style + opacity
-    className, // Allow custom classes to be appended
+    variants[variant] || variants.primary, 
+    sizes[size] || "", 
+    loading ? "disabled opacity-50" : "", 
+    className, 
   ]
-    .filter(Boolean) // Remove falsy values
-    .join(" "); // Join with spaces
+    .filter(Boolean) 
+    .join(" "); 
 
   return (
     <button

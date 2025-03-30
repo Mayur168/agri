@@ -9,7 +9,7 @@ import {
   FaFileAlt,
   FaPlus,
 } from "react-icons/fa";
-import api from "../../src/api/axiosInstance";
+import api from "../../Api/axiosInstance";
 import Spinner from "../Spinner/Spinner";
 import BackButton from "../Components/BackButton";
 import { useLanguage } from "../../contexts/LanguageContext"; // Imported LanguageContext

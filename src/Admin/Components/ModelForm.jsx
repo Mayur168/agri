@@ -16,7 +16,7 @@ import {
   FaCalendarAlt,
   FaFileAlt,
   FaTags,
-  FaTruck, // Added for vehicle_number in billing
+  FaTruck,
 } from "react-icons/fa";
 
 const ModalForm = ({
@@ -31,18 +31,21 @@ const ModalForm = ({
   language,
   getLiveLocation,
   formType = "farm",
-  farms = [], // Added for billing
-  products = [], // Added for billing
-  fetchFarms, // Added to fetch farms on demand for billing
-  isLoadingFarms, // Loading state for farms in billing
-  isLoadingProducts, // Loading state for products in billing
+  farms = [],
+  products = [],
+  fetchFarms,
+  isLoadingFarms,
+  isLoadingProducts,
+  managers = [], // Added managers prop
 }) => {
   if (!isOpen) return null;
 
   const confirmDelete = async (id) => {
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: labels[language].deleteConfirm || "Are you sure you want to delete this?",
+      text:
+        labels[language].deleteConfirm ||
+        "Are you sure you want to delete this?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -63,12 +66,17 @@ const ModalForm = ({
       role="dialog"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
-      <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div
+        className="modal-dialog modal-dialog-centered modal-lg"
+        role="document"
+      >
         <div className="modal-content mx-auto">
           <div className="modal-header bg-success text-white">
             <h4 className="modal-title ms-auto">
               {formData.id && isEditing
                 ? labels[language].modalTitle
+                : formData.id && !isEditing && formType === "managerExpense"
+                ? labels[language].modalTitleManager
                 : `Add ${
                     formType === "expense"
                       ? "Expense"
@@ -78,6 +86,10 @@ const ModalForm = ({
                       ? "Manager"
                       : formType === "billing"
                       ? "Billing"
+                      : formType === "adminExpense"
+                      ? "Admin Expense"
+                      : formType === "managerExpense"
+                      ? "Manager Expense"
                       : "Farm"
                   }`}
             </h4>
@@ -178,11 +190,38 @@ const ModalForm = ({
                         </label>
                       </div>
                     </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <select
+                          className="form-select"
+                          name="manager_id"
+                          value={formData.manager_id || ""}
+                          onChange={handleChange}
+                          disabled={!isEditing}
+                        >
+                          <option value="">
+                            {language === "en"
+                              ? "Select Manager"
+                              : "व्यवस्थापक निवडा"}
+                          </option>
+                          {managers.map((manager) => (
+                            <option key={manager.id} value={manager.id}>
+                              {manager.user.first_name} {manager.user.last_name}{" "}
+                            </option>
+                          ))}
+                        </select>
+                        <label>
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].manager}
+                        </label>
+                      </div>
+                    </div>
                   </>
                 )}
 
                 {/* Manager Form */}
                 {formType === "manager" && (
+                  // ... (unchanged, keeping existing code)
                   <>
                     <div className="col-md-6">
                       <div className="form-floating">
@@ -300,7 +339,9 @@ const ModalForm = ({
                           <option value="Manager">
                             {labels[language].manager}
                           </option>
-                          <option value="Admin">{labels[language].admin}</option>
+                          <option value="Admin">
+                            {labels[language].admin}
+                          </option>
                         </select>
                         <label>
                           <FaUserTag className="me-2 text-success" />{" "}
@@ -368,6 +409,7 @@ const ModalForm = ({
 
                 {/* Fertilizer Form */}
                 {formType === "fertilizer" && (
+                  // ... (unchanged)
                   <>
                     <div className="col-md-6">
                       <div className="form-floating">
@@ -408,25 +450,45 @@ const ModalForm = ({
 
                 {/* Expense Form */}
                 {formType === "expense" && (
+                  // ... (unchanged)
                   <>
                     <div className="col-md-6">
                       <div className="form-floating">
                         <input
-                          type="date"
+                          type="number"
                           className="form-control"
-                          name="date"
-                          value={formData.date || ""}
+                          name="amount"
+                          value={formData.amount || ""}
                           onChange={handleChange}
-                          placeholder={labels[language].date}
+                          placeholder={labels[language].amount}
                           disabled={!isEditing}
+                          step="0.01"
+                          min="0"
                         />
                         <label>
-                          <FaCalendarAlt className="me-2 text-success" />{" "}
-                          {labels[language].date}
+                          <FaDollarSign className="me-2 text-success" />{" "}
+                          {labels[language].amount}
                         </label>
                       </div>
                     </div>
                     <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="reason"
+                          value={formData.reason || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].category}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaTags className="me-2 text-success" />{" "}
+                          {labels[language].category}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-12">
                       <div className="form-floating">
                         <input
                           type="text"
@@ -443,45 +505,12 @@ const ModalForm = ({
                         </label>
                       </div>
                     </div>
-                    <div className="col-md-6">
-                      <div className="form-floating">
-                        <input
-                          type="number"
-                          className="form-control"
-                          name="amount"
-                          value={formData.amount || ""}
-                          onChange={handleChange}
-                          placeholder={labels[language].amount}
-                          disabled={!isEditing}
-                        />
-                        <label>
-                          <FaDollarSign className="me-2 text-success" />{" "}
-                          {labels[language].amount}
-                        </label>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="form-floating">
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="category"
-                          value={formData.category || ""}
-                          onChange={handleChange}
-                          placeholder={labels[language].category}
-                          disabled={!isEditing}
-                        />
-                        <label>
-                          <FaTags className="me-2 text-success" />{" "}
-                          {labels[language].category}
-                        </label>
-                      </div>
-                    </div>
                   </>
                 )}
 
                 {/* Billing Form */}
                 {formType === "billing" && (
+                  // ... (unchanged)
                   <>
                     <div className="col-md-6">
                       <div className="form-floating">
@@ -490,11 +519,13 @@ const ModalForm = ({
                           name="farm_id"
                           value={formData.farm_id || ""}
                           onChange={handleChange}
-                          onFocus={fetchFarms} // Fetch farms when dropdown is focused
+                          onFocus={fetchFarms}
                           disabled={!isEditing || isLoadingFarms}
                         >
                           <option value="">
-                            {isLoadingFarms ? "Loading Farms..." : "Select Farm"}
+                            {isLoadingFarms
+                              ? "Loading Farms..."
+                              : "Select Farm"}
                           </option>
                           {farms.map((farm) => (
                             <option key={farm.id} value={farm.id}>
@@ -518,7 +549,9 @@ const ModalForm = ({
                           disabled={!isEditing || isLoadingProducts}
                         >
                           <option value="">
-                            {isLoadingProducts ? "Loading Products..." : "Select Product"}
+                            {isLoadingProducts
+                              ? "Loading Products..."
+                              : "Select Product"}
                           </option>
                           {products.map((product) => (
                             <option key={product.id} value={product.id}>
@@ -678,37 +711,228 @@ const ModalForm = ({
                     </div>
                   </>
                 )}
+
+                {/* Admin Expense Form */}
+                {formType === "adminExpense" && (
+                  // ... (unchanged)
+                  <>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="number"
+                          className="form-control"
+                          name="amount"
+                          value={formData.amount || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].amount}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaDollarSign className="me-2 text-success" />{" "}
+                          {labels[language].amount}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="reason"
+                          value={formData.reason || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].reason}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaFileAlt className="me-2 text-success" />{" "}
+                          {labels[language].reason}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="description"
+                          value={formData.description || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].description}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaFileAlt className="me-2 text-success" />{" "}
+                          {labels[language].description}
+                        </label>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Manager Expense Form */}
+                {formType === "managerExpense" && (
+                  // ... (unchanged)
+                  <>
+                    {isEditing ? (
+                      <>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="number"
+                              className="form-control"
+                              name="amount"
+                              value={formData.amount || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].amount}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaDollarSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="reason"
+                              value={formData.reason || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].reason}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaTags className="me-2 text-success" />{" "}
+                              {labels[language].reason}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-12">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="description"
+                              value={formData.description || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].description}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].description}
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="row g-3">
+                        <div className="col-md-6">
+                          <p>
+                            <strong>{labels[language].amount}:</strong>{" "}
+                            {formData.amount || "N/A"}
+                          </p>
+                        </div>
+                        <div className="col-md-6">
+                          <p>
+                            <strong>{labels[language].reason}:</strong>{" "}
+                            {formData.reason || "N/A"}
+                          </p>
+                        </div>
+                        <div className="col-md-12">
+                          <p>
+                            <strong>{labels[language].description}:</strong>{" "}
+                            {formData.description || "N/A"}
+                          </p>
+                        </div>
+                        <div className="col-md-6">
+                          <p>
+                            <strong>{labels[language].dateCreated}:</strong>{" "}
+                            {formData.date_created
+                              ? new Date(
+                                  formData.date_created
+                                ).toLocaleDateString()
+                              : "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </form>
           </div>
           <div className="modal-footer">
-            {isEditing ? (
-              <>
-                <button
-                  type="button"
-                  className="btn btn-success btn-sm d-flex align-items-center"
-                  onClick={handleSave}
-                >
-                  <FaSave className="me-2" /> {labels[language].submit}
-                </button>
-                {formData.id && (
+            {formType === "managerExpense" ? (
+              isEditing ? (
+                <>
                   <button
                     type="button"
-                    className="btn btn-danger btn-sm d-flex align-items-center"
-                    onClick={() => confirmDelete(formData.id)}
+                    className="btn btn-success btn-sm d-flex align-items-center"
+                    onClick={handleSave}
                   >
-                    <FaTrash className="me-2" /> {labels[language].delete}
+                    <FaSave className="me-2" /> {labels[language].submit}
+                  </button>
+                  {formData.id && (
+                    <button
+                      type="button"
+                      className="btn btn-danger btn-sm d-flex align-items-center"
+                      onClick={() => confirmDelete(formData.id)}
+                    >
+                      <FaTrash className="me-2" /> {labels[language].delete}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm d-flex align-items-center"
+                    onClick={onClose}
+                  >
+                    <FaTimes className="me-2" /> {labels[language].cancel}
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-sm d-flex align-items-center"
+                  onClick={onClose}
+                >
+                  <FaTimes className="me-2" /> {labels[language].close}
+                </button>
+              )
+            ) : (
+              <>
+                {isEditing ? (
+                  <>
+                    <button
+                      type="button"
+                      className="btn btn-success btn-sm d-flex align-items-center"
+                      onClick={handleSave}
+                    >
+                      <FaSave className="me-2" /> {labels[language].submit}
+                    </button>
+                    {formData.id && (
+                      <button
+                        type="button"
+                        className="btn btn-danger btn-sm d-flex align-items-center"
+                        onClick={() => confirmDelete(formData.id)}
+                      >
+                        <FaTrash className="me-2" /> {labels[language].delete}
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm d-flex align-items-center"
+                    onClick={onClose}
+                  >
+                    <FaTimes className="me-2" /> {labels[language].cancel}
                   </button>
                 )}
               </>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm d-flex align-items-center"
-                onClick={onClose}
-              >
-                <FaTimes className="me-2" /> {labels[language].cancel}
-              </button>
             )}
           </div>
         </div>
