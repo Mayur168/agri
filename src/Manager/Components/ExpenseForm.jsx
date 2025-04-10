@@ -343,10 +343,10 @@ function ExpenseForm() {
             <thead className="table-light">
               <tr>
                 <th>{labels.dateCreated}</th>
-                <th>{labels.description}</th>
                 <th>{labels.amount}</th>
                 <th>{labels.reason}</th>
-                <th>{labels.managerId}</th>
+                <th>{labels.description}</th>
+                {/* <th>{labels.managerId}</th> */}
                 <th>{language === "en" ? "Actions" : "क्रिया"}</th>
               </tr>
             </thead>
@@ -355,10 +355,10 @@ function ExpenseForm() {
                 filteredExpenses.map((item) => (
                   <tr key={item.id}>
                     <td>{new Date(item.date_created).toLocaleDateString() || "N/A"}</td>
-                    <td>{item.description || "N/A"}</td>
                     <td>{item.amount || "N/A"}</td>
                     <td>{item.reason || "N/A"}</td>
-                    <td>{item.manager || "N/A"}</td>
+                    <td>{item.description || "N/A"}</td>
+                    {/* <td>{item.manager || "N/A"}</td> */}
                     <td>
                       <div className="dropdown">
                         <button

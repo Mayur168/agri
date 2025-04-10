@@ -1,7 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
 import { AuthContext } from "../../contexts/AuthContext";
 import api from "../../Api/axiosInstance";
 
@@ -22,8 +21,31 @@ function Login() {
     e.preventDefault();
     const { phone, password } = loginInfo;
 
-    if (!phone || !password) {
-      return toast.info("Both phone number and password are required.");
+    // Check for missing fields
+    if (!phone && !password) {
+      Swal.fire({
+        icon: "info",
+        title: "Missing Fields",
+        text: "Both phone number and password are required.",
+        confirmButtonColor: "#3085d6",
+      });
+      return;
+    } else if (!phone && password) {
+      Swal.fire({
+        icon: "info",
+        title: "Phone Number Missing",
+        text: "Phone number is not filled.",
+        confirmButtonColor: "#3085d6",
+      });
+      return;
+    } else if (phone && !password) {
+      Swal.fire({
+        icon: "info",
+        title: "Password Missing",
+        text: "Password is not filled.",
+        confirmButtonColor: "#3085d6",
+      });
+      return;
     }
 
     setLoading(true);
@@ -43,8 +65,13 @@ function Login() {
             : "user",
         };
 
-        // Log success with the determined role
-        toast.success(`Login successful as ${userData.role}!`);
+        // Show success alert with the determined role
+        await Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: `Login successful as ${userData.role}!`,
+          confirmButtonColor: "#28a745",
+        });
 
         // Store the full response in localStorage with key "storedData"
         localStorage.setItem("storedData", JSON.stringify(response.data));
@@ -62,16 +89,73 @@ function Login() {
           navigate("/");
         }
       } else {
-        toast.error("Login failed. Please try again.");
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: "Please try again.",
+          confirmButtonColor: "#d33",
+        });
       }
     } catch (err) {
       console.error("Login Error:", err);
-      toast.error(err.response?.data?.message || "An unexpected error occurred.");
+
+      // Handle specific API error responses
+      if (err.response) {
+        const errorMessage = err.response.data?.message;
+        if (err.response.status === 401) {
+          // Unauthorized - likely incorrect credentials
+          if (errorMessage === "User not found") {
+            Swal.fire({
+              icon: "error",
+              title: "User Not Found",
+              text: "No user exists with this phone number.",
+              confirmButtonColor: "#d33",
+            });
+          } else if (errorMessage === "Incorrect password") {
+            Swal.fire({
+              icon: "error",
+              title: "Incorrect Password",
+              text: "The password you entered is incorrect.",
+              confirmButtonColor: "#d33",
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Incorrect Fields",
+              text: "The phone number or password is incorrect.",
+              confirmButtonColor: "#d33",
+            });
+          }
+        } else if (err.response.status === 400) {
+          // Bad request - malformed data or validation error
+          Swal.fire({
+            icon: "error",
+            title: "Invalid Request",
+            text: errorMessage || "The login request is invalid.",
+            confirmButtonColor: "#d33",
+          });
+        } else {
+          // Other server errors
+          Swal.fire({
+            icon: "error",
+            title: "Server Error",
+            text: errorMessage || "An unexpected error occurred.",
+            confirmButtonColor: "#d33",
+          });
+        }
+      } else {
+        // Network or other unexpected errors
+        Swal.fire({
+          icon: "error",
+          title: "Connection Error",
+          text: "Unable to connect to the server. Please try again later.",
+          confirmButtonColor: "#d33",
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="container my-5">
@@ -134,7 +218,6 @@ function Login() {
           </div>
         </div>
       </div>
-      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 }

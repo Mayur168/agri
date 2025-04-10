@@ -56,12 +56,15 @@ function NavBar() {
                 <NavLink className="nav-link" to="/Manager" onClick={closeMenu}>
                   Home
                 </NavLink>
+                <NavLink className="nav-link" to="/Manager/farms" onClick={closeMenu}>
+                  Farms
+                </NavLink>
                 <NavLink className="nav-link" to="/Manager/daily-expenses" onClick={closeMenu}>
                   ExpenseForm
                 </NavLink>
-                <NavLink className="nav-link" to="/Manager/spray-fertilizer" onClick={closeMenu}>
+                {/* <NavLink className="nav-link" to="/Manager/spray-fertilizer" onClick={closeMenu}>
                   SprayFertilizerform
-                </NavLink>
+                </NavLink> */}
                 {user && (
                   <NavLink className="nav-link" to="/Manager/profile" onClick={closeMenu}>
                    profile

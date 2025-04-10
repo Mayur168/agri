@@ -40,16 +40,17 @@ h2 {
   border: 1px solid #ddd;
   padding: 20px;
   border-radius: 12px;
-  text-align: center;
   font-size: 18px;
   font-weight: 500;
   color: #444;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: center; /* Center the content horizontally */
+  align-items: center; /* Center the content vertically */
+  text-align: center; /* Ensure text is centered */
 }
+
 
 .village-card:hover {
   background: linear-gradient(135deg, #007bff, #0056b3);
@@ -60,8 +61,8 @@ h2 {
 }
 
 .village-name {
-  flex-grow: 1;
-  text-align: left;
+  width: 100%; /* Ensure it takes full width to center properly */
+  text-align: center;
 }
 
 .village-card .btn-sm {

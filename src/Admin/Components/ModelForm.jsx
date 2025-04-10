@@ -17,6 +17,7 @@ import {
   FaFileAlt,
   FaTags,
   FaTruck,
+  FaClock,
 } from "react-icons/fa";
 
 const ModalForm = ({
@@ -36,7 +37,9 @@ const ModalForm = ({
   fetchFarms,
   isLoadingFarms,
   isLoadingProducts,
-  managers = [], // Added managers prop
+  managers = [],
+  fertilizers = [], // Added fertilizers prop
+  isLoadingFertilizers, // Added loading state for fertilizers
 }) => {
   if (!isOpen) return null;
 
@@ -206,7 +209,7 @@ const ModalForm = ({
                           </option>
                           {managers.map((manager) => (
                             <option key={manager.id} value={manager.id}>
-                              {manager.user.first_name} {manager.user.last_name}{" "}
+                              {manager.user.first_name} {manager.user.last_name}
                             </option>
                           ))}
                         </select>
@@ -221,7 +224,6 @@ const ModalForm = ({
 
                 {/* Manager Form */}
                 {formType === "manager" && (
-                  // ... (unchanged, keeping existing code)
                   <>
                     <div className="col-md-6">
                       <div className="form-floating">
@@ -409,19 +411,31 @@ const ModalForm = ({
 
                 {/* Fertilizer Form */}
                 {formType === "fertilizer" && (
-                  // ... (unchanged)
                   <>
                     <div className="col-md-6">
                       <div className="form-floating">
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="name"
-                          value={formData.name || ""}
+                        <select
+                          className="form-select"
+                          name="fertilizer_id"
+                          value={formData.fertilizer_id || ""}
                           onChange={handleChange}
-                          placeholder={labels[language].fertilizerName}
-                          disabled={!isEditing}
-                        />
+                          disabled={!isEditing || isLoadingFertilizers}
+                        >
+                          <option value="">
+                            {isLoadingFertilizers
+                              ? language === "en"
+                                ? "Loading Fertilizers..."
+                                : "खते लोड होत आहेत..."
+                              : language === "en"
+                              ? "Select Fertilizer"
+                              : "खत निवडा"}
+                          </option>
+                          {fertilizers.map((fertilizer) => (
+                            <option key={fertilizer.id} value={fertilizer.id}>
+                              {fertilizer.name}
+                            </option>
+                          ))}
+                        </select>
                         <label>
                           <FaLeaf className="me-2 text-success" />{" "}
                           {labels[language].fertilizerName}
@@ -431,26 +445,46 @@ const ModalForm = ({
                     <div className="col-md-6">
                       <div className="form-floating">
                         <input
-                          type="number"
+                          type="text"
                           className="form-control"
-                          name="price"
-                          value={formData.price || ""}
+                          name="farm_name"
+                          value={
+                            farms.find((farm) => farm.id === formData.farm_id)
+                              ?.name || "N/A"
+                          }
+                          disabled
+                        />
+                        <label>
+                          <FaTractor className="me-2 text-success" />{" "}
+                          {labels[language].farmName}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="datetime-local" // Use datetime-local for consistency with ISO format
+                          className="form-control"
+                          name="date" // Changed from 'date' to 'application_date'
+                          value={
+                            formData.date
+                              ? formData.date.slice(0, 16)
+                              : ""
+                          }
                           onChange={handleChange}
-                          placeholder={labels[language].price}
+                          placeholder={labels[language].date}
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaDollarSign className="me-2 text-success" />{" "}
-                          {labels[language].price}
+                          <FaCalendarAlt className="me-2 text-success" />{" "}
+                          {labels[language].date}
                         </label>
                       </div>
                     </div>
                   </>
                 )}
-
                 {/* Expense Form */}
                 {formType === "expense" && (
-                  // ... (unchanged)
                   <>
                     <div className="col-md-6">
                       <div className="form-floating">
@@ -510,7 +544,6 @@ const ModalForm = ({
 
                 {/* Billing Form */}
                 {formType === "billing" && (
-                  // ... (unchanged)
                   <>
                     <div className="col-md-6">
                       <div className="form-floating">
@@ -714,7 +747,6 @@ const ModalForm = ({
 
                 {/* Admin Expense Form */}
                 {formType === "adminExpense" && (
-                  // ... (unchanged)
                   <>
                     <div className="col-md-6">
                       <div className="form-floating">
@@ -772,7 +804,6 @@ const ModalForm = ({
 
                 {/* Manager Expense Form */}
                 {formType === "managerExpense" && (
-                  // ... (unchanged)
                   <>
                     {isEditing ? (
                       <>

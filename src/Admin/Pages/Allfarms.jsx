@@ -7,7 +7,16 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import BackButton from "../Components/BackButton";
 import ModalForm from "../Components/ModelForm";
 import api from "../../Api/axiosInstance";
-import { FaMapPin, FaGlobe, FaTractor, FaEye } from "react-icons/fa";
+import Swal from "sweetalert2"; // Import SweetAlert
+
+import {
+  FaMapPin,
+  FaGlobe,
+  FaTractor,
+  FaEye,
+  FaArrowLeft,
+  FaArrowRight,
+} from "react-icons/fa";
 import { FaWarehouse } from "react-icons/fa";
 
 function Allfarms() {
@@ -18,14 +27,19 @@ function Allfarms() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedFarm, setSelectedFarm] = useState(null);
+  const [managers, setManagers] = useState([]);
   const [formData, setFormData] = useState({
     id: "",
-    farm_name: "",
+    name: "",
     address: "",
     location_url: "",
     farm_size: "",
-    manager_name: "",
+    manager_id: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1); // Start with 1, adjust dynamically
+  const [hasMore, setHasMore] = useState(true); // Track if there are more records
+  const farmsPerPage = 10;
 
   const labels = {
     en: {
@@ -38,8 +52,11 @@ function Allfarms() {
       manager: "Manager",
       view: "View",
       cancel: "Cancel",
-      searchPlaceholder: "Search by address or farm size...",
+      searchPlaceholder: "Search...",
       unauthorized: "Unauthorized: No token found",
+      fetchManagersError: "Failed to fetch managers",
+      previous: "Previous",
+      next: "Next",
     },
     mr: {
       title: "सर्व शेती",
@@ -51,81 +68,142 @@ function Allfarms() {
       manager: "व्यवस्थापक",
       view: "पहा",
       cancel: "बंद करा",
-      searchPlaceholder: "पत्ता किंवा शेताचा आकार शोधा...",
+      searchPlaceholder: "शोधा...",
       unauthorized: "अनधिकृत: टोकन सापडले नाही",
+      fetchManagersError: "व्यवस्थापक आणण्यात अयशस्वी",
+      previous: "मागील",
+      next: "पुढील",
     },
   };
 
-  const fetchFarms = useCallback(async () => {
+  const fetchManagers = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setError(labels[language].unauthorized);
+      toast.error(labels[language].unauthorized);
       return;
     }
 
-    setLoading(true);
     try {
-      const response = await api.get("/farm/?action=getFarm", {
+      const response = await api.get("/users/?action=getFarmManager", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-
-      const result = response.data;
-      const farmData = Array.isArray(result.data)
-        ? result.data
-        : [result.data].filter(Boolean);
-
-      const normalizedFarms = farmData.map((farm) => ({
-        id: farm.id,
-        farm_name: farm.name || "N/A",
-        address: farm.address || "N/A",
-        location_url: farm.location_url || "N/A",
-        farm_size: farm.farm_size || "N/A",
-        manager: farm.manager
-          ? { id: farm.manager, name: `Manager ID: ${farm.manager}` }
-          : null,
-      }));
-
-      setFarms(normalizedFarms);
-      setFilteredFarms(normalizedFarms);
+      setManagers(response.data.data || []);
     } catch (err) {
-      setError(
-        err.response?.data?.message || err.message || "Error fetching farms."
-      );
-    } finally {
-      setLoading(false);
+      toast.error(labels[language].fetchManagersError);
+      setManagers([]);
     }
   }, [language]);
 
+
+  const fetchFarms = useCallback(
+    async (page = 1) => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError(labels[language].unauthorized);
+        return;
+      }
+  
+      setLoading(true);
+      try {
+        const response = await api.get(
+          `/farm/?action=getFarm&page=${page}&records_number=${farmsPerPage}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+  
+        const result = response.data;
+        const farmData = Array.isArray(result.data) ? result.data : [result.data].filter(Boolean);
+  
+        if (farmData.length === 0 && page > 1) {
+          setHasMore(false);
+          Swal.fire({
+            icon: "info",
+            title: "No More Data",
+            text: "There are no more farms available.",
+            confirmButtonColor: "#28a745", // Green Bootstrap color
+          });
+  
+          return; // Stop execution
+        }
+  
+        const normalizedFarms = farmData.map((farm) => ({
+          id: farm.id,
+          name: farm.name || "N/A",
+          address: farm.address || "N/A",
+          location_url: farm.location_url || "N/A",
+          farm_size: farm.farm_size || "N/A",
+          manager_id: farm.manager || null,
+        }));
+  
+        setFarms(normalizedFarms);
+        setFilteredFarms(normalizedFarms);
+  
+        setHasMore(farmData.length === farmsPerPage);
+        setTotalPages((prev) => (farmData.length === farmsPerPage ? Math.max(prev, page + 1) : page));
+  
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (err) {
+        setError(err.response?.data?.message || err.message || "Error fetching farms.");
+        setHasMore(false);
+  
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Invalid page number or no data available.",
+          confirmButtonColor: "#dc3545", // Bootstrap danger color
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [language, searchQuery, farmsPerPage]
+  );
+  
+
   useEffect(() => {
-    fetchFarms();
-  }, [fetchFarms]);
+    fetchFarms(currentPage);
+    fetchManagers();
+  }, [fetchFarms, fetchManagers, currentPage]);
 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-
-    const filtered = farms.filter((farm) => {
-      const address = (farm.address || "").toLowerCase();
-      const farmSize = (farm.farm_size || "").toString().toLowerCase();
-      return address.includes(query) || farmSize.includes(query);
-    });
-
-    setFilteredFarms(filtered);
+    setCurrentPage(1); // Reset to first page when searching
+    setTotalPages(1); // Reset total pages
+    setHasMore(true); // Reset hasMore
+    fetchFarms(1); // Fetch new data for page 1 with the search query
   };
 
   const handleViewFarm = (farm) => {
+    const manager = managers.find((m) => m.id === farm.manager_id);
     setSelectedFarm(farm);
     setFormData({
       id: farm.id || "",
-      farm_name: farm.farm_name || "N/A",
+      name: farm.name || "N/A",
       address: farm.address || "N/A",
       location_url: farm.location_url || "N/A",
       farm_size: farm.farm_size || "N/A",
-      manager_name: farm.manager ? farm.manager.name : "No Manager Assigned",
+      manager_id: farm.manager_id || "",
     });
+  };
+
+  const handlePrevious = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (hasMore && !loading) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
   };
 
   return (
@@ -166,7 +244,7 @@ function Allfarms() {
                 <div className="card h-100 shadow-sm">
                   <div className="card-body">
                     <h5 className="card-title">
-                      <strong>{farm.farm_name}</strong>
+                      <strong>{farm.name}</strong>
                     </h5>
                     <div className="d-flex align-items-center mb-2">
                       <FaMapPin className="me-2 text-success" />
@@ -181,12 +259,11 @@ function Allfarms() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="d-inline-block text-truncate text-break w-100"
-                        style={{ maxWidth: "200px" }} // Adjust width as needed
+                        style={{ maxWidth: "200px" }}
                       >
                         {farm.location_url}
                       </a>
                     </div>
-
                     <div className="d-flex align-items-center mb-2">
                       <FaTractor className="me-2 text-success" />
                       <strong>{labels[language].farmSize}:</strong>{" "}
@@ -194,18 +271,66 @@ function Allfarms() {
                     </div>
                     <div className="d-flex align-items-center mb-2">
                       <strong>{labels[language].manager}:</strong>{" "}
-                      {farm.manager ? farm.manager.name : "No Manager Assigned"}
+                      {farm.manager_id
+                        ? managers.find((m) => m.id === farm.manager_id)?.user
+                            ?.first_name +
+                            " " +
+                            managers.find((m) => m.id === farm.manager_id)?.user
+                              ?.last_name || `Manager ID: ${farm.manager_id}`
+                        : "No Manager Assigned"}
                     </div>
-                    <button
-                      className="btn btn-success btn-sm mt-3"
-                      onClick={() => handleViewFarm(farm)}
-                    >
-                      <FaEye className="me-1" /> {labels[language].view}
-                    </button>
+                    <div className="d-flex justify-content-end mt-3">
+                      <button
+                        className="btn btn-success btn-sm"
+                        onClick={() => handleViewFarm(farm)}
+                      >
+                        <FaEye className="me-1" /> {labels[language].view}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+          {/* Pagination Controls */}
+          <div className="d-flex justify-content-center mt-4">
+            <nav>
+              <ul className="pagination pagination-sm flex-wrap">
+                <li
+                  className={`page-item ${
+                    currentPage === 1 || loading ? "disabled" : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={handlePrevious}
+                    disabled={currentPage === 1 || loading}
+                  >
+                    &laquo; {labels[language].previous}
+                  </button>
+                </li>
+
+                <li className="page-item active">
+                  <span className="page-link bg-success text-white border-0">
+                    {currentPage} / {totalPages}
+                  </span>
+                </li>
+
+                <li
+                  className={`page-item ${
+                    !hasMore || loading ? "disabled" : ""
+                  }`}
+                >
+                  <button
+                    className="page-link"
+                    onClick={handleNext}
+                    disabled={!hasMore || loading}
+                  >
+                    {labels[language].next} &raquo;
+                  </button>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       ) : (
@@ -215,10 +340,12 @@ function Allfarms() {
       <ModalForm
         isOpen={!!selectedFarm}
         onClose={() => setSelectedFarm(null)}
+        isEditing={false}
         formData={formData}
         labels={labels}
         language={language}
         formType="farm"
+        managers={managers}
       />
 
       <ToastContainer />

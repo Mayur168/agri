@@ -156,24 +156,47 @@ const ManagersList = () => {
 
   const handleAddManager = async () => {
     if (!formData.phone.trim() || !formData.first_name.trim()) {
-      toast.error(translations[language].toast.requiredFields);
+      Swal.fire({
+        icon: "error",
+        title: translations[language].toast.requiredFields,
+      });
       return;
     }
     if (!formData.password.trim()) {
-      toast.error(translations[language].toast.passwordRequired);
+      Swal.fire({
+        icon: "error",
+        title: translations[language].toast.passwordRequired,
+      });
       return;
     }
     if (formData.password.trim() !== formData.confirm_password.trim()) {
-      toast.error(translations[language].toast.passwordsMismatch);
+      Swal.fire({
+        icon: "error",
+        title: translations[language].toast.passwordsMismatch,
+      });
       return;
     }
+  
+    const confirmResult = await Swal.fire({
+      title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
+      text: language === "en" ? "Do you want to add this manager?" : "तुम्ही हा व्यवस्थापक जोडू इच्छिता?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: language === "en" ? "Yes, add it!" : "होय, जोडा!",
+      cancelButtonText: language === "en" ? "No, cancel!" : "नाही, रद्द करा!",
+    });
+  
+    if (!confirmResult.isConfirmed) {
+      return;
+    }
+  
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Unauthorized: No token found.");
   
+      let newUser;
       if (formData.role === "Manager") {
-        // Single payload for Manager with full user data
         const managerPayload = {
           action: "postFarmManager",
           user: {
@@ -191,17 +214,10 @@ const ManagersList = () => {
           manager_experience: parseInt(formData.manager_experience) || 0,
         };
   
-        console.log("Manager Payload:", managerPayload); // Debug log
-  
+        console.log("Manager Payload:", managerPayload);
         const managerResponse = await api.post("/users/", managerPayload);
-        console.log("Manager Response:", managerResponse.data); // Debug log
-        const newManager = managerResponse.data.data;
-        const updatedManagers = [newManager, ...managers];
-        setManagers(updatedManagers);
-        localStorage.setItem("managers", JSON.stringify(updatedManagers));
-        toast.success(translations[language].toast.managerAddedSuccess);
+        newUser = managerResponse.data.data;
       } else {
-        // Separate payload for Admin
         const userPayload = {
           action: "postUser",
           first_name: formData.first_name.trim(),
@@ -214,16 +230,24 @@ const ManagersList = () => {
           is_manager: false,
         };
   
-        console.log("Admin Payload:", userPayload); // Debug log
-  
+        console.log("Admin Payload:", userPayload);
         const userResponse = await api.post("/users/", userPayload);
-        console.log("Admin Response:", userResponse.data); // Debug log
-        const newAdmin = userResponse.data.data;
-        const updatedManagers = [newAdmin, ...managers];
-        setManagers(updatedManagers);
-        localStorage.setItem("managers", JSON.stringify(updatedManagers));
-        toast.success(translations[language].toast.adminAddedSuccess);
+        newUser = userResponse.data.data;
       }
+  
+      const updatedManagers = [newUser, ...managers];
+      setManagers(updatedManagers);
+      localStorage.setItem("managers", JSON.stringify(updatedManagers));
+  
+      Swal.fire({
+        icon: "success",
+        title:
+          formData.role === "Manager"
+            ? translations[language].toast.managerAddedSuccess
+            : translations[language].toast.adminAddedSuccess,
+        showConfirmButton: false,
+        timer: 2000,
+      });
   
       setShowModal(false);
       setFormData({
@@ -240,20 +264,16 @@ const ManagersList = () => {
       });
     } catch (err) {
       console.error("API Error (Add Manager):", err.response || err);
-      if (err.response && err.response.status === 400) {
-        toast.error(
-          err.response.data.message || translations[language].toast.phoneInUse
-        );
-      } else {
-        toast.error(
-          err.response?.data?.message ||
-            translations[language].toast.addManagerError
-        );
-      }
+      Swal.fire({
+        icon: "error",
+        title:
+          err.response?.data?.message || translations[language].toast.addManagerError,
+      });
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleEditManager = (manager) => {
     const initialData = {
@@ -292,7 +312,23 @@ const ManagersList = () => {
 
   const handleUpdateManager = async () => {
     if (!formData.phone.trim()) {
-      toast.error(translations[language].toast.phoneRequired);
+      Swal.fire({
+        icon: "error",
+        title: translations[language].toast.phoneRequired,
+      });
+      return;
+    }
+  
+    const confirmResult = await Swal.fire({
+      title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
+      text: language === "en" ? "Do you want to update this manager?" : "तुम्ही हा व्यवस्थापक अपडेट करू इच्छिता?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: language === "en" ? "Yes, update!" : "होय, अपडेट करा!",
+      cancelButtonText: language === "en" ? "No, cancel!" : "नाही, रद्द करा!",
+    });
+  
+    if (!confirmResult.isConfirmed) {
       return;
     }
   
@@ -301,22 +337,7 @@ const ManagersList = () => {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Unauthorized: No token found.");
   
-      const payload = {
-        id: editManagerId,
-        action: "patchFarmManager",
-        user: {
-          first_name: formData.first_name.trim(),
-          last_name: formData.last_name.trim(),
-          email: formData.email.trim(),
-          phone: formData.phone.trim(),
-          confirm_password: formData.confirm_password.trim(),
-        },
-        farm_name: formData.farm_name.trim(),
-        farm_location: formData.farm_location.trim(),
-        manager_experience: parseInt(formData.manager_experience) || 0,
-      };
-  
-      // Only include fields that have changed
+      // Identify changed fields only
       const changedPayload = { id: editManagerId, action: "patchFarmManager" };
       let hasChanges = false;
   
@@ -349,15 +370,17 @@ const ManagersList = () => {
         hasChanges = true;
       }
       if (
-        parseInt(formData.manager_experience) !==
-        parseInt(initialFormData.manager_experience)
+        parseInt(formData.manager_experience) !== parseInt(initialFormData.manager_experience)
       ) {
         changedPayload.manager_experience = parseInt(formData.manager_experience) || 0;
         hasChanges = true;
       }
   
       if (!hasChanges) {
-        toast.info(translations[language].toast.noChanges);
+        Swal.fire({
+          icon: "info",
+          title: translations[language].toast.noChanges,
+        });
         setShowEditModal(false);
         setLoading(false);
         return;
@@ -370,26 +393,33 @@ const ManagersList = () => {
       );
       setManagers(updatedManagers);
       localStorage.setItem("managers", JSON.stringify(updatedManagers));
-      toast.success(translations[language].toast.managerUpdatedSuccess);
+  
+      Swal.fire({
+        icon: "success",
+        title: translations[language].toast.managerUpdatedSuccess,
+        showConfirmButton: false,
+        timer: 2000,
+      });
+  
       setShowEditModal(false);
     } catch (err) {
       console.error("API Error (Update Manager):", err.response || err);
-      if (
-        err.response?.data?.error_msg?.includes(
-          "duplicate key value violates unique constraint"
-        )
-      ) {
-        toast.error(translations[language].toast.emailInUse);
-      } else {
-        toast.error(
-          err.response?.data?.message ||
-            translations[language].toast.updateManagerError
-        );
+      
+      let errorMessage = err.response?.data?.message || translations[language].toast.updateManagerError;
+  
+      if (err.response?.data?.error_msg?.includes("duplicate key value violates unique constraint")) {
+        errorMessage = translations[language].toast.emailInUse;
       }
+  
+      Swal.fire({
+        icon: "error",
+        title: errorMessage,
+      });
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleDeleteManager = async (managerId) => {
     const result = await Swal.fire({

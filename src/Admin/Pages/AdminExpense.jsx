@@ -13,20 +13,13 @@ function ExpenseForm() {
   const [isOpen, setIsOpen] = useState(false);
 
   const storedData = localStorage.getItem("storedData");
-  console.log("Raw storedData from localStorage:", storedData);
-
   const userData = storedData ? JSON.parse(storedData) : {};
-  console.log("Parsed userData:", userData);
-
   const defaultFarmerId = userData?.user?.farmer_id
     ? Number(userData.user.farmer_id)
     : null;
-  console.log("defaultFarmerId:", defaultFarmerId);
 
   if (defaultFarmerId === null) {
-    console.warn(
-      "No farmer_id found in localStorage. Ensure login data is stored correctly."
-    );
+    console.warn("No farmer_id found in localStorage. Ensure login data is stored correctly.");
   }
 
   const [formData, setFormData] = useState({
@@ -40,9 +33,13 @@ function ExpenseForm() {
   const [isEditing, setIsEditing] = useState(true);
   const [adminExpenses, setAdminExpenses] = useState([]);
   const [managerExpenses, setManagerExpenses] = useState([]);
-  const [managers, setManagers] = useState([]); // New state for manager list
-  const [selectedManagerId, setSelectedManagerId] = useState(null); // Track selected manager
-  const [searchQuery, setSearchQuery] = useState("");
+  const [fertilizerData, setFertilizerData] = useState([]);
+  const [managers, setManagers] = useState([]);
+  const [farms, setFarms] = useState([]);
+  const [selectedManagerId, setSelectedManagerId] = useState(null);
+  const [selectedFarmId, setSelectedFarmId] = useState(null);
+  const [searchQueryExpenses, setSearchQueryExpenses] = useState("");
+  const [searchQueryFertilizers, setSearchQueryFertilizers] = useState("");
   const [expenseType, setExpenseType] = useState("admin");
   const [loading, setLoading] = useState(false);
 
@@ -62,6 +59,11 @@ function ExpenseForm() {
       farmerId: "Farmer ID",
       managerId: "Manager ID",
       dateCreated: "Date Created",
+      fertilizer: "Fertilizer",
+      // expensesTableTitle: "Manager Expenses",
+      // fertilizersTableTitle: "Fertilizer Data",
+      farmListTitle: "Select a Farm",
+      noFarms: "No farms available for this manager",
       modalTitleAdmin: "Edit Admin Expense",
       modalTitleManager: "Edit Manager Expense",
       submit: "Save",
@@ -69,6 +71,7 @@ function ExpenseForm() {
       managerExpense: "Manager",
       adminExpense: "Admin",
       noExpenses: "No expenses available",
+      noFertilizers: "No fertilizers available",
       managerListTitle: "Select a Manager",
       noManagers: "No managers available",
     },
@@ -87,6 +90,11 @@ function ExpenseForm() {
       farmerId: "शेतकरी आयडी",
       managerId: "व्यवस्थापक आयडी",
       dateCreated: "तारीख तयार झाली",
+      fertilizer: "खत",
+      // expensesTableTitle: "व्यवस्थापक खर्च",
+      // fertilizersTableTitle: "खत डेटा",
+      farmListTitle: "शेत निवडा",
+      noFarms: "या व्यवस्थापकासाठी कोणतेही शेत उपलब्ध नाहीत",
       modalTitleAdmin: "प्रशासक खर्च संपादन",
       modalTitleManager: "व्यवस्थापक खर्च संपादन",
       submit: "जतन करा",
@@ -94,6 +102,7 @@ function ExpenseForm() {
       managerExpense: "व्यवस्थापक खर्च",
       adminExpense: "प्रशासक खर्च",
       noExpenses: "कोणतेही खर्च उपलब्ध नाहीत",
+      noFertilizers: "कोणतेही खत उपलब्ध नाहीत",
       managerListTitle: "व्यवस्थापक निवडा",
       noManagers: "कोणतेही व्यवस्थापक उपलब्ध नाहीत",
     },
@@ -106,15 +115,20 @@ function ExpenseForm() {
     setLoading(true);
     try {
       const response = await api.get("/farm/?action=getFarmerExpenses");
-      console.log("Admin Expenses API Response:", response.data);
       let expensesData =
         response.data && Array.isArray(response.data.data)
-          ? response.data.data
-          : response.data && Array.isArray(response.data)
-          ? response.data
+          ? response.data.data.map((expense) => ({
+              ...expense,
+              date_created: expense.date_created
+                ? new Date(expense.date_created).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                : "N/A",
+            }))
           : [];
       setAdminExpenses(expensesData);
-      console.log("Admin Expenses Set:", expensesData);
     } catch (error) {
       console.error("Error fetching admin expenses:", error);
       Swal.fire("Error", "Failed to fetch admin expenses", "error");
@@ -124,12 +138,11 @@ function ExpenseForm() {
     }
   };
 
-  // Fetch all manager expenses
+  // Fetch manager expenses
   const fetchManagerExpenses = async () => {
     setLoading(true);
     try {
       const response = await api.get("/farm/?action=getManagerExpenses");
-      console.log("Manager Expenses API Response:", response.data);
       let expensesData =
         response.data && Array.isArray(response.data.data)
           ? response.data.data.map((expense) => ({
@@ -153,12 +166,62 @@ function ExpenseForm() {
     }
   };
 
+  // Fetch farms for a specific manager
+  const fetchFarmsForManager = async (managerId) => {
+    setLoading(true);
+    try {
+      const response = await api.get(`/farm/?action=getFarm&manager=${managerId}`);
+      let farmsData =
+        response.data && Array.isArray(response.data.data)
+          ? response.data.data
+          : response.data && Array.isArray(response.data)
+          ? response.data
+          : [];
+      setFarms(farmsData);
+    } catch (error) {
+      console.error("Error fetching farms:", error);
+      Swal.fire("Error", "Failed to fetch farms", "error");
+      setFarms([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch fertilizer data for a specific manager and farm
+  const fetchFertilizerData = async (managerId, farmId) => {
+    setLoading(true);
+    try {
+      const response = await api.get(
+        `/farm/?action=getFarmFertilizer&manager=${managerId}&farm=${farmId}`
+      );
+      let fertilizerData =
+        response.data && Array.isArray(response.data.data)
+          ? response.data.data.map((fertilizer) => ({
+              ...fertilizer,
+              date_created: fertilizer.date_created
+                ? new Date(fertilizer.date_created).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                : "N/A",
+            }))
+          : [];
+      setFertilizerData(fertilizerData);
+    } catch (error) {
+      console.error("Error fetching fertilizer data:", error);
+      Swal.fire("Error", "Failed to fetch fertilizer data", "error");
+      setFertilizerData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Fetch manager list
   const fetchManagers = async () => {
     setLoading(true);
     try {
       const response = await api.get("/users/?action=getFarmManager");
-      console.log("Managers API Response:", response.data);
       let managersData =
         response.data && Array.isArray(response.data.data)
           ? response.data.data
@@ -166,7 +229,6 @@ function ExpenseForm() {
           ? response.data
           : [];
       setManagers(managersData);
-      console.log("Managers Set:", managersData);
     } catch (error) {
       console.error("Error fetching managers:", error);
       Swal.fire("Error", "Failed to fetch manager list", "error");
@@ -180,11 +242,14 @@ function ExpenseForm() {
     if (expenseType === "admin") {
       fetchAdminExpenses();
     } else if (expenseType === "manager" && !selectedManagerId) {
-      fetchManagers(); // Fetch managers when switching to manager tab
-    } else if (expenseType === "manager" && selectedManagerId) {
-      fetchManagerExpenses(); // Fetch expenses once a manager is selected
+      fetchManagers();
+    } else if (expenseType === "manager" && selectedManagerId && !selectedFarmId) {
+      fetchFarmsForManager(selectedManagerId);
+    } else if (expenseType === "manager" && selectedManagerId && selectedFarmId) {
+      fetchManagerExpenses();
+      fetchFertilizerData(selectedManagerId, selectedFarmId);
     }
-  }, [expenseType, selectedManagerId]);
+  }, [expenseType, selectedManagerId, selectedFarmId]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -199,19 +264,19 @@ function ExpenseForm() {
         }
         if (formData.id) {
           const patchData = {
-            action: "patchFarmerExpense",
+            action: "patchFarmerExpenses",
             id: Number(formData.id),
             amount: parseFloat(formData.amount),
             reason: formData.reason,
             description: formData.description,
           };
-          console.log("Patch Payload (Admin):", patchData);
           response = await api.patch("/farm/", patchData);
           const updatedExpense = {
             ...adminExpenses.find((item) => item.id === formData.id),
             amount: parseFloat(formData.amount),
             reason: formData.reason,
             description: formData.description,
+            date_updated: new Date().toISOString(), // Update date on edit
           };
           setAdminExpenses(
             adminExpenses.map((item) =>
@@ -227,14 +292,27 @@ function ExpenseForm() {
             description: formData.description,
             farmer_id: defaultFarmerId,
           };
-          console.log("Post Payload (Admin):", postData);
           response = await api.post("/farm/", postData);
+          const serverAssignedId = response.data.data?.id;
+          if (!serverAssignedId) {
+            throw new Error("Server did not return an ID in the response");
+          }
           const newExpense = {
-            id: response.data.id || Date.now(),
+            id: serverAssignedId,
             amount: parseFloat(formData.amount),
             reason: formData.reason,
             description: formData.description,
-            farmer_id: defaultFarmerId,
+            farmer: defaultFarmerId,
+            date_created: response.data.data?.date_created
+              ? new Date(response.data.data.date_created).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              : "N/A",
+            date_updated: response.data.data?.date_updated,
+            user_created: response.data.data?.user_created,
+            user_updated: response.data.data?.user_updated,
           };
           setAdminExpenses((prev) => [...prev, newExpense]);
           Swal.fire("Success", "Admin expense added!", "success");
@@ -248,7 +326,6 @@ function ExpenseForm() {
             reason: formData.reason,
             description: formData.description,
           };
-          console.log("Patch Payload (Manager):", patchData);
           response = await api.patch("/farm/", patchData);
           const updatedExpense = {
             ...managerExpenses.find((item) => item.id === formData.id),
@@ -269,8 +346,12 @@ function ExpenseForm() {
       }
       resetForm();
     } catch (error) {
-      console.error("Error saving expense:", error);
-      Swal.fire("Error", "Failed to save expense", "error");
+      console.error("Error saving expense:", error.response?.data || error.message);
+      Swal.fire(
+        "Error",
+        "Failed to save expense: " + (error.response?.data?.message || error.message),
+        "error"
+      );
     }
   };
 
@@ -342,7 +423,7 @@ function ExpenseForm() {
       setFormData({
         ...item,
         id: Number(item.id),
-        farmer_id: item.farmer_id,
+        farmer_id: item.farmer,
       });
     } else if (expenseType === "manager") {
       setFormData({
@@ -362,7 +443,8 @@ function ExpenseForm() {
 
   const handleAdminExpense = () => {
     setExpenseType("admin");
-    setSelectedManagerId(null); // Reset selected manager when switching to admin
+    setSelectedManagerId(null);
+    setSelectedFarmId(null);
     setFormData({
       id: null,
       amount: "",
@@ -377,11 +459,13 @@ function ExpenseForm() {
 
   const handleManagerExpense = () => {
     setExpenseType("manager");
-    setSelectedManagerId(null); // Reset to show manager list initially
+    setSelectedManagerId(null);
+    setSelectedFarmId(null);
   };
 
   const handleManagerSelect = (manager) => {
-    setSelectedManagerId(manager.id); // Set selected manager ID
+    setSelectedManagerId(manager.id);
+    setSelectedFarmId(null);
     setFormData({
       id: null,
       amount: "",
@@ -392,18 +476,43 @@ function ExpenseForm() {
     });
   };
 
-  const filteredExpenses = (expenseType === "admin" ? adminExpenses : managerExpenses)
+  const handleFarmSelect = (farm) => {
+    setSelectedFarmId(farm.id);
+  };
+
+  // Filter admin expenses
+  const filteredAdminExpenses = adminExpenses.filter((item) => {
+    const searchLower = searchQueryExpenses.toLowerCase();
+    return (
+      item?.reason?.toLowerCase()?.includes(searchLower) ||
+      item?.description?.toLowerCase()?.includes(searchLower) ||
+      item?.amount?.toString().toLowerCase()?.includes(searchLower)
+    );
+  });
+
+  // Filter manager expenses
+  const filteredManagerExpenses = managerExpenses
+    .filter(
+      (item) =>
+        item.manager === selectedManagerId || item.manager_id === selectedManagerId
+    )
     .filter((item) => {
-      if (expenseType === "manager" && selectedManagerId) {
-        return item.manager === selectedManagerId || item.manager_id === selectedManagerId;
-      }
-      const searchLower = searchQuery.toLowerCase();
+      const searchLower = searchQueryExpenses.toLowerCase();
       return (
         item?.reason?.toLowerCase()?.includes(searchLower) ||
         item?.description?.toLowerCase()?.includes(searchLower) ||
         item?.amount?.toString().toLowerCase()?.includes(searchLower)
       );
     });
+
+  // Filter fertilizer data
+  const filteredFertilizerData = fertilizerData.filter((item) => {
+    const searchLower = searchQueryFertilizers.toLowerCase();
+    return (
+      item?.fertilizer?.toString().toLowerCase()?.includes(searchLower) ||
+      item?.date_created?.toLowerCase()?.includes(searchLower)
+    );
+  });
 
   return (
     <div className="container mb-5">
@@ -415,15 +524,35 @@ function ExpenseForm() {
         </h2>
       </div>
 
-      <div className="mb-3">
-        <input
-          type="text"
-          className="form-control shadow-sm rounded-3 border-success px-3"
-          placeholder={labels.searchPlaceholder}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
+      {expenseType === "manager" && (
+        <div className="mb-3 d-flex gap-3">
+          <input
+            type="text"
+            className="form-control shadow-sm rounded-3 border-success px-3"
+            placeholder={`${labels.searchPlaceholder}`}
+            value={searchQueryExpenses}
+            onChange={(e) => setSearchQueryExpenses(e.target.value)}
+          />
+          <input
+            type="text"
+            className="form-control shadow-sm rounded-3 border-success px-3"
+            placeholder={`${labels.searchPlaceholder}`}
+            value={searchQueryFertilizers}
+            onChange={(e) => setSearchQueryFertilizers(e.target.value)}
+          />
+        </div>
+      )}
+      {expenseType === "admin" && (
+        <div className="mb-3">
+          <input
+            type="text"
+            className="form-control shadow-sm rounded-3 border-success px-3"
+            placeholder={labels.searchPlaceholder}
+            value={searchQueryExpenses}
+            onChange={(e) => setSearchQueryExpenses(e.target.value)}
+          />
+        </div>
+      )}
 
       <div className="d-flex align-items-center mb-2 gap-2">
         <button
@@ -468,99 +597,188 @@ function ExpenseForm() {
             <p className="text-center text-muted">{labels.noManagers}</p>
           )}
         </div>
-      ) : (
-        <div className="table-responsive">
+      ) : expenseType === "manager" && selectedManagerId && !selectedFarmId ? (
+        <div className="farm-list mb-3">
           {loading ? (
-            <div className="text-center my-5">
-              <Spinner />
-            </div>
+            <Spinner />
+          ) : farms.length > 0 ? (
+            <ul className="list-group">
+              {farms.map((farm) => (
+                <li
+                  key={farm.id}
+                  className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleFarmSelect(farm)}
+                >
+                  <span>
+                    {farm.name} (ID: {farm.id})
+                  </span>
+                  <FaEye />
+                </li>
+              ))}
+            </ul>
           ) : (
-            <table className="table table-striped table-bordered shadow-sm rounded-3">
-              <thead className="table-light">
-                <tr>
-                  <th>{labels.amount}</th>
-                  <th>{labels.reason}</th>
-                  <th>{labels.description}</th>
-                  {expenseType === "admin" && <th>{labels.farmerId}</th>}
-                  {expenseType === "manager" && <th>{labels.managerId}</th>}
-                  {expenseType === "manager" && <th>{labels.dateCreated}</th>}
-                  <th>{language === "en" ? "Actions" : "क्रिया"}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredExpenses.length > 0 ? (
-                  filteredExpenses.map((item) => (
-                    <tr key={item.id}>
-                      <td>₹{item.amount || "N/A"}</td>
-                      <td>{item.reason || "N/A"}</td>
-                      <td>{item.description || "N/A"}</td>
-                      {expenseType === "admin" && <td>{item.farmer || "N/A"}</td>}
-                      {expenseType === "manager" && (
-                        <td>{item.manager || item.manager_id || "N/A"}</td>
-                      )}
-                      {expenseType === "manager" && (
-                        <td>{item.date_created || "N/A"}</td>
-                      )}
-                      <td>
-                        <div className="dropdown">
-                          <button
-                            className="btn btn-link p-0"
-                            type="button"
-                            id={`dropdownMenuButton-${item.id}`}
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                          >
-                            <FaEye className="eye-icon fs-5" />
-                          </button>
-                          <div
-                            className="dropdown-menu dropdown-menu-end"
-                            aria-labelledby={`dropdownMenuButton-${item.id}`}
-                          >
-                            <button
-                              className="dropdown-item btn btn-info btn-sm"
-                              onClick={() => handleView(item)}
-                            >
-                              {labels.view}
-                            </button>
-                            <button
-                              className="dropdown-item btn btn-primary btn-sm"
-                              onClick={() => handleEdit(item)}
-                            >
-                              {labels.edit}
-                            </button>
-                            <button
-                              className="dropdown-item btn btn-danger btn-sm"
-                              onClick={() =>
-                                expenseType === "admin"
-                                  ? handleDeleteAdmin(item.id)
-                                  : handleDeleteManager(item.id)
-                              }
-                            >
-                              {labels.delete}
-                            </button>
-                            <button
-                              className="dropdown-item btn btn-secondary btn-sm"
-                              onClick={() => console.log("Cancel clicked for", item.id)}
-                            >
-                              {labels.cancel}
-                            </button>
-                          </div>
-                        </div>
-                      </td>
+            <p className="text-center text-muted">{labels.noFarms}</p>
+          )}
+        </div>
+      ) : (
+        <div className="row">
+          {/* Expenses Table */}
+          <div className="col-12 col-lg-6 mb-4">
+            {/* <h4 className="mb-3">{expenseType === "admin" ? labels.adminExpense : labels.expensesTableTitle}</h4> */}
+            {loading ? (
+              <div className="text-center my-5">
+                <Spinner />
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-striped table-bordered shadow-sm rounded-3">
+                  <thead className="table-light">
+                    <tr>
+                      <th>{labels.dateCreated}</th>
+                      <th>{labels.amount}</th>
+                      <th>{labels.reason}</th>
+                      <th>{labels.description}</th>
+                      <th>{language === "en" ? "Actions" : "क्रिया"}</th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={expenseType === "admin" ? 5 : 6}
-                      className="text-center text-muted py-4"
-                    >
-                      {labels.noExpenses}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody>
+                    {(expenseType === "admin" ? filteredAdminExpenses : filteredManagerExpenses).length > 0 ? (
+                      (expenseType === "admin" ? filteredAdminExpenses : filteredManagerExpenses).map((item) => (
+                        <tr key={item.id}>
+                          <td>{item.date_created || "N/A"}</td>
+                          <td>₹{item.amount || "N/A"}</td>
+                          <td>{item.reason || "N/A"}</td>
+                          <td>{item.description || "N/A"}</td>
+                          <td>
+                            <div className="dropdown">
+                              <button
+                                className="btn btn-link p-0"
+                                type="button"
+                                id={`dropdownMenuButton-${item.id}`}
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                              >
+                                <FaEye className="eye-icon fs-5" />
+                              </button>
+                              <div
+                                className="dropdown-menu dropdown-menu-end"
+                                aria-labelledby={`dropdownMenuButton-${item.id}`}
+                              >
+                                <button
+                                  className="dropdown-item btn btn-info btn-sm"
+                                  onClick={() => handleView(item)}
+                                >
+                                  {labels.view}
+                                </button>
+                                <button
+                                  className="dropdown-item btn btn-primary btn-sm"
+                                  onClick={() => handleEdit(item)}
+                                >
+                                  {labels.edit}
+                                </button>
+                                <button
+                                  className="dropdown-item btn btn-danger btn-sm"
+                                  onClick={() =>
+                                    expenseType === "admin"
+                                      ? handleDeleteAdmin(item.id)
+                                      : handleDeleteManager(item.id)
+                                  }
+                                >
+                                  {labels.delete}
+                                </button>
+                                <button
+                                  className="dropdown-item btn btn-secondary btn-sm"
+                                  onClick={() => console.log("Cancel clicked for", item.id)}
+                                >
+                                  {labels.cancel}
+                                </button>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="text-center text-muted py-4">
+                          {labels.noExpenses}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* Fertilizers Table (only for manager) */}
+          {expenseType === "manager" && (
+            <div className="col-12 col-lg-6 mb-4">
+              <h4 className="mb-3">{labels.fertilizersTableTitle}</h4>
+              {loading ? (
+                <div className="text-center my-5">
+                  <Spinner />
+                </div>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-striped table-bordered shadow-sm rounded-3">
+                    <thead className="table-light">
+                      <tr>
+                        <th>{labels.dateCreated}</th>
+                        <th>{labels.fertilizer}</th>
+                        <th>{language === "en" ? "Actions" : "क्रिया"}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredFertilizerData.length > 0 ? (
+                        filteredFertilizerData.map((item) => (
+                          <tr key={item.id}>
+                            <td>{item.date_created || "N/A"}</td>
+                            <td>ID: {item.fertilizer || "N/A"}</td>
+                            <td>
+                              <div className="dropdown">
+                                <button
+                                  className="btn btn-link p-0"
+                                  type="button"
+                                  id={`dropdownMenuButton-${item.id}`}
+                                  data-bs-toggle="dropdown"
+                                  aria-expanded="false"
+                                >
+                                  <FaEye className="eye-icon fs-5" />
+                                </button>
+                                <div
+                                  className="dropdown-menu dropdown-menu-end"
+                                  aria-labelledby={`dropdownMenuButton-${item.id}`}
+                                >
+                                  <button
+                                    className="dropdown-item btn btn-info btn-sm"
+                                    onClick={() => handleView(item)}
+                                  >
+                                    {labels.view}
+                                  </button>
+                                  <button
+                                    className="dropdown-item btn btn-secondary btn-sm"
+                                    onClick={() => console.log("Cancel clicked for", item.id)}
+                                  >
+                                    {labels.cancel}
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={3} className="text-center text-muted py-4">
+                            {labels.noFertilizers}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           )}
         </div>
       )}
