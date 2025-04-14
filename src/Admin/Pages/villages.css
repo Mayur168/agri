@@ -29,7 +29,7 @@ h2 {
 
 .villages-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Keep responsive layout */
   gap: 20px;
   max-width: 700px;
   margin: 20px auto;
@@ -38,19 +38,22 @@ h2 {
 .village-card {
   background: linear-gradient(135deg, #ffffff, #eef2f6);
   border: 1px solid #ddd;
-  padding: 20px;
   border-radius: 12px;
+  padding: 15px; /* Consistent padding */
   font-size: 18px;
   font-weight: 500;
   color: #444;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease-in-out;
   display: flex;
-  justify-content: center; /* Center the content horizontally */
-  align-items: center; /* Center the content vertically */
-  text-align: center; /* Ensure text is centered */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+  min-width: 140px; /* Minimum width to match grid minmax */
+  min-height: 80px; /* Fixed height for uniformity */
+  width: 100%; /* Ensure it takes full grid cell width */
+  text-align: center; /* Center text */
+  overflow: hidden; /* Prevent content overflow */
 }
-
 
 .village-card:hover {
   background: linear-gradient(135deg, #007bff, #0056b3);
@@ -61,8 +64,11 @@ h2 {
 }
 
 .village-name {
-  width: 100%; /* Ensure it takes full width to center properly */
-  text-align: center;
+  width: 100%; /* Take full width of the card */
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis (...) for long text */
+  text-align: center; /* Center the text */
 }
 
 .village-card .btn-sm {
@@ -89,40 +95,6 @@ h2 {
   transform: scale(1.05);
 }
 
-/* Overriding styles */
-.village-card {
-  padding: 15px;
-  margin: 10px;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
-
-.village-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.village-actions {
-  position: relative;
-}
-
-.village-options {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.eye-icon {
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: #666;
-}
-
-.eye-icon:hover {
-  color: #333;
-}
-
 /* Media Queries for Responsiveness */
 @media (max-width: 768px) {
   h2 {
@@ -130,153 +102,19 @@ h2 {
   }
 
   .villages-container {
-    padding: 20px 10px; /* Reduce padding on mobile */
+    padding: 2px ; /* Reduce padding on mobile */
   }
 
   .villages-grid {
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Adjust grid for mobile */
     max-width: 100%;
   }
-}/* villages.css */
-.villages-container {
-  padding: 40px 20px;
-  font-family: "Poppins", sans-serif;
-  background-color: #f4f7fc;
-  min-height: 100vh;
-}
 
-h2 {
-  margin-bottom: 1px;
-  font-size: 32px;
-  font-weight: 600;
-  color: #222;
-  letter-spacing: 0px;
-}
-
-.header-container {
-  background-color: rgb(25, 135, 84);
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-}
-
-.spacer {
-  width: 40px; /* Match approximate width of BackButton */
-  flex-shrink: 0;
-}
-
-.villages-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 20px;
-  max-width: 700px;
-  margin: 20px auto;
-}
-
-.village-card {
-  background: linear-gradient(135deg, #ffffff, #eef2f6);
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-  font-size: 18px;
-  font-weight: 500;
-  color: #444;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease-in-out;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.village-card:hover {
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  color: white;
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-}
-
-.village-name {
-  flex-grow: 1;
-  text-align: left;
-}
-
-.village-card .btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-  margin-left: 5px;
-}
-
-.add-village-btn {
-  margin-top: 30px;
-  padding: 12px 25px;
-  font-size: 18px;
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  font-weight: 500;
-}
-
-.add-village-btn:hover {
-  background: linear-gradient(135deg, #0056b3, #004091);
-  transform: scale(1.05);
-}
-
-/* Overriding styles */
-.village-card {
-  padding: 15px;
-  margin: 10px;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
-
-.village-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.village-actions {
-  position: relative;
-}
-
-.village-options {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.eye-icon {
-  cursor: pointer;
-  font-size: 1.2rem;
-  color: #666;
-}
-
-.eye-icon:hover {
-  color: #333;
-}
-
-/* Media Queries for Responsiveness */
-@media (max-width: 768px) {
-  h2 {
-    font-size: 24px; /* Reduce font size on smaller screens */
-  }
-
-  .villages-container {
-    padding: 20px 10px; /* Reduce padding on mobile */
-  }
-
-  .villages-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Adjust grid for mobile */
-    max-width: 100%;
+  .village-card {
+    min-width: 120px; /* Match mobile grid minmax */
+    min-height: 70px; /* Slightly smaller height for mobile */
   }
 }
-
 
 /* managers.css */
 .managers-container {

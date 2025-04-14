@@ -1,8 +1,282 @@
-import React, { useState, useContext } from "react";
+
+// import React, { useState, useContext, useEffect } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import Swal from "sweetalert2";
+// import { AuthContext } from "../../contexts/AuthContext";
+// import api from "../../Api/axiosInstance";
+
+// function Login() {
+//   const navigate = useNavigate();
+//   const { login } = useContext(AuthContext);
+//   const [loginInfo, setLoginInfo] = useState({
+//     phone: "",
+//     password: "",
+//   });
+//   const [loading, setLoading] = useState(false);
+//   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+//   const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+//   const handleChange = (e) => {
+//     setLoginInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+//   };
+
+//   const handleLogin = async (e) => {
+//     e.preventDefault();
+//     const { phone, password } = loginInfo;
+
+//     if (isOffline) {
+//       Swal.fire({
+//         icon: "warning",
+//         title: "Offline",
+//         text: "You are offline. Please check your internet connection.",
+//         confirmButtonColor: "#3085d6",
+//       });
+//       return;
+//     }
+
+//     if (!phone && !password) {
+//       Swal.fire({
+//         icon: "info",
+//         title: "Missing Fields",
+//         text: "Both phone number and password are required.",
+//         confirmButtonColor: "#3085d6",
+//       });
+//       return;
+//     } else if (!phone && password) {
+//       Swal.fire({
+//         icon: "info",
+//         title: "Phone Number Missing",
+//         text: "Phone number is not filled.",
+//         confirmButtonColor: "#3085d6",
+//       });
+//       return;
+//     } else if (phone && !password) {
+//       Swal.fire({
+//         icon: "info",
+//         title: "Password Missing",
+//         text: "Password is not filled.",
+//         confirmButtonColor: "#3085d6",
+//       });
+//       return;
+//     }
+
+//     setLoading(true);
+
+//     try {
+//       const response = await api.post("/users/login/", loginInfo);
+//       console.log("API Response:", response.data);
+
+//       if (response.data.access) {
+//         const userData = {
+//           ...response.data.user,
+//           role: response.data.user.is_admin
+//             ? "admin"
+//             : response.data.user.is_manager
+//             ? "manager"
+//             : "user",
+//         };
+
+//         localStorage.setItem("storedData", JSON.stringify(response.data));
+//         console.log("Stored in localStorage as storedData:", localStorage.getItem("storedData"));
+
+//         login(response.data.access, userData);
+
+//         if (userData.role === "admin") {
+//           navigate("/admin/");
+//         } else if (userData.role === "manager") {
+//           navigate("/manager/");
+//         } else {
+//           navigate("/");
+//         }
+//       } else {
+//         Swal.fire({
+//           icon: "error",
+//           title: "Login Failed",
+//           text: "Please try again.",
+//           confirmButtonColor: "#d33",
+//         });
+//       }
+//     } catch (err) {
+//       console.error("Login Error:", err);
+//       if (err.response) {
+//         const errorMessage = err.response.data?.message;
+//         if (err.response.status === 401) {
+//           if (errorMessage === "User not found") {
+//             Swal.fire({
+//               icon: "error",
+//               title: "User Not Found",
+//               text: "No user exists with this phone number.",
+//               confirmButtonColor: "#d33",
+//             });
+//           } else if (errorMessage === "Incorrect password") {
+//             Swal.fire({
+//               icon: "error",
+//               title: "Incorrect Password",
+//               text: "The password you entered is incorrect.",
+//               confirmButtonColor: "#d33",
+//             });
+//           } else {
+//             Swal.fire({
+//               icon: "error",
+//               title: "Incorrect Fields",
+//               text: "The phone number or password is incorrect.",
+//               confirmButtonColor: "#d33",
+//             });
+//           }
+//         } else if (err.response.status === 400) {
+//           Swal.fire({
+//             icon: "error",
+//             title: "Invalid Request",
+//             text: errorMessage || "The login request is invalid.",
+//             confirmButtonColor: "#d33",
+//           });
+//         } else {
+//           Swal.fire({
+//             icon: "error",
+//             title: "Server Error",
+//             text: errorMessage || "An unexpected error occurred.",
+//             confirmButtonColor: "#d33",
+//           });
+//         }
+//       } else {
+//         Swal.fire({
+//           icon: "error",
+//           title: "Connection Error",
+//           text: "Unable to connect to the server. Please try again later.",
+//           confirmButtonColor: "#d33",
+//         });
+//       }
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   // Handle offline/online status
+//   useEffect(() => {
+//     const handleOnline = () => setIsOffline(false);
+//     const handleOffline = () => setIsOffline(true);
+//     window.addEventListener('online', handleOnline);
+//     window.addEventListener('offline', handleOffline);
+//     return () => {
+//       window.removeEventListener('online', handleOnline);
+//       window.removeEventListener('offline', handleOffline);
+//     };
+//   }, []);
+
+//   // Handle PWA install prompt
+//   useEffect(() => {
+//     const handleBeforeInstallPrompt = (e) => {
+//       e.preventDefault();
+//       setDeferredPrompt(e);
+//     };
+//     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+//     return () => {
+//       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+//     };
+//   }, []);
+
+//   const handleInstallClick = () => {
+//     if (deferredPrompt) {
+//       deferredPrompt.prompt();
+//       deferredPrompt.userChoice.then((choiceResult) => {
+//         if (choiceResult.outcome === 'accepted') {
+//           console.log('User accepted the install prompt');
+//         } else {
+//           console.log('User dismissed the install prompt');
+//         }
+//         setDeferredPrompt(null);
+//       });
+//     }
+//   };
+
+//   return (
+//     <div className="container my-5">
+//       <div className="row justify-content-center">
+//         <div className="col-md-6 col-lg-4 my-5">
+//           <div className="card shadow-sm">
+//             <div className="card-header bg-success text-white text-center">
+//               <h1 className="h4 mb-0">Login</h1>
+//             </div>
+//             <div className="card-body">
+//               <form onSubmit={handleLogin}>
+//                 <div className="mb-3">
+//                   <label htmlFor="phone" className="form-label">
+//                     Phone Number
+//                   </label>
+//                   <input
+//                     onChange={handleChange}
+//                     type="text"
+//                     name="phone"
+//                     id="phone"
+//                     value={loginInfo.phone}
+//                     className="form-control"
+//                     placeholder="Enter your phone number..."
+//                     disabled={isOffline}
+//                   />
+//                 </div>
+
+//                 <div className="mb-3">
+//                   <label htmlFor="password" className="form-label">
+//                     Password
+//                   </label>
+//                   <input
+//                     onChange={handleChange}
+//                     type="password"
+//                     name="password"
+//                     id="password"
+//                     value={loginInfo.password}
+//                     className="form-control"
+//                     placeholder="Enter your password..."
+//                     disabled={isOffline}
+//                   />
+//                 </div>
+
+//                 <button
+//                   type="submit"
+//                   className="btn btn-success w-100"
+//                   disabled={loading || isOffline}
+//                 >
+//                   {loading ? "Logging in..." : "Login"}
+//                 </button>
+
+//                 {deferredPrompt && (
+//                   <button
+//                     type="button"
+//                     className="btn btn-primary w-100 mt-3"
+//                     onClick={handleInstallClick}
+//                   >
+//                     Install App
+//                   </button>
+//                 )}
+
+//                 <div className="text-center mt-3">
+//                   <span>
+//                     Don't have an account?{" "}
+//                     <Link to="/signup" className="text-primary">
+//                       Sign Up
+//                     </Link>
+//                   </span>
+//                 </div>
+//               </form>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default Login;
+
+
+import React, { useState, useContext, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../../contexts/AuthContext";
 import api from "../../Api/axiosInstance";
+import "bootstrap/dist/css/bootstrap.min.css"; // Ensure Bootstrap CSS is imported
+import { FaPhone, FaLock, FaSpinner } from "react-icons/fa"; // Icons for visual appeal
 
 function Login() {
   const navigate = useNavigate();
@@ -12,6 +286,8 @@ function Login() {
     password: "",
   });
   const [loading, setLoading] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
 
   const handleChange = (e) => {
     setLoginInfo((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -21,30 +297,19 @@ function Login() {
     e.preventDefault();
     const { phone, password } = loginInfo;
 
-    // Check for missing fields
+    if (isOffline) {
+      toast.warning("You are offline. Please check your internet connection.");
+      return;
+    }
+
     if (!phone && !password) {
-      Swal.fire({
-        icon: "info",
-        title: "Missing Fields",
-        text: "Both phone number and password are required.",
-        confirmButtonColor: "#3085d6",
-      });
+      toast.info("Both phone number and password are required.");
       return;
     } else if (!phone && password) {
-      Swal.fire({
-        icon: "info",
-        title: "Phone Number Missing",
-        text: "Phone number is not filled.",
-        confirmButtonColor: "#3085d6",
-      });
+      toast.info("Phone number is not filled.");
       return;
     } else if (phone && !password) {
-      Swal.fire({
-        icon: "info",
-        title: "Password Missing",
-        text: "Password is not filled.",
-        confirmButtonColor: "#3085d6",
-      });
+      toast.info("Password is not filled.");
       return;
     }
 
@@ -55,7 +320,6 @@ function Login() {
       console.log("API Response:", response.data);
 
       if (response.data.access) {
-        // Extract user data and add a 'role' property
         const userData = {
           ...response.data.user,
           role: response.data.user.is_admin
@@ -65,150 +329,191 @@ function Login() {
             : "user",
         };
 
-        // Show success alert with the determined role
-        await Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: `Login successful as ${userData.role}!`,
-          confirmButtonColor: "#28a745",
-        });
-
-        // Store the full response in localStorage with key "storedData"
         localStorage.setItem("storedData", JSON.stringify(response.data));
         console.log("Stored in localStorage as storedData:", localStorage.getItem("storedData"));
 
-        // Store token and user data in AuthContext
         login(response.data.access, userData);
 
-        // Redirect based on user role
-        if (userData.role === "admin") {
-          navigate("/admin/");
-        } else if (userData.role === "manager") {
-          navigate("/manager/");
-        } else {
-          navigate("/");
-        }
+        toast.success("Logged in successfully!");
+        setTimeout(() => {
+          if (userData.role === "admin") {
+            navigate("/admin/");
+          } else if (userData.role === "manager") {
+            navigate("/manager/");
+          } else {
+            navigate("/");
+          }
+        }, 500);
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Login Failed",
-          text: "Please try again.",
-          confirmButtonColor: "#d33",
-        });
+        toast.error("Login failed. Please try again.");
       }
     } catch (err) {
       console.error("Login Error:", err);
-
-      // Handle specific API error responses
       if (err.response) {
         const errorMessage = err.response.data?.message;
         if (err.response.status === 401) {
-          // Unauthorized - likely incorrect credentials
           if (errorMessage === "User not found") {
-            Swal.fire({
-              icon: "error",
-              title: "User Not Found",
-              text: "No user exists with this phone number.",
-              confirmButtonColor: "#d33",
-            });
+            toast.error("No user exists with this phone number.");
           } else if (errorMessage === "Incorrect password") {
-            Swal.fire({
-              icon: "error",
-              title: "Incorrect Password",
-              text: "The password you entered is incorrect.",
-              confirmButtonColor: "#d33",
-            });
+            toast.error("The password you entered is incorrect.");
           } else {
-            Swal.fire({
-              icon: "error",
-              title: "Incorrect Fields",
-              text: "The phone number or password is incorrect.",
-              confirmButtonColor: "#d33",
-            });
+            toast.error("The phone number or password is incorrect.");
           }
         } else if (err.response.status === 400) {
-          // Bad request - malformed data or validation error
-          Swal.fire({
-            icon: "error",
-            title: "Invalid Request",
-            text: errorMessage || "The login request is invalid.",
-            confirmButtonColor: "#d33",
-          });
+          toast.error(errorMessage || "The login request is invalid.");
         } else {
-          // Other server errors
-          Swal.fire({
-            icon: "error",
-            title: "Server Error",
-            text: errorMessage || "An unexpected error occurred.",
-            confirmButtonColor: "#d33",
-          });
+          toast.error(errorMessage || "An unexpected error occurred.");
         }
       } else {
-        // Network or other unexpected errors
-        Swal.fire({
-          icon: "error",
-          title: "Connection Error",
-          text: "Unable to connect to the server. Please try again later.",
-          confirmButtonColor: "#d33",
-        });
+        toast.error("Unable to connect to the server. Please try again later.");
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Handle offline/online status
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  // Handle PWA install prompt
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === "accepted") {
+          console.log("User accepted the install prompt");
+        } else {
+          console.log("User dismissed the install prompt");
+        }
+        setDeferredPrompt(null);
+      });
+    }
+  };
+
   return (
-    <div className="container my-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6 col-lg-4 my-5">
-          <div className="card shadow-sm">
-            <div className="card-header bg-success text-white text-center">
-              <h1 className="h4 mb-0">Login</h1>
+    <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light py-3">
+      <div className="row justify-content-center w-100">
+        <div className="col-11 col-sm-8 col-md-6 col-lg-4">
+          <div
+            className="card shadow-lg border-0"
+            style={{ borderRadius: "15px", overflow: "hidden" }}
+          >
+            <div className="card-header bg-success text-white text-center py-3 py-md-4">
+              <h1 className="h4 mb-0 fw-bold">Login</h1>
             </div>
-            <div className="card-body">
+            <div className="card-body p-3 p-md-4">
               <form onSubmit={handleLogin}>
-                <div className="mb-3">
-                  <label htmlFor="phone" className="form-label">
-                    Phone Number
+                <div className="mb-3 mb-md-4">
+                  <label
+                    htmlFor="phone"
+                    className="form-label fw-medium text-muted small"
+                  >
+                    Phone Number <span className="text-danger">*</span>
                   </label>
-                  <input
-                    onChange={handleChange}
-                    type="text"
-                    name="phone"
-                    id="phone"
-                    value={loginInfo.phone}
-                    className="form-control"
-                    placeholder="Enter your phone number..."
-                  />
+                  <div className="input-group">
+                    <span className="input-group-text bg-light border-0">
+                      <FaPhone className="text-success" />
+                    </span>
+                    <input
+                      onChange={handleChange}
+                      type="text"
+                      name="phone"
+                      id="phone"
+                      value={loginInfo.phone}
+                      className="form-control py-2"
+                      placeholder="Enter your phone number"
+                      required
+                      disabled={isOffline}
+                      style={{ borderRadius: "0 5px 5px 0" }}
+                    />
+                  </div>
                 </div>
 
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label">
-                    Password
+                <div className="mb-3 mb-md-4">
+                  <label
+                    htmlFor="password"
+                    className="form-label fw-medium text-muted small"
+                  >
+                    Password <span className="text-danger">*</span>
                   </label>
-                  <input
-                    onChange={handleChange}
-                    type="password"
-                    name="password"
-                    id="password"
-                    value={loginInfo.password}
-                    className="form-control"
-                    placeholder="Enter your password..."
-                  />
+                  <div className="input-group">
+                    <span className="input-group-text bg-light border-0">
+                      <FaLock className="text-success" />
+                    </span>
+                    <input
+                      onChange={handleChange}
+                      type="password"
+                      name="password"
+                      id="password"
+                      value={loginInfo.password}
+                      className="form-control py-2"
+                      placeholder="Enter your password"
+                      required
+                      disabled={isOffline}
+                      style={{ borderRadius: "0 5px 5px 0" }}
+                    />
+                  </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="btn btn-success w-100"
-                  disabled={loading}
+                  className="btn btn-success w-100 py-2 fw-bold"
+                  disabled={loading || isOffline}
+                  style={{
+                    transition: "background-color 0.3s ease",
+                    borderRadius: "8px",
+                  }}
                 >
-                  {loading ? "Logging in..." : "Login"}
+                  {loading ? (
+                    <>
+                      <FaSpinner className="me-2 spin" /> Logging in...
+                    </>
+                  ) : (
+                    "Login"
+                  )}
                 </button>
 
-                <div className="text-center mt-3">
-                  <span>
+                {deferredPrompt && (
+                  <button
+                    type="button"
+                    className="btn btn-primary w-100 py-2 mt-2 mt-md-4 fw-bold"
+                    onClick={handleInstallClick}
+                    style={{
+                      transition: "background-color 0.3s ease",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    Install App
+                  </button>
+                )}
+
+                <div className="text-center mt-2 mt-md-4">
+                  <span className="text-muted small">
                     Don't have an account?{" "}
-                    <Link to="/signup" className="text-primary">
+                    <Link
+                      to="/signup"
+                      className="text-success fw-bold text-decoration-none"
+                    >
                       Sign Up
                     </Link>
                   </span>
@@ -218,6 +523,80 @@ function Login() {
           </div>
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} />
+
+      {/* Inline CSS for additional styling and responsiveness */}
+      <style jsx>{`
+        .card {
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15) !important;
+        }
+        .btn-success:hover {
+          background-color: #146c43;
+        }
+        .btn-primary:hover {
+          background-color: #0056b3;
+        }
+        .input-group-text {
+          border-radius: 5px 0 0 5px;
+        }
+        .spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        /* Mobile-specific adjustments */
+        @media (max-width: 576px) {
+          .container-fluid {
+            padding: 15px;
+          }
+          .col-11 {
+            width: 95%;
+          }
+          .card-header {
+            padding: 15px;
+          }
+          .card-header h1 {
+            font-size: 1.25rem;
+          }
+          .card-body {
+            padding: 20px;
+          }
+          .form-label {
+            font-size: 0.85rem;
+          }
+          .form-control {
+            font-size: 0.9rem;
+            padding: 8px;
+          }
+          .btn {
+            font-size: 0.9rem;
+            padding: 8px;
+          }
+          .text-muted {
+            font-size: 0.8rem;
+          }
+        }
+        @media (min-width: 577px) and (max-width: 768px) {
+          .card-header h1 {
+            font-size: 1.5rem;
+          }
+          .form-label {
+            font-size: 0.9rem;
+          }
+          .form-control {
+            font-size: 1rem;
+          }
+          .btn {
+            font-size: 1rem;
+          }
+        }
+      `}</style>
     </div>
   );
 }

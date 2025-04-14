@@ -388,7 +388,9 @@ const Villages = () => {
             (village) =>
               village &&
               typeof village.village?.name === "string" &&
-              village.village.name.toLowerCase().includes(searchQuery.toLowerCase())
+              village.village.name
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase())
           )
         : [],
     [serverVillages, searchQuery]
@@ -441,10 +443,7 @@ const Villages = () => {
           </div>
         ) : filteredVillages.length > 0 ? (
           filteredVillages.map((village) => (
-            <div
-              key={village.id}
-              className="village-card d-flex justify-content-between align-items-center flex-wrap"
-            >
+            <div key={village.id} className="village-card">
               <span
                 className="village-name"
                 onClick={() => handleVillageClick(village)}

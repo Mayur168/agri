@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { FaMoneyBillWave, FaEye } from "react-icons/fa";
+import { FaMoneyBillWave, FaEdit, FaTrash, FaArrowLeft } from "react-icons/fa";
 import ModalForm from "../Components/ModelForm";
 import BackButton from "../Components/BackButton";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -33,24 +33,21 @@ function ExpenseForm() {
   const [isEditing, setIsEditing] = useState(true);
   const [adminExpenses, setAdminExpenses] = useState([]);
   const [managerExpenses, setManagerExpenses] = useState([]);
-  const [fertilizerData, setFertilizerData] = useState([]);
   const [managers, setManagers] = useState([]);
   const [farms, setFarms] = useState([]);
   const [selectedManagerId, setSelectedManagerId] = useState(null);
   const [selectedFarmId, setSelectedFarmId] = useState(null);
+  const [selectedManagerName, setSelectedManagerName] = useState(null);
+  const [selectedFarmName, setSelectedFarmName] = useState(null);
   const [searchQueryExpenses, setSearchQueryExpenses] = useState("");
-  const [searchQueryFertilizers, setSearchQueryFertilizers] = useState("");
   const [expenseType, setExpenseType] = useState("admin");
   const [loading, setLoading] = useState(false);
 
   const translations = {
     en: {
       title: "Expenses",
-      view: "View",
       edit: "Edit",
-      save: "Save",
       delete: "Delete",
-      close: "Close",
       cancel: "Cancel",
       deleteConfirm: "You won't be able to revert this!",
       amount: "Amount",
@@ -59,10 +56,7 @@ function ExpenseForm() {
       farmerId: "Farmer ID",
       managerId: "Manager ID",
       dateCreated: "Date Created",
-      fertilizer: "Fertilizer",
-      // expensesTableTitle: "Manager Expenses",
-      // fertilizersTableTitle: "Fertilizer Data",
-      farmListTitle: "Select a Farm",
+      farmListTitle: "Select Farm",
       noFarms: "No farms available for this manager",
       modalTitleAdmin: "Edit Admin Expense",
       modalTitleManager: "Edit Manager Expense",
@@ -71,17 +65,14 @@ function ExpenseForm() {
       managerExpense: "Manager",
       adminExpense: "Admin",
       noExpenses: "No expenses available",
-      noFertilizers: "No fertilizers available",
-      managerListTitle: "Select a Manager",
+      managerListTitle: "Select Manager",
       noManagers: "No managers available",
+      expenseTitle: "View Expense",
     },
     mr: {
       title: "खर्च",
-      view: "पहा",
       edit: "संपादन",
-      save: "जतन करा",
       delete: "हटवा",
-      close: "बंद करा",
       cancel: "रद्द करा",
       deleteConfirm: "आपण हे परत करू शकणार नाही!",
       amount: "रक्कम",
@@ -90,27 +81,23 @@ function ExpenseForm() {
       farmerId: "शेतकरी आयडी",
       managerId: "व्यवस्थापक आयडी",
       dateCreated: "तारीख तयार झाली",
-      fertilizer: "खत",
-      // expensesTableTitle: "व्यवस्थापक खर्च",
-      // fertilizersTableTitle: "खत डेटा",
       farmListTitle: "शेत निवडा",
       noFarms: "या व्यवस्थापकासाठी कोणतेही शेत उपलब्ध नाहीत",
       modalTitleAdmin: "प्रशासक खर्च संपादन",
       modalTitleManager: "व्यवस्थापक खर्च संपादन",
       submit: "जतन करा",
       searchPlaceholder: "शोधा...",
-      managerExpense: "व्यवस्थापक खर्च",
-      adminExpense: "प्रशासक खर्च",
+      managerExpense: "व्यवस्थापक",
+      adminExpense: "प्रशासक",
       noExpenses: "कोणतेही खर्च उपलब्ध नाहीत",
-      noFertilizers: "कोणतेही खत उपलब्ध नाहीत",
       managerListTitle: "व्यवस्थापक निवडा",
       noManagers: "कोणतेही व्यवस्थापक उपलब्ध नाहीत",
+      expenseTitle: "खर्च पहा",
     },
   };
 
   const labels = translations[language];
 
-  // Fetch admin expenses
   const fetchAdminExpenses = async () => {
     setLoading(true);
     try {
@@ -138,7 +125,6 @@ function ExpenseForm() {
     }
   };
 
-  // Fetch manager expenses
   const fetchManagerExpenses = async () => {
     setLoading(true);
     try {
@@ -166,7 +152,6 @@ function ExpenseForm() {
     }
   };
 
-  // Fetch farms for a specific manager
   const fetchFarmsForManager = async (managerId) => {
     setLoading(true);
     try {
@@ -187,37 +172,6 @@ function ExpenseForm() {
     }
   };
 
-  // Fetch fertilizer data for a specific manager and farm
-  const fetchFertilizerData = async (managerId, farmId) => {
-    setLoading(true);
-    try {
-      const response = await api.get(
-        `/farm/?action=getFarmFertilizer&manager=${managerId}&farm=${farmId}`
-      );
-      let fertilizerData =
-        response.data && Array.isArray(response.data.data)
-          ? response.data.data.map((fertilizer) => ({
-              ...fertilizer,
-              date_created: fertilizer.date_created
-                ? new Date(fertilizer.date_created).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })
-                : "N/A",
-            }))
-          : [];
-      setFertilizerData(fertilizerData);
-    } catch (error) {
-      console.error("Error fetching fertilizer data:", error);
-      Swal.fire("Error", "Failed to fetch fertilizer data", "error");
-      setFertilizerData([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch manager list
   const fetchManagers = async () => {
     setLoading(true);
     try {
@@ -247,7 +201,6 @@ function ExpenseForm() {
       fetchFarmsForManager(selectedManagerId);
     } else if (expenseType === "manager" && selectedManagerId && selectedFarmId) {
       fetchManagerExpenses();
-      fetchFertilizerData(selectedManagerId, selectedFarmId);
     }
   }, [expenseType, selectedManagerId, selectedFarmId]);
 
@@ -276,7 +229,7 @@ function ExpenseForm() {
             amount: parseFloat(formData.amount),
             reason: formData.reason,
             description: formData.description,
-            date_updated: new Date().toISOString(), // Update date on edit
+            date_updated: new Date().toISOString(),
           };
           setAdminExpenses(
             adminExpenses.map((item) =>
@@ -435,16 +388,12 @@ function ExpenseForm() {
     setIsOpen(true);
   };
 
-  const handleView = (item) => {
-    setFormData(item);
-    setIsEditing(false);
-    setIsOpen(true);
-  };
-
   const handleAdminExpense = () => {
     setExpenseType("admin");
     setSelectedManagerId(null);
     setSelectedFarmId(null);
+    setSelectedManagerName(null);
+    setSelectedFarmName(null);
     setFormData({
       id: null,
       amount: "",
@@ -461,11 +410,15 @@ function ExpenseForm() {
     setExpenseType("manager");
     setSelectedManagerId(null);
     setSelectedFarmId(null);
+    setSelectedManagerName(null);
+    setSelectedFarmName(null);
   };
 
   const handleManagerSelect = (manager) => {
     setSelectedManagerId(manager.id);
+    setSelectedManagerName(`${manager.user?.first_name} ${manager.user?.last_name}`);
     setSelectedFarmId(null);
+    setSelectedFarmName(null);
     setFormData({
       id: null,
       amount: "",
@@ -478,9 +431,9 @@ function ExpenseForm() {
 
   const handleFarmSelect = (farm) => {
     setSelectedFarmId(farm.id);
+    setSelectedFarmName(farm.name);
   };
 
-  // Filter admin expenses
   const filteredAdminExpenses = adminExpenses.filter((item) => {
     const searchLower = searchQueryExpenses.toLowerCase();
     return (
@@ -490,7 +443,6 @@ function ExpenseForm() {
     );
   });
 
-  // Filter manager expenses
   const filteredManagerExpenses = managerExpenses
     .filter(
       (item) =>
@@ -505,14 +457,234 @@ function ExpenseForm() {
       );
     });
 
-  // Filter fertilizer data
-  const filteredFertilizerData = fertilizerData.filter((item) => {
-    const searchLower = searchQueryFertilizers.toLowerCase();
-    return (
-      item?.fertilizer?.toString().toLowerCase()?.includes(searchLower) ||
-      item?.date_created?.toLowerCase()?.includes(searchLower)
-    );
-  });
+  const styles = {
+    managerListContainer: {
+      marginBottom: '2rem',
+      padding: '2rem',
+      backgroundColor: '#ffffff',
+      borderRadius: '16px',
+      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+      border: '1px solid #e9ecef',
+    },
+    managerCard: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '1.5rem',
+      marginBottom: '1rem',
+      background: 'linear-gradient(145deg, #ffffff, #f8f9fa)',
+      borderRadius: '12px',
+      border: '1px solid #dee2e6',
+      cursor: 'pointer',
+      transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)',
+    },
+    managerCardHover: {
+      transform: 'translateY(-5px)',
+      boxShadow: '0 12px 25px rgba(0, 0, 0, 0.12)',
+      background: 'linear-gradient(145deg, #f8f9fa, #ffffff)',
+    },
+    managerName: {
+      fontSize: '1.25rem',
+      fontWeight: '600',
+      color: '#212529',
+      fontFamily: '"Inter", sans-serif',
+    },
+    managerId: {
+      fontSize: '0.95rem',
+      color: '#6c757d',
+      marginLeft: '1rem',
+      fontFamily: '"Inter", sans-serif',
+      fontWeight: '400',
+    },
+    farmListContainer: {
+      marginBottom: '2rem',
+      padding: '2rem',
+      backgroundColor: '#ffffff',
+      borderRadius: '16px',
+      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+      border: '1px solid #e9ecef',
+    },
+    farmCard: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '1.5rem',
+      marginBottom: '1rem',
+      background: 'linear-gradient(145deg, #ffffff, #f8f9fa)',
+      borderRadius: '12px',
+      border: '1px solid #dee2e6',
+      cursor: 'pointer',
+      transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)',
+    },
+    farmCardHover: {
+      transform: 'translateY(-5px)',
+      boxShadow: '0 12px 25px rgba(0, 0, 0, 0.12)',
+      background: 'linear-gradient(145deg, #f8f9fa, #ffffff)',
+    },
+    farmName: {
+      fontSize: '1.25rem',
+      fontWeight: '600',
+      color: '#212529',
+      fontFamily: '"Inter", sans-serif',
+    },
+    farmId: {
+      fontSize: '0.95rem',
+      color: '#6c757d',
+      marginLeft: '1rem',
+      fontFamily: '"Inter", sans-serif',
+      fontWeight: '400',
+    },
+    expenseListContainer: {
+      marginBottom: '2rem',
+      padding: '2rem',
+      backgroundColor: '#ffffff',
+      borderRadius: '16px',
+      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+      border: '1px solid #e9ecef',
+    },
+    expenseCard: {
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '1.5rem',
+      marginBottom: '1rem',
+      background: 'linear-gradient(145deg, #ffffff, #f8f9fa)',
+      borderRadius: '12px',
+      border: '1px solid #dee2e6',
+      transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)',
+    },
+    expenseCardHover: {
+      transform: 'translateY(-5px)',
+      boxShadow: '0 12px 25px rgba(0, 0, 0, 0.12)',
+      background: 'linear-gradient(145deg, #f8f9fa, #ffffff)',
+    },
+    expenseField: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      marginBottom: '0.5rem',
+      fontSize: '1rem',
+      color: '#212529',
+      fontFamily: '"Inter", sans-serif',
+    },
+    expenseLabel: {
+      fontWeight: '600',
+      color: '#343a40',
+    },
+    expenseValue: {
+      color: '#6c757d',
+      maxWidth: '60%',
+      wordBreak: 'break-word',
+    },
+    expenseActions: {
+      display: 'flex',
+      gap: '0.5rem',
+      marginTop: '1rem',
+    },
+    noItems: {
+      fontSize: '1.1rem',
+      color: '#6c757d',
+      textAlign: 'center',
+      padding: '2rem',
+      fontFamily: '"Inter", sans-serif',
+      fontStyle: 'italic',
+      backgroundColor: '#f8f9fa',
+      borderRadius: '10px',
+    },
+    titleContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: '1.5rem',
+      padding: '0.5rem',
+      backgroundColor: '#f8f9fa',
+      borderRadius: '8px',
+      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)',
+      width: '100%',
+    },
+    title: {
+      fontSize: '1.1rem',
+      fontWeight: '600',
+      color: '#ffffff',
+      fontFamily: '"Inter", sans-serif',
+      letterSpacing: '-0.015em',
+      padding: '0.5rem 1rem',
+      borderRadius: '6px',
+      background: 'linear-gradient(90deg, #28a745, #34d058)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      textTransform: 'uppercase',
+      whiteSpace: 'nowrap',
+    },
+    titleCentered: {
+      fontSize: '1.1rem',
+      fontWeight: '600',
+      color: '#ffffff',
+      fontFamily: '"Inter", sans-serif',
+      letterSpacing: '-0.015em',
+      textAlign: 'center',
+      flexGrow: 1,
+      margin: '0 0.5rem',
+      padding: '0.5rem 1rem',
+      borderRadius: '6px',
+      background: 'linear-gradient(90deg, #28a745, #34d058)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      textTransform: 'uppercase',
+      whiteSpace: 'nowrap',
+    },
+    titleLeft: {
+      fontSize: '1.1rem',
+      fontWeight: '600',
+      color: '#ffffff',
+      fontFamily: '"Inter", sans-serif',
+      letterSpacing: '-0.015em',
+      margin: '0 0 0 0.5rem',
+      padding: '0.5rem 1rem',
+      borderRadius: '6px',
+      background: 'linear-gradient(90deg, #28a745, #34d058)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      textTransform: 'uppercase',
+      whiteSpace: 'nowrap',
+    },
+    titleCenteredExpense: {
+      fontSize: '1.1rem',
+      fontWeight: '600',
+      color: '#ffffff',
+      fontFamily: '"Inter", sans-serif',
+      letterSpacing: '-0.015em',
+      textAlign: 'center',
+      flexGrow: '1',
+      margin: '0 0.5rem',
+      padding: '0.5rem 1rem',
+      borderRadius: '6px',
+      background: 'linear-gradient(90deg, #28a745, #34d058)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+      textTransform: 'uppercase',
+      whiteSpace: 'nowrap',
+    },
+    backButton: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '40px',
+      height: '40px',
+      background: 'linear-gradient(145deg, #ffffff, #f1f3f5)',
+      borderRadius: '10px',
+      border: '1px solid #dee2e6',
+      cursor: 'pointer',
+      transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
+      boxShadow: '0 4px 15px rgba(0, 0, 0, 0.08)',
+    },
+    backButtonHover: {
+      transform: 'translateY(-3px)',
+      background: 'linear-gradient(145deg, #f1f3f5, #ffffff)',
+      boxShadow: '0 8px 20px rgba(0, 0, 0, 0.12)',
+    },
+    backIcon: {
+      fontSize: '1.1rem',
+      color: '#343a40',
+      transition: 'color 0.3s ease',
+    },
+  };
 
   return (
     <div className="container mb-5">
@@ -525,20 +697,13 @@ function ExpenseForm() {
       </div>
 
       {expenseType === "manager" && (
-        <div className="mb-3 d-flex gap-3">
+        <div className="mb-3">
           <input
             type="text"
             className="form-control shadow-sm rounded-3 border-success px-3"
             placeholder={`${labels.searchPlaceholder}`}
             value={searchQueryExpenses}
             onChange={(e) => setSearchQueryExpenses(e.target.value)}
-          />
-          <input
-            type="text"
-            className="form-control shadow-sm rounded-3 border-success px-3"
-            placeholder={`${labels.searchPlaceholder}`}
-            value={searchQueryFertilizers}
-            onChange={(e) => setSearchQueryFertilizers(e.target.value)}
           />
         </div>
       )}
@@ -574,210 +739,194 @@ function ExpenseForm() {
       </div>
 
       {expenseType === "manager" && !selectedManagerId ? (
-        <div className="manager-list mb-3">
+        <div style={styles.managerListContainer}>
+          <div style={styles.titleContainer}>
+            <div style={{ width: '40px' }}></div>
+            <h3 style={styles.titleCentered}>{labels.managerListTitle}</h3>
+            <div style={{ width: '40px' }}></div>
+          </div>
           {loading ? (
             <Spinner />
           ) : managers.length > 0 ? (
-            <ul className="list-group">
+            <div>
               {managers.map((manager) => (
-                <li
+                <div
                   key={manager.id}
-                  className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                  style={{ cursor: "pointer" }}
+                  style={styles.managerCard}
                   onClick={() => handleManagerSelect(manager)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = styles.managerCardHover.transform;
+                    e.currentTarget.style.boxShadow = styles.managerCardHover.boxShadow;
+                    e.currentTarget.style.background = styles.managerCardHover.background;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = styles.managerCard.boxShadow;
+                    e.currentTarget.style.background = styles.managerCard.background;
+                  }}
                 >
-                  <span>
-                    {manager.user?.first_name} {manager.user?.last_name} (ID: {manager.id})
+                  <span style={styles.managerName}>
+                    {manager.user?.first_name} {manager.user?.last_name}
                   </span>
-                  <FaEye />
-                </li>
+                  <span style={styles.managerId}>(ID: {manager.id})</span>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
-            <p className="text-center text-muted">{labels.noManagers}</p>
+            <p style={styles.noItems}>{labels.noManagers}</p>
           )}
         </div>
       ) : expenseType === "manager" && selectedManagerId && !selectedFarmId ? (
-        <div className="farm-list mb-3">
+        <div style={styles.farmListContainer}>
+          <div style={styles.titleContainer}>
+            <button
+              style={styles.backButton}
+              onClick={() => setSelectedManagerId(null)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = styles.backButtonHover.transform;
+                e.currentTarget.style.background = styles.backButtonHover.background;
+                e.currentTarget.style.boxShadow = styles.backButtonHover.boxShadow;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'none';
+                e.currentTarget.style.background = styles.backButton.background;
+                e.currentTarget.style.boxShadow = styles.backButton.boxShadow;
+              }}
+            >
+              <FaArrowLeft style={styles.backIcon} />
+            </button>
+            <h3 style={styles.titleCentered}>{labels.farmListTitle}</h3>
+            <div style={{ width: '40px' }}></div>
+          </div>
           {loading ? (
             <Spinner />
           ) : farms.length > 0 ? (
-            <ul className="list-group">
+            <div>
               {farms.map((farm) => (
-                <li
+                <div
                   key={farm.id}
-                  className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                  style={{ cursor: "pointer" }}
+                  style={styles.farmCard}
                   onClick={() => handleFarmSelect(farm)}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = styles.farmCardHover.transform;
+                    e.currentTarget.style.boxShadow = styles.farmCardHover.boxShadow;
+                    e.currentTarget.style.background = styles.farmCardHover.background;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = styles.farmCard.boxShadow;
+                    e.currentTarget.style.background = styles.farmCard.background;
+                  }}
                 >
-                  <span>
-                    {farm.name} (ID: {farm.id})
-                  </span>
-                  <FaEye />
-                </li>
+                  <span style={styles.farmName}>{farm.name}</span>
+                  <span style={styles.farmId}>(ID: {farm.id})</span>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
-            <p className="text-center text-muted">{labels.noFarms}</p>
+            <p style={styles.noItems}>{labels.noFarms}</p>
           )}
         </div>
       ) : (
         <div className="row">
-          {/* Expenses Table */}
-          <div className="col-12 col-lg-6 mb-4">
-            {/* <h4 className="mb-3">{expenseType === "admin" ? labels.adminExpense : labels.expensesTableTitle}</h4> */}
-            {loading ? (
-              <div className="text-center my-5">
-                <Spinner />
-              </div>
-            ) : (
-              <div className="table-responsive">
-                <table className="table table-striped table-bordered shadow-sm rounded-3">
-                  <thead className="table-light">
-                    <tr>
-                      <th>{labels.dateCreated}</th>
-                      <th>{labels.amount}</th>
-                      <th>{labels.reason}</th>
-                      <th>{labels.description}</th>
-                      <th>{language === "en" ? "Actions" : "क्रिया"}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(expenseType === "admin" ? filteredAdminExpenses : filteredManagerExpenses).length > 0 ? (
-                      (expenseType === "admin" ? filteredAdminExpenses : filteredManagerExpenses).map((item) => (
-                        <tr key={item.id}>
-                          <td>{item.date_created || "N/A"}</td>
-                          <td>₹{item.amount || "N/A"}</td>
-                          <td>{item.reason || "N/A"}</td>
-                          <td>{item.description || "N/A"}</td>
-                          <td>
-                            <div className="dropdown">
-                              <button
-                                className="btn btn-link p-0"
-                                type="button"
-                                id={`dropdownMenuButton-${item.id}`}
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false"
-                              >
-                                <FaEye className="eye-icon fs-5" />
-                              </button>
-                              <div
-                                className="dropdown-menu dropdown-menu-end"
-                                aria-labelledby={`dropdownMenuButton-${item.id}`}
-                              >
-                                <button
-                                  className="dropdown-item btn btn-info btn-sm"
-                                  onClick={() => handleView(item)}
-                                >
-                                  {labels.view}
-                                </button>
-                                <button
-                                  className="dropdown-item btn btn-primary btn-sm"
-                                  onClick={() => handleEdit(item)}
-                                >
-                                  {labels.edit}
-                                </button>
-                                <button
-                                  className="dropdown-item btn btn-danger btn-sm"
-                                  onClick={() =>
-                                    expenseType === "admin"
-                                      ? handleDeleteAdmin(item.id)
-                                      : handleDeleteManager(item.id)
-                                  }
-                                >
-                                  {labels.delete}
-                                </button>
-                                <button
-                                  className="dropdown-item btn btn-secondary btn-sm"
-                                  onClick={() => console.log("Cancel clicked for", item.id)}
-                                >
-                                  {labels.cancel}
-                                </button>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={5} className="text-center text-muted py-4">
-                          {labels.noExpenses}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* Fertilizers Table (only for manager) */}
-          {expenseType === "manager" && (
-            <div className="col-12 col-lg-6 mb-4">
-              <h4 className="mb-3">{labels.fertilizersTableTitle}</h4>
-              {loading ? (
-                <div className="text-center my-5">
-                  <Spinner />
-                </div>
-              ) : (
-                <div className="table-responsive">
-                  <table className="table table-striped table-bordered shadow-sm rounded-3">
-                    <thead className="table-light">
-                      <tr>
-                        <th>{labels.dateCreated}</th>
-                        <th>{labels.fertilizer}</th>
-                        <th>{language === "en" ? "Actions" : "क्रिया"}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredFertilizerData.length > 0 ? (
-                        filteredFertilizerData.map((item) => (
-                          <tr key={item.id}>
-                            <td>{item.date_created || "N/A"}</td>
-                            <td>ID: {item.fertilizer || "N/A"}</td>
-                            <td>
-                              <div className="dropdown">
-                                <button
-                                  className="btn btn-link p-0"
-                                  type="button"
-                                  id={`dropdownMenuButton-${item.id}`}
-                                  data-bs-toggle="dropdown"
-                                  aria-expanded="false"
-                                >
-                                  <FaEye className="eye-icon fs-5" />
-                                </button>
-                                <div
-                                  className="dropdown-menu dropdown-menu-end"
-                                  aria-labelledby={`dropdownMenuButton-${item.id}`}
-                                >
-                                  <button
-                                    className="dropdown-item btn btn-info btn-sm"
-                                    onClick={() => handleView(item)}
-                                  >
-                                    {labels.view}
-                                  </button>
-                                  <button
-                                    className="dropdown-item btn btn-secondary btn-sm"
-                                    onClick={() => console.log("Cancel clicked for", item.id)}
-                                  >
-                                    {labels.cancel}
-                                  </button>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={3} className="text-center text-muted py-4">
-                            {labels.noFertilizers}
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
+          {(expenseType === "admin" || (expenseType === "manager" && selectedFarmId)) && (
+            <div style={styles.expenseListContainer}>
+              {expenseType === "manager" && selectedFarmId && (
+                <div style={styles.titleContainer}>
+                  <button
+                    style={styles.backButton}
+                    onClick={() => setSelectedFarmId(null)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = styles.backButtonHover.transform;
+                      e.currentTarget.style.background = styles.backButtonHover.background;
+                      e.currentTarget.style.boxShadow = styles.backButtonHover.boxShadow;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'none';
+                      e.currentTarget.style.background = styles.backButton.background;
+                      e.currentTarget.style.boxShadow = styles.backButton.boxShadow;
+                    }}
+                  >
+                    <FaArrowLeft style={styles.backIcon} />
+                  </button>
+                  <h3 style={styles.titleCenteredExpense}>{labels.expenseTitle}</h3>
+                  <div style={{ width: '40px' }}></div>
                 </div>
               )}
+              {expenseType === "admin" && (
+                <div style={styles.titleContainer}>
+                  <div style={{ width: '40px' }}></div>
+                  {/* <h3 style={styles.titleCenteredExpense}>{labels.expenseTitle}</h3> */}
+                  <div style={{ width: '40px' }}></div>
+                </div>
+              )}
+              <div className="col-12 mb-4">
+                {loading ? (
+                  <div className="text-center my-5">
+                    <Spinner />
+                  </div>
+                ) : (
+                  <div>
+                    {(expenseType === "admin" ? filteredAdminExpenses : filteredManagerExpenses).length > 0 ? (
+                      (expenseType === "admin" ? filteredAdminExpenses : filteredManagerExpenses).map((item) => (
+                        <div
+                          key={item.id}
+                          style={styles.expenseCard}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = styles.expenseCardHover.transform;
+                            e.currentTarget.style.boxShadow = styles.expenseCardHover.boxShadow;
+                            e.currentTarget.style.background = styles.expenseCardHover.background;
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'none';
+                            e.currentTarget.style.boxShadow = styles.expenseCard.boxShadow;
+                            e.currentTarget.style.background = styles.expenseCard.background;
+                          }}
+                        >
+                          <div style={styles.expenseField}>
+                            <span style={styles.expenseLabel}>{labels.dateCreated}:</span>
+                            <span style={styles.expenseValue}>{item.date_created || "N/A"}</span>
+                          </div>
+                          <div style={styles.expenseField}>
+                            <span style={styles.expenseLabel}>{labels.amount}:</span>
+                            <span style={styles.expenseValue}>₹{item.amount || "N/A"}</span>
+                          </div>
+                          <div style={styles.expenseField}>
+                            <span style={styles.expenseLabel}>{labels.reason}:</span>
+                            <span style={styles.expenseValue}>{item.reason || "N/A"}</span>
+                          </div>
+                          <div style={styles.expenseField}>
+                            <span style={styles.expenseLabel}>{labels.description}:</span>
+                            <span style={styles.expenseValue}>{item.description || "N/A"}</span>
+                          </div>
+                          <div style={styles.expenseActions}>
+                            <button
+                              className="btn btn-primary btn-sm d-flex align-items-center"
+                              onClick={() => handleEdit(item)}
+                              title={labels.edit}
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              className="btn btn-danger btn-sm d-flex align-items-center"
+                              onClick={() =>
+                                expenseType === "admin"
+                                  ? handleDeleteAdmin(item.id)
+                                  : handleDeleteManager(item.id)
+                              }
+                              title={labels.delete}
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p style={styles.noItems}>{labels.noExpenses}</p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

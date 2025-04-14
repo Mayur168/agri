@@ -1,21 +1,14 @@
 import React, { useState, useEffect } from "react";
 import ModalForm from "../../Admin/Components/ModelForm";
 import Swal from "sweetalert2";
-import {
-  FaEye,
-  FaEdit,
-  FaTrash,
-  FaTimes,
-  FaFileAlt,
-  FaPlus,
-} from "react-icons/fa";
+import { FaEdit, FaTrash, FaFileAlt, FaPlus } from "react-icons/fa";
 import api from "../../Api/axiosInstance";
 import Spinner from "../Spinner/Spinner";
 import BackButton from "../Components/BackButton";
-import { useLanguage } from "../../contexts/LanguageContext"; // Imported LanguageContext
+import { useLanguage } from "../../contexts/LanguageContext";
 
 const Billing = () => {
-  const { language } = useLanguage(); 
+  const { language } = useLanguage();
   const [billings, setBillings] = useState([]);
   const [farms, setFarms] = useState([]);
   const [products, setProducts] = useState([]);
@@ -51,7 +44,6 @@ const Billing = () => {
       cancel: "Close",
       deleteConfirm: "Are you sure you want to delete this billing?",
       modalTitle: "Edit Billing",
-      view: "View",
       edit: "Edit",
     },
     mr: {
@@ -77,7 +69,6 @@ const Billing = () => {
       cancel: "बंद करा",
       deleteConfirm: "आपण हे बिलिंग खरोखर हटवू इच्छिता?",
       modalTitle: "बिलिंग संपादित करा",
-      view: "पहा",
       edit: "संपादन",
     },
   };
@@ -95,7 +86,7 @@ const Billing = () => {
       console.error("Error fetching billings:", error);
       Swal.fire(
         "Error",
-        error.response?.data?.message || translations[language].noBillingsFound, // Use translated error if needed
+        error.response?.data?.message || translations[language].noBillingsFound,
         "error"
       );
       setBillings([]);
@@ -290,7 +281,8 @@ const Billing = () => {
           headers: { "Content-Type": "application/json" },
         });
         Swal.fire("Deleted", translations[language].delete, "success");
-        fetchBillings(); 
+        fetchBillings(); // Refresh the billings list
+        setIsModalOpen(false); // Close the modal after deletion
       } catch (error) {
         console.error("Error deleting billing:", error);
         Swal.fire(
@@ -300,7 +292,6 @@ const Billing = () => {
         );
       }
     } else {
-      // User canceled the deletion
       Swal.fire("Cancelled", "Billing was not deleted.", "info");
     }
   };
@@ -381,10 +372,13 @@ const Billing = () => {
                 filteredBillings.map((billing) => (
                   <tr key={billing.id}>
                     <td className="d-none d-md-table-cell">{billing.id}</td>
-                    <td>{billing.farm}</td>
-                    <td className="d-none d-md-table-cell">
-                      {billing.product}
+                    <td
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleView(billing)}
+                    >
+                      {billing.farm}
                     </td>
+                    <td className="d-none d-md-table-cell">{billing.product}</td>
                     <td>{billing.bill_date}</td>
                     <td>{billing.trader_name}</td>
                     <td className="d-none d-md-table-cell">{billing.rate}</td>
@@ -395,46 +389,21 @@ const Billing = () => {
                     <td>{billing.travelling_amount}</td>
                     <td>{billing.final_amount}</td>
                     <td>
-                      <div className="dropdown">
+                      <div className="d-flex gap-2">
                         <button
-                          className="btn btn-link p-0"
-                          type="button"
-                          id={`dropdownMenuButton-${billing.id}`}
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
+                          className="btn btn-primary btn-sm d-flex align-items-center"
+                          onClick={() => handleEdit(billing)}
+                          title={translations[language].edit}
                         >
-                          <FaEye className="eye-icon" />
+                          <FaEdit />
                         </button>
-                        <div
-                          className="dropdown-menu dropdown-menu-end"
-                          aria-labelledby={`dropdownMenuButton-${billing.id}`}
+                        <button
+                          className="btn btn-danger btn-sm d-flex align-items-center"
+                          onClick={() => handleDelete(billing.id)}
+                          title={translations[language].delete}
                         >
-                          <button
-                            className="dropdown-item btn btn-info btn-sm"
-                            onClick={() => handleView(billing)}
-                          >
-                            <FaEye className="me-2" />{" "}
-                            {translations[language].view}
-                          </button>
-                          <button
-                            className="dropdown-item btn btn-primary btn-sm"
-                            onClick={() => handleEdit(billing)}
-                          >
-                            <FaEdit className="me-2" />{" "}
-                            {translations[language].edit}
-                          </button>
-                          <button
-                            className="dropdown-item btn btn-danger btn-sm"
-                            onClick={() => handleDelete(billing.id)}
-                          >
-                            <FaTrash className="me-2" />{" "}
-                            {translations[language].delete}
-                          </button>
-                          <button className="dropdown-item btn btn-secondary btn-sm">
-                            <FaTimes className="me-2" />{" "}
-                            {translations[language].cancel}
-                          </button>
-                        </div>
+                          <FaTrash />
+                        </button>
                       </div>
                     </td>
                   </tr>

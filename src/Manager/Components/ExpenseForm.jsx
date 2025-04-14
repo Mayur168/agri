@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { FaPlus, FaMoneyBillWave, FaEye } from "react-icons/fa";
+import { FaPlus, FaMoneyBillWave, FaEdit, FaTrash } from "react-icons/fa";
 import ModalForm from "../../Admin/Components/ModelForm";
 import BackButton from "../../Admin/Components/BackButton";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -36,10 +36,9 @@ function ExpenseForm() {
   const translations = {
     en: {
       title: "Daily Expenses",
-      view: "View",
       edit: "Edit",
-      save: "Save",
       delete: "Delete",
+      save: "Save",
       close: "Close",
       deleteConfirm: "You won't be able to revert this!",
       dateCreated: "Date Created",
@@ -48,20 +47,16 @@ function ExpenseForm() {
       reason: "Reason",
       managerId: "Manager ID",
       modalTitle: "Edit Expense",
-      modalTitleManager: "View Manager Expense",
       submit: "Save",
-      cancel: "Cancel",
       searchPlaceholder: "Search...",
       addButton: "Expense",
       noExpenses: "No expenses available",
-      payloadTitle: "Payload Preview",
     },
     mr: {
       title: "दैनिक खर्च",
-      view: "पहा",
       edit: "संपादन",
-      save: "जतन करा",
       delete: "हटवा",
+      save: "जतन करा",
       close: "बंद करा",
       deleteConfirm: "आपण हे परत करू शकणार नाही!",
       dateCreated: "तारीख तयार झाली",
@@ -70,13 +65,10 @@ function ExpenseForm() {
       reason: "कारण",
       managerId: "व्यवस्थापक आयडी",
       modalTitle: "खर्च संपादन",
-      modalTitleManager: "व्यवस्थापक खर्च पहा",
       submit: "जतन करा",
-      cancel: "रद्द करा",
       searchPlaceholder: "शोधा...",
       addButton: "खर्च",
       noExpenses: "कोणतेही खर्च उपलब्ध नाहीत",
-      payloadTitle: "पेलोड पूर्वावलोकन",
     },
   };
 
@@ -208,7 +200,45 @@ function ExpenseForm() {
     }
   };
 
+  // const handleDelete = async (id) => {
+  //   Swal.fire({
+  //     title: language === "en" ? "Are you sure?" : "आपण खात्री आहात का?",
+  //     text: labels.deleteConfirm,
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: language === "en" ? "Yes, delete it!" : "होय, हटवा!",
+  //     cancelButtonText: language === "en" ? "Cancel" : "रद्द करा",
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       try {
+  //         const payload = {
+  //           action: "delManagerExpenses",
+  //           id: id,
+  //         };
+  //         await api.delete("/farm/", { data: payload });
+  //         setExpenses(expenses.filter((item) => item.id !== id));
+  //         Swal.fire({
+  //           icon: "success",
+  //           title: "Deleted!",
+  //           text: "Expense has been deleted.",
+  //         });
+  //         resetForm(); // Close modal and reset form data
+  //         console.log("After resetForm: isOpen should be false");
+  //       } catch (error) {
+  //         console.error("Error deleting expense:", error.response || error);
+  //         Swal.fire({
+  //           icon: "error",
+  //           title: "Error",
+  //           text: "Failed to delete expense.",
+  //         });
+  //       }
+  //     }
+  //   });
+  // };
   const handleDelete = async (id) => {
+    console.log("Deleting expense with id:", id);
     Swal.fire({
       title: language === "en" ? "Are you sure?" : "आपण खात्री आहात का?",
       text: labels.deleteConfirm,
@@ -232,6 +262,8 @@ function ExpenseForm() {
             title: "Deleted!",
             text: "Expense has been deleted.",
           });
+          resetForm(); // Closes modal by setting isOpen to false
+          console.log("After resetForm: isOpen should be false");
         } catch (error) {
           console.error("Error deleting expense:", error.response || error);
           Swal.fire({
@@ -243,7 +275,6 @@ function ExpenseForm() {
       }
     });
   };
-
   const resetForm = () => {
     setFormData({
       id: null,
@@ -267,20 +298,6 @@ function ExpenseForm() {
       manager_id: item.manager || defaultManagerId,
     });
     setIsEditing(true);
-    setIsOpen(true);
-  };
-
-  const handleView = (item) => {
-    console.log("Viewing Item:", item);
-    setFormData({
-      id: item.id,
-      date_created: item.date_created || "",
-      description: item.description || "",
-      amount: item.amount || "",
-      reason: item.reason || "",
-      manager_id: item.manager || defaultManagerId,
-    });
-    setIsEditing(false);
     setIsOpen(true);
   };
 
@@ -346,7 +363,6 @@ function ExpenseForm() {
                 <th>{labels.amount}</th>
                 <th>{labels.reason}</th>
                 <th>{labels.description}</th>
-                {/* <th>{labels.managerId}</th> */}
                 <th>{language === "en" ? "Actions" : "क्रिया"}</th>
               </tr>
             </thead>
@@ -354,58 +370,36 @@ function ExpenseForm() {
               {filteredExpenses.length > 0 ? (
                 filteredExpenses.map((item) => (
                   <tr key={item.id}>
-                    <td>{new Date(item.date_created).toLocaleDateString() || "N/A"}</td>
+                    <td>
+                      {new Date(item.date_created).toLocaleDateString() ||
+                        "N/A"}
+                    </td>
                     <td>{item.amount || "N/A"}</td>
                     <td>{item.reason || "N/A"}</td>
                     <td>{item.description || "N/A"}</td>
-                    {/* <td>{item.manager || "N/A"}</td> */}
                     <td>
-                      <div className="dropdown">
+                      <div className="d-flex gap-2">
                         <button
-                          className="btn btn-link p-0"
-                          type="button"
-                          id={`dropdownMenuButton-${item.id}`}
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
+                          className="btn btn-primary btn-sm d-flex align-items-center"
+                          onClick={() => handleEdit(item)}
+                          title={labels.edit}
                         >
-                          <FaEye className="eye-icon fs-5" />
+                          <FaEdit />
                         </button>
-                        <div
-                          className="dropdown-menu dropdown-menu-end"
-                          aria-labelledby={`dropdownMenuButton-${item.id}`}
+                        <button
+                          className="btn btn-danger btn-sm d-flex align-items-center"
+                          onClick={() => handleDelete(item.id)}
+                          title={labels.delete}
                         >
-                          <button
-                            className="dropdown-item btn btn-info btn-sm"
-                            onClick={() => handleView(item)}
-                          >
-                            {labels.view}
-                          </button>
-                          <button
-                            className="dropdown-item btn btn-primary btn-sm"
-                            onClick={() => handleEdit(item)}
-                          >
-                            {labels.edit}
-                          </button>
-                          <button
-                            className="dropdown-item btn btn-danger btn-sm"
-                            onClick={() => handleDelete(item.id)}
-                          >
-                            {labels.delete}
-                          </button>
-                          <button
-                            className="dropdown-item btn btn-secondary btn-sm"
-                            onClick={() => console.log("Cancel clicked for", item.id)}
-                          >
-                            {labels.cancel}
-                          </button>
-                        </div>
+                          <FaTrash />
+                        </button>
                       </div>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center text-muted py-4">
+                  <td colSpan="5" className="text-center text-muted py-4">
                     {labels.noExpenses}
                   </td>
                 </tr>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaUserTie,FaPlus } from "react-icons/fa";
+import { FaUserTie, FaPlus, FaSave, FaTrash, FaTimes } from "react-icons/fa";
 import "./villages.css";
 import BackButton from "../Components/BackButton";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -88,9 +88,8 @@ const ManagersList = () => {
         phoneInUse: "फोन नंबर आधीपासून वापरात आहे.",
         addManagerError: "व्यवस्थापक जोडण्यात अयशस्वी.",
         phoneRequired: "फोन नंबर आवश्यक आहे.",
-        noChanges: "कोणतेही बदल आढळले नाहीत.",
-        emailInUse:
-          "हा ईमेल पत्ता आधीपासून दुसऱ्या वापरकर्त्याद्वारे वापरात आहे.",
+        noChanges: "कोणतेही बदल आढळले नाहीत。",
+        emailInUse: "हा ईमेल पत्ता आधीपासून दुसऱ्या वापरकर्त्याद्वारे वापरात आहे。",
         updateManagerError: "व्यवस्थापक अद्यतनित करण्यात अयशस्वी.",
         managerUpdatedSuccess: "व्यवस्थापक यशस्वीरित्या अद्यतनित केले गेले!",
       },
@@ -102,6 +101,7 @@ const ManagersList = () => {
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [isViewingEditing, setIsViewingEditing] = useState(false);
   const [editManagerId, setEditManagerId] = useState(null);
   const [formData, setFormData] = useState({
     first_name: "",
@@ -124,6 +124,7 @@ const ManagersList = () => {
       setFetchLoading(true);
       try {
         const response = await api.get("/users/?action=getFarmManager");
+        console.log("Fetched Managers:", response.data.data);
         if (response.data && Array.isArray(response.data.data)) {
           setManagers(response.data.data);
           localStorage.setItem("managers", JSON.stringify(response.data.data));
@@ -154,7 +155,8 @@ const ManagersList = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddManager = async () => {
+  const handleAddManager = async (e) => {
+    e.preventDefault();
     if (!formData.phone.trim() || !formData.first_name.trim()) {
       Swal.fire({
         icon: "error",
@@ -176,25 +178,28 @@ const ManagersList = () => {
       });
       return;
     }
-  
+
     const confirmResult = await Swal.fire({
       title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
-      text: language === "en" ? "Do you want to add this manager?" : "तुम्ही हा व्यवस्थापक जोडू इच्छिता?",
+      text:
+        language === "en"
+          ? "Do you want to add this manager?"
+          : "तुम्ही हा व्यवस्थापक जोडू इच्छिता?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: language === "en" ? "Yes, add it!" : "होय, जोडा!",
       cancelButtonText: language === "en" ? "No, cancel!" : "नाही, रद्द करा!",
     });
-  
+
     if (!confirmResult.isConfirmed) {
       return;
     }
-  
+
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
       if (!token) throw new Error("Unauthorized: No token found.");
-  
+
       let newUser;
       if (formData.role === "Manager") {
         const managerPayload = {
@@ -213,9 +218,12 @@ const ManagersList = () => {
           farm_location: formData.farm_location.trim(),
           manager_experience: parseInt(formData.manager_experience) || 0,
         };
-  
+
         console.log("Manager Payload:", managerPayload);
-        const managerResponse = await api.post("/users/", managerPayload);
+        const managerResponse = await api.post("/users/", managerPayload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("API Response:", managerResponse.data);
         newUser = managerResponse.data.data;
       } else {
         const userPayload = {
@@ -229,16 +237,19 @@ const ManagersList = () => {
           is_admin: true,
           is_manager: false,
         };
-  
+
         console.log("Admin Payload:", userPayload);
-        const userResponse = await api.post("/users/", userPayload);
+        const userResponse = await api.post("/users/", userPayload, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("API Response:", userResponse.data);
         newUser = userResponse.data.data;
       }
-  
+
       const updatedManagers = [newUser, ...managers];
       setManagers(updatedManagers);
       localStorage.setItem("managers", JSON.stringify(updatedManagers));
-  
+
       Swal.fire({
         icon: "success",
         title:
@@ -248,7 +259,7 @@ const ManagersList = () => {
         showConfirmButton: false,
         timer: 2000,
       });
-  
+
       setShowModal(false);
       setFormData({
         first_name: "",
@@ -267,20 +278,59 @@ const ManagersList = () => {
       Swal.fire({
         icon: "error",
         title:
-          err.response?.data?.message || translations[language].toast.addManagerError,
+          err.response?.data?.message ||
+          translations[language].toast.addManagerError,
       });
     } finally {
       setLoading(false);
     }
   };
-  
 
   const handleEditManager = (manager) => {
+    console.log("Editing Manager:", manager);
+    const initialData = manager.user
+      ? {
+          id: manager.id,
+          first_name: manager.user.first_name || "",
+          last_name: manager.user.last_name || "",
+          email: manager.user.email || "",
+          phone: manager.user.phone || "",
+          password: "",
+          confirm_password: "",
+          role: manager.role || "Manager",
+          farm_name: manager.farm_name || "",
+          farm_location: manager.farm_location || "",
+          manager_experience: manager.manager_experience || "",
+        }
+      : {
+          id: manager.id,
+          first_name: manager.first_name || "",
+          last_name: manager.last_name || "",
+          email: manager.email || "",
+          phone: manager.phone || "",
+          password: "",
+          confirm_password: "",
+          role: manager.role || "Manager",
+          farm_name: manager.farm_name || "",
+          farm_location: manager.farm_location || "",
+          manager_experience: manager.manager_experience || "",
+        };
+    console.log("Initial Data:", initialData);
+    setEditManagerId(manager.id);
+    setFormData(initialData);
+    setInitialFormData(initialData);
+    setShowEditModal(true);
+    setShowViewModal(false);
+  };
+
+  const handleViewManager = (manager) => {
+    console.log("Viewing Manager:", manager);
     const initialData = {
-      first_name: manager.user.first_name,
-      last_name: manager.user.last_name,
-      email: manager.user.email,
-      phone: manager.user.phone,
+      id: manager.id,
+      first_name: manager.user?.first_name || manager.first_name || "",
+      last_name: manager.user?.last_name || manager.last_name || "",
+      email: manager.user?.email || manager.email || "",
+      phone: manager.user?.phone || manager.phone || "",
       password: "",
       confirm_password: "",
       role: manager.role || "Manager",
@@ -288,29 +338,19 @@ const ManagersList = () => {
       farm_location: manager.farm_location || "",
       manager_experience: manager.manager_experience || "",
     };
-    setEditManagerId(manager.id);
     setFormData(initialData);
     setInitialFormData(initialData);
-    setShowEditModal(true);
-  };
-
-  const handleViewManager = (manager) => {
-    setFormData({
-      first_name: manager.user.first_name,
-      last_name: manager.user.last_name,
-      email: manager.user.email,
-      phone: manager.user.phone,
-      password: "",
-      confirm_password: "",
-      role: manager.role || "Manager",
-      farm_name: manager.farm_name || "",
-      farm_location: manager.farm_location || "",
-      manager_experience: manager.manager_experience || "",
-    });
+    setEditManagerId(manager.id);
+    setIsViewingEditing(false);
     setShowViewModal(true);
   };
 
-  const handleUpdateManager = async () => {
+  const handleUpdateManager = async (e) => {
+    e.preventDefault();
+    console.log("handleUpdateManager triggered");
+    console.log("initialFormData:", initialFormData);
+    console.log("formData:", formData);
+
     if (!formData.phone.trim()) {
       Swal.fire({
         icon: "error",
@@ -318,29 +358,44 @@ const ManagersList = () => {
       });
       return;
     }
-  
+
+    if (!initialFormData) {
+      Swal.fire({
+        icon: "error",
+        title: "Error: Initial data not set. Please try again.",
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Confirmation only when submitting changes
     const confirmResult = await Swal.fire({
       title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
-      text: language === "en" ? "Do you want to update this manager?" : "तुम्ही हा व्यवस्थापक अपडेट करू इच्छिता?",
+      text:
+        language === "en"
+          ? "Do you want to update this manager?"
+          : "तुम्ही हा व्यवस्थापक अपडेट करू इच्छिता?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: language === "en" ? "Yes, update!" : "होय, अपडेट करा!",
       cancelButtonText: language === "en" ? "No, cancel!" : "नाही, रद्द करा!",
     });
-  
+
     if (!confirmResult.isConfirmed) {
       return;
     }
-  
+
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("Unauthorized: No token found.");
-  
-      // Identify changed fields only
+      if (!token) {
+        navigate("/login");
+        throw new Error("Unauthorized: No token found.");
+      }
+
       const changedPayload = { id: editManagerId, action: "patchFarmManager" };
       let hasChanges = false;
-  
+
       if (formData.first_name.trim() !== initialFormData.first_name) {
         changedPayload.user = changedPayload.user || {};
         changedPayload.user.first_name = formData.first_name.trim();
@@ -370,56 +425,60 @@ const ManagersList = () => {
         hasChanges = true;
       }
       if (
-        parseInt(formData.manager_experience) !== parseInt(initialFormData.manager_experience)
+        parseInt(formData.manager_experience) !==
+        parseInt(initialFormData.manager_experience)
       ) {
-        changedPayload.manager_experience = parseInt(formData.manager_experience) || 0;
+        changedPayload.manager_experience =
+          parseInt(formData.manager_experience) || 0;
         hasChanges = true;
       }
-  
+
       if (!hasChanges) {
         Swal.fire({
           icon: "info",
           title: translations[language].toast.noChanges,
         });
         setShowEditModal(false);
+        setShowViewModal(false);
         setLoading(false);
         return;
       }
-  
-      const response = await api.patch("/users/", changedPayload);
+
+      console.log("Update Payload:", changedPayload);
+      console.log("Sending PATCH request to /users/");
+      const response = await api.patch("/users/", changedPayload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("API Response:", response.data);
+
       const updatedManager = response.data.data;
       const updatedManagers = managers.map((m) =>
         m.id === editManagerId ? { ...m, ...updatedManager } : m
       );
       setManagers(updatedManagers);
       localStorage.setItem("managers", JSON.stringify(updatedManagers));
-  
+
       Swal.fire({
         icon: "success",
         title: translations[language].toast.managerUpdatedSuccess,
         showConfirmButton: false,
         timer: 2000,
       });
-  
+
       setShowEditModal(false);
+      setShowViewModal(false);
     } catch (err) {
       console.error("API Error (Update Manager):", err.response || err);
-      
-      let errorMessage = err.response?.data?.message || translations[language].toast.updateManagerError;
-  
-      if (err.response?.data?.error_msg?.includes("duplicate key value violates unique constraint")) {
-        errorMessage = translations[language].toast.emailInUse;
-      }
-  
       Swal.fire({
         icon: "error",
-        title: errorMessage,
+        title:
+          err.response?.data?.message ||
+          translations[language].toast.updateManagerError,
       });
     } finally {
       setLoading(false);
     }
   };
-  
 
   const handleDeleteManager = async (managerId) => {
     const result = await Swal.fire({
@@ -435,27 +494,28 @@ const ManagersList = () => {
       confirmButtonText: translations[language].delete,
       cancelButtonText: translations[language].cancel,
     });
-  
+
     if (!result.isConfirmed) return;
-  
+
     setLoading(true);
-  
+
     try {
+      const token = localStorage.getItem("token");
       const deletePayload = {
-        // role: "farmmanager", 
         action: "delFarmManager",
         id: managerId,
       };
-  
+
       const response = await api.delete("/users/", {
         data: deletePayload,
+        headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       if (response.status === 200 || response.status === 204) {
         const updatedManagers = managers.filter((m) => m.id !== managerId);
         setManagers(updatedManagers);
         localStorage.setItem("managers", JSON.stringify(updatedManagers));
-  
+
         await Swal.fire({
           title: language === "en" ? "Deleted!" : "हटवले!",
           text:
@@ -465,8 +525,7 @@ const ManagersList = () => {
           icon: "success",
           confirmButtonText: "OK",
         });
-  
-        setShowEditModal(false);
+
         setShowViewModal(false);
       } else {
         throw new Error("Unexpected response status: " + response.status);
@@ -477,14 +536,14 @@ const ManagersList = () => {
         response: err.response?.data,
         status: err.response?.status,
       });
-  
+
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error_msg ||
         (language === "en"
           ? "Failed to delete manager. Please try again or contact support."
           : "व्यवस्थापक हटविण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा किंवा समर्थनाशी संपर्क साधा.");
-  
+
       await Swal.fire({
         title: language === "en" ? "Error!" : "त्रुटी!",
         text: errorMessage,
@@ -496,19 +555,23 @@ const ManagersList = () => {
     }
   };
 
+  const handleToggleEdit = () => {
+    if (!isViewingEditing) {
+      setInitialFormData(formData);
+    }
+    setIsViewingEditing((prev) => !prev); // Toggle edit mode without confirmation
+  };
+
   const filteredManagers = Array.isArray(managers)
     ? managers.filter(
         (manager) =>
           manager &&
-          manager.user &&
-          ((typeof manager.user.phone === "string" &&
-            manager.user.phone
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase())) ||
-            (typeof manager.user.first_name === "string" &&
-              manager.user.first_name
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase())))
+          ((manager.user?.phone || manager.phone)
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+            (manager.user?.first_name || manager.first_name)
+              ?.toLowerCase()
+              .includes(searchQuery.toLowerCase()))
       )
     : [];
 
@@ -551,7 +614,7 @@ const ManagersList = () => {
             }}
             disabled={loading}
           >
-           <FaPlus className="me-2" /> {translations[language].addManager}
+            <FaPlus className="me-2" /> {translations[language].addManager}
           </button>
         </div>
       </div>
@@ -566,55 +629,13 @@ const ManagersList = () => {
             <div
               key={manager.id}
               className="manager-card d-flex justify-content-between align-items-center flex-wrap"
+              style={{ cursor: "pointer" }}
+              onClick={() => handleViewManager(manager)}
             >
               <span className="manager-name">
-                {manager.user.first_name} {manager.user.last_name}
+                {(manager.user?.first_name || manager.first_name || "Unnamed")}{" "}
+                {(manager.user?.last_name || manager.last_name || "")}
               </span>
-              <div className="manager-actions">
-                <div className="dropdown">
-                  <button
-                    className="btn btn-link p-0"
-                    type="button"
-                    id={`dropdownMenuButton-${manager.id}`}
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    <FaEye className="eye-icon" />
-                  </button>
-                  <div
-                    className="dropdown-menu dropdown-menu-end"
-                    aria-labelledby={`dropdownMenuButton-${manager.id}`}
-                  >
-                    <button
-                      className="dropdown-item btn btn-primary btn-sm"
-                      onClick={() => handleEditManager(manager)}
-                      disabled={loading}
-                    >
-                      {translations[language].edit}
-                    </button>
-                    <button
-                      className="dropdown-item btn btn-info btn-sm"
-                      onClick={() => handleViewManager(manager)}
-                      disabled={loading}
-                    >
-                      {translations[language].view}
-                    </button>
-                    <button
-                      className="dropdown-item btn btn-danger btn-sm"
-                      onClick={() => handleDeleteManager(manager.id)}
-                      disabled={loading}
-                    >
-                      {translations[language].delete}
-                    </button>
-                    <button
-                      className="dropdown-item btn btn-secondary btn-sm"
-                      disabled={loading}
-                    >
-                      {translations[language].cancel}
-                    </button>
-                  </div>
-                </div>
-              </div>
             </div>
           ))
         ) : (
@@ -655,14 +676,15 @@ const ManagersList = () => {
       <ModalForm
         isOpen={showViewModal}
         onClose={() => setShowViewModal(false)}
-        isEditing={false}
+        isEditing={isViewingEditing}
         formData={formData}
         labels={translations}
         handleChange={handleChange}
-        handleSave={() => {}}
-        handleDelete={() => handleDeleteManager(editManagerId)}
+        handleSave={handleUpdateManager}
+        handleDelete={() => handleDeleteManager(formData.id)}
         language={language}
         formType="manager"
+        onEdit={handleToggleEdit}
       />
 
       <ToastContainer />

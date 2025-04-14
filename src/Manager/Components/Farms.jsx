@@ -6,7 +6,7 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import BackButton from "../../Admin/Components/BackButton";
 import ModalForm from "../../Admin/Components/ModelForm";
 import api from "../../Api/axiosInstance";
-import { FaTractor, FaPlus, FaArrowLeft, FaArrowRight, FaEye, FaEdit, FaTrash, FaTimes } from "react-icons/fa";
+import { FaTractor, FaPlus, FaArrowLeft, FaArrowRight, FaEdit, FaTrash } from "react-icons/fa";
 import { FaWarehouse } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
 
@@ -34,6 +34,29 @@ function Allfarms() {
   const [isEditing, setIsEditing] = useState(false);
   const farmsPerPage = 10;
 
+  // Custom function to format date as "DD-MMM-YYYY hh:mm AM/PM"
+  const formatDateForDisplay = (date) => {
+    if (!date) return "";
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = d.toLocaleString("en-US", { month: "short" });
+    const year = d.getFullYear();
+    const hours = String(d.getHours() % 12 || 12).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    const ampm = d.getHours() >= 12 ? "PM" : "AM";
+    return `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
+  };
+
+  // Convert date to IST and format for API
+  const convertToIST = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    // Convert to IST by adding 5 hours 30 minutes (UTC+5:30)
+    const istOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in milliseconds
+    const istDate = new Date(date.getTime() + istOffset);
+    return formatDateForDisplay(istDate);
+  };
+
   const labels = {
     en: {
       title: "All Farms",
@@ -49,12 +72,9 @@ function Allfarms() {
       date: "Date & Time",
       submit: "Save",
       noFertilizers: "No fertilizers available for this farm.",
-      noFertilizersPresent: "Fertilizers are not present.", // New label for info message
-      view: "View",
+      noFertilizersPresent: "Fertilizers are not present.",
       edit: "Edit",
       delete: "Delete",
-      cancel: "Cancel",
-      deleteConfirm: "Are you sure you want to delete this fertilizer?",
     },
     mr: {
       title: "सर्व शेती",
@@ -70,12 +90,9 @@ function Allfarms() {
       date: "दिनांक आणि वेळ",
       submit: "जतन करा",
       noFertilizers: "या शेतासाठी कोणतेही खते उपलब्ध नाहीत।",
-      noFertilizersPresent: "खते उपस्थित नाहीत।", // New label for info message
-      view: "पहा",
+      noFertilizersPresent: "खते उपस्थित नाहीत।",
       edit: "संपादन करा",
       delete: "हटवा",
-      cancel: "रद्द करा",
-      deleteConfirm: "आपण हे खत खरोखर हटवू इच्छिता का?",
     },
   };
 
@@ -146,7 +163,7 @@ function Allfarms() {
         setLoading(false);
       }
     },
-    [language, farmsPerPage, managerId]
+    [language, farmsPerPage, managerId, searchQuery]
   );
 
   const fetchFertilizers = async (farmId) => {
@@ -163,13 +180,13 @@ function Allfarms() {
       const validRecords = Array.isArray(response.data.data)
         ? response.data.data.map((item) => ({
             id: item.id,
-            fertilizer_id: item.fertilizer,
-            farm_id: item.farm,
+            fertilizer_id: item.fertilizer.id,
+            fertilizer_name: item.fertilizer.name,
+            farm_id: farmId,
             date: item.date,
           }))
         : [];
 
-      console.log("Fetched fertilizers:", validRecords);
       setFertilizers(validRecords);
     } catch (error) {
       Swal.fire({
@@ -190,7 +207,6 @@ function Allfarms() {
       const response = await api.get("/master_data/?action=getfertilizer", {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
-      console.log("Master fertilizers:", response.data.data);
       setMasterFertilizers(response.data.data || []);
     } catch (error) {
       Swal.fire({
@@ -218,7 +234,7 @@ function Allfarms() {
     try {
       const payload = {
         fertilizer_id: Number(fertilizerFormData.fertilizer_id),
-        date: fertilizerFormData.date, // Mapping to 'date' as per backend expectation
+        date: convertToIST(fertilizerFormData.date),
         farm_id: selectedFarm?.id,
         action: "postFarmFertilizer",
       };
@@ -230,13 +246,13 @@ function Allfarms() {
       const newFertilizer = {
         id: response.data.data.id,
         fertilizer_id: response.data.data.fertilizer,
+        fertilizer_name: masterFertilizers.find((f) => f.id === response.data.data.fertilizer)?.name || "Unknown",
         farm_id: response.data.data.farm,
         date: response.data.data.date,
       };
 
       setFertilizers((prevFertilizers) => {
         const updatedFertilizers = [...prevFertilizers, newFertilizer];
-        console.log("Updated fertilizers after POST:", updatedFertilizers);
         return updatedFertilizers;
       });
 
@@ -262,7 +278,7 @@ function Allfarms() {
 
   const handleDeleteFertilizer = async (id) => {
     const result = await Swal.fire({
-      title: labels[language].deleteConfirm,
+      title: labels[language].deleteConfirm || "Are you sure?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -322,7 +338,7 @@ function Allfarms() {
         id: fertilizerFormData.id,
         action: "patchFarmFertilizer",
         fertilizer_id: Number(fertilizerFormData.fertilizer_id),
-        date: fertilizerFormData.date, 
+        date: convertToIST(fertilizerFormData.date),
         farm_id: selectedFarm?.id,
       };
 
@@ -331,15 +347,19 @@ function Allfarms() {
       });
 
       const updatedFertilizer = {
-        id: response.data.data.id,
-        fertilizer_id: response.data.data.fertilizer,
-        farm_id: response.data.data.farm,
+        id: fertilizerFormData.id,
+        fertilizer_id: Number(fertilizerFormData.fertilizer_id),
+        fertilizer_name: masterFertilizers.find((f) => f.id === Number(fertilizerFormData.fertilizer_id))?.name || "Unknown",
+        farm_id: selectedFarm?.id,
         date: response.data.data.date,
       };
 
-      setFertilizers((prevFertilizers) =>
-        prevFertilizers.map((fert) => (fert.id === updatedFertilizer.id ? updatedFertilizer : fert))
-      );
+      setFertilizers((prevFertilizers) => {
+        const updatedFertilizers = prevFertilizers.map((fert) =>
+          fert.id === updatedFertilizer.id ? { ...fert, ...updatedFertilizer } : fert
+        );
+        return [...updatedFertilizers];
+      });
 
       resetFertilizerForm();
       Swal.fire({
@@ -348,7 +368,6 @@ function Allfarms() {
         text: "Fertilizer updated successfully",
         confirmButtonColor: "#28a745",
       });
-      await fetchFertilizers(selectedFarm.id);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -393,14 +412,13 @@ function Allfarms() {
     setIsFertilizerModalOpen(true);
   };
 
-  const handleViewFertilizer = (fertilizer) => {
-    setFertilizerFormData(fertilizer);
-    setIsEditing(false);
-    setIsFertilizerModalOpen(true);
-  };
-
   const handleEditFertilizerOpen = (fertilizer) => {
-    setFertilizerFormData(fertilizer);
+    setFertilizerFormData({
+      id: fertilizer.id,
+      fertilizer_id: fertilizer.fertilizer_id,
+      farm_id: fertilizer.farm_id,
+      date: fertilizer.date,
+    });
     setIsEditing(true);
     setIsFertilizerModalOpen(true);
   };
@@ -450,7 +468,7 @@ function Allfarms() {
     <div className="container mt-2 px-2">
       <div className="card shadow-sm mb-4">
         <div className="card-header bg-success text-white d-flex align-items-center justify-content-between flex-wrap">
-          <BackButton className="btn btn-light fs-4" />
+          <BackButton className="btn fs-4" />
           <h2 className="mb-0 text-white text-center flex-grow-1">
             <FaWarehouse className="me-2" /> {labels[language].title}
           </h2>
@@ -513,50 +531,24 @@ function Allfarms() {
                           {fertilizers.map((fert, index) => (
                             <tr key={fert.id}>
                               <td className="text-center">{index + 1}</td>
-                              <td>
-                                {masterFertilizers.find((f) => f.id === fert.fertilizer_id)?.name || "Unknown Fertilizer"}
-                              </td>
-                              <td>{new Date(fert.date).toLocaleString() || "N/A"}</td>
+                              <td>{fert.fertilizer_name || "Unknown Fertilizer"}</td>
+                              <td>{formatDateForDisplay(fert.date) || "N/A"}</td>
                               <td className="text-center">
-                                <div className="dropdown">
+                                <div className="d-flex gap-2 justify-content-center">
                                   <button
-                                    className="btn btn-link p-0 text-success"
-                                    type="button"
-                                    id={`dropdownMenuButton-${fert.id}`}
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
+                                    className="btn btn-primary btn-sm d-flex align-items-center"
+                                    onClick={() => handleEditFertilizerOpen(fert)}
+                                    title={labels[language].edit}
                                   >
-                                    <FaEye className="eye-icon" style={{ fontSize: "1.2rem" }} />
+                                    <FaEdit />
                                   </button>
-                                  <div
-                                    className="dropdown-menu dropdown-menu-end"
-                                    aria-labelledby={`dropdownMenuButton-${fert.id}`}
+                                  <button
+                                    className="btn btn-danger btn-sm d-flex align-items-center"
+                                    onClick={() => handleDeleteFertilizer(fert.id)}
+                                    title={labels[language].delete}
                                   >
-                                    <button
-                                      className="dropdown-item btn btn-info btn-sm"
-                                      onClick={() => handleViewFertilizer(fert)}
-                                    >
-                                      <FaEye className="me-2" /> {labels[language].view}
-                                    </button>
-                                    <button
-                                      className="dropdown-item btn btn-primary btn-sm"
-                                      onClick={() => handleEditFertilizerOpen(fert)}
-                                    >
-                                      <FaEdit className="me-2" /> {labels[language].edit}
-                                    </button>
-                                    <button
-                                      className="dropdown-item btn btn-danger btn-sm"
-                                      onClick={() => handleDeleteFertilizer(fert.id)}
-                                    >
-                                      <FaTrash className="me-2" /> {labels[language].delete}
-                                    </button>
-                                    <button
-                                      className="dropdown-item btn btn-secondary btn-sm"
-                                      onClick={resetFertilizerForm}
-                                    >
-                                      <FaTimes className="me-2" /> {labels[language].cancel}
-                                    </button>
-                                  </div>
+                                    <FaTrash />
+                                  </button>
                                 </div>
                               </td>
                             </tr>
