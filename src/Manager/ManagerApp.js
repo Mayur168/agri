@@ -11,7 +11,6 @@ import PrivateRoute from "../Admin/Auth/PrivateRoute";
 import { AuthContext } from "../../src/contexts/AuthContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-// Manager Layout with Navbar and role check
 const ManagerLayout = ({ children }) => {
   const { authenticated, user } = useContext(AuthContext);
   const location = useLocation();
