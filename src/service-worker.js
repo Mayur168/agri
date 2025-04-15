@@ -1,4 +1,9 @@
+/* eslint-disable no-restricted-globals */
 // src/service-worker.js
+import { precacheAndRoute } from 'workbox-precaching';
+
+precacheAndRoute(self.__WB_MANIFEST);
+
 const CACHE_NAME = 'agriculture-pwa-cache-v1';
 const urlsToCache = [
   '/',
