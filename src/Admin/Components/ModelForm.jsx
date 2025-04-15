@@ -2103,6 +2103,19 @@ const ModalForm = ({
       role="dialog"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
+      {/* Inline styles for focus color */}
+      <style>{`
+        .form-control:focus,
+        .form-select:focus {
+          border-color: #28a745 !important;
+          box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        }
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-select:focus ~ label {
+          color: #28a745 !important;
+        }
+      `}</style>
+
       <div
         className="modal-dialog modal-dialog-centered modal-lg"
         role="document"
@@ -2110,7 +2123,11 @@ const ModalForm = ({
         <div className="modal-content mx-auto">
           <div className="modal-header bg-success text-white">
             <h4 className="modal-title ms-auto">
-              {formData.id && isEditing
+              {formType === "fertilizer"
+                ? formData.id && isEditing
+                  ? labels[language]. Edit_Fertilizer
+                  : labels[language].addFertilizer
+                : formData.id && isEditing
                 ? labels[language].modalTitle
                 : formData.id && !isEditing && formType === "managerExpense"
                 ? labels[language].modalTitleManager
@@ -2254,11 +2271,11 @@ const ModalForm = ({
                       </div>
                     </div>
                     <div className="col-12">
-                      <h5 className="text-success mb-3 fw-bold">
+                      <h5 className="mb-3 fw-bold">
                         {labels[language].fertilizers}
                       </h5>
                       {fertilizers.length > 0 ? (
-                        <div className="table-responsive shadow-sm rounded">
+                        <div className="table-responsive rounded">
                           <table
                             className="table table-hover mb-0"
                             style={{
@@ -2316,7 +2333,7 @@ const ModalForm = ({
                                   <td className="text-center py-3">
                                     {index + 1}
                                   </td>
-                                  <td className="py-3 text-success fw-medium">
+                                  <td className="py-3 fw-medium">
                                     {fertilizer.name || "Unknown Fertilizer"}
                                   </td>
                                   <td className="py-3 text-muted">
@@ -2540,14 +2557,10 @@ const ModalForm = ({
                           name="fertilizer_id"
                           value={formData.fertilizer_id || ""}
                           onChange={handleChange}
-                          disabled={!isEditing || isLoadingFertilizers}
+                          disabled={!isEditing}
                         >
                           <option value="">
-                            {isLoadingFertilizers
-                              ? language === "en"
-                                ? "Loading Fertilizers..."
-                                : "खते लोड होत आहेत..."
-                              : language === "en"
+                            {language === "en"
                               ? "Select Fertilizer"
                               : "खत निवडा"}
                           </option>

@@ -72,7 +72,7 @@ function Profile() {
   const { label: idLabel, value: idValue } = getIdLabelAndValue();
 
   return (
-    <Container className="py-0">
+    <Container className="p-0">
       <Card className="shadow-sm border-0 rounded-3">
         <Card.Header className="bg-success text-white d-flex justify-content-between align-items-center py-3">
           <h4 className="mb-0 fw-bold">{translations[language].profile}</h4>

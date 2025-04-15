@@ -239,7 +239,7 @@ function Allfarms() {
   };
 
   return (
-    <div className="container mt-4">
+    <div className="container mt-1 px-0">
       <div className="bg-success text-white py-2 rounded px-3 d-flex align-items-center justify-content-between flex-column gap-1">
         <div className="d-flex align-items-center justify-content-between w-100">
           <BackButton className="backbtn fs-4" />
@@ -256,9 +256,9 @@ function Allfarms() {
             value={searchQuery}
             onChange={handleSearch}
           />
-          <span className="input-group-text border-0">
+          {/* <span className="input-group-text border-0 bg-white">
             <i className="fa fa-search"></i>
-          </span>
+          </span> */}
         </div>
       </div>
 

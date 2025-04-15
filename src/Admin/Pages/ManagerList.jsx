@@ -628,13 +628,16 @@ const ManagersList = () => {
           filteredManagers.map((manager) => (
             <div
               key={manager.id}
-              className="manager-card d-flex justify-content-between align-items-center flex-wrap"
+              className="manager-card rounded d-flex justify-content-between align-items-center flex-wrap bg-white shadow-none border"
               style={{ cursor: "pointer" }}
               onClick={() => handleViewManager(manager)}
             >
-              <span className="manager-name">
+              <li className="manager-name  p-2" type="none">
+
                 {(manager.user?.first_name || manager.first_name || "Unnamed")}{" "}
                 {(manager.user?.last_name || manager.last_name || "")}
+              </li>
+              <span className="">
               </span>
             </div>
           ))

@@ -32,7 +32,7 @@ const AdminLayout = ({ children }) => {
   return (
     <>
       <NavBar />
-      <div className="container mt-4 pt-5">{children}</div>
+      <div className="container mt-4 pt-5 px-1">{children}</div>
     </>
   );
 };

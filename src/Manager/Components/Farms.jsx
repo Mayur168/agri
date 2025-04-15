@@ -6,7 +6,14 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import BackButton from "../../Admin/Components/BackButton";
 import ModalForm from "../../Admin/Components/ModelForm";
 import api from "../../Api/axiosInstance";
-import { FaTractor, FaPlus, FaArrowLeft, FaArrowRight, FaEdit, FaTrash } from "react-icons/fa";
+import {
+  FaTractor,
+  FaPlus,
+  FaArrowLeft,
+  FaArrowRight,
+  FaEdit,
+  FaTrash,
+} from "react-icons/fa";
 import { FaWarehouse } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
 
@@ -74,6 +81,7 @@ function Allfarms() {
       noFertilizers: "No fertilizers available for this farm.",
       noFertilizersPresent: "Fertilizers are not present.",
       edit: "Edit",
+      Edit_Fertilizer: "Update Fertilizer", // Add this
       delete: "Delete",
     },
     mr: {
@@ -92,12 +100,14 @@ function Allfarms() {
       noFertilizers: "या शेतासाठी कोणतेही खते उपलब्ध नाहीत।",
       noFertilizersPresent: "खते उपस्थित नाहीत।",
       edit: "संपादन करा",
+      Edit_Fertilizer: "अद्यतन करा",
       delete: "हटवा",
     },
   };
 
   const managerId = user?.manager_id;
-  const managerName = `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "N/A";
+  const managerName =
+    `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "N/A";
 
   const fetchFarms = useCallback(
     async (page = 1) => {
@@ -112,12 +122,17 @@ function Allfarms() {
         const response = await api.get(
           `/farm/?action=getFarm&page=${page}&records_number=${farmsPerPage}&manager=${managerId}`,
           {
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           }
         );
 
         const result = response.data;
-        const farmData = Array.isArray(result.data) ? result.data : [result.data].filter(Boolean);
+        const farmData = Array.isArray(result.data)
+          ? result.data
+          : [result.data].filter(Boolean);
 
         if (farmData.length === 0 && page > 1) {
           setHasMore(false);
@@ -147,16 +162,22 @@ function Allfarms() {
         );
 
         setHasMore(farmData.length === farmsPerPage);
-        setTotalPages((prev) => (farmData.length === farmsPerPage ? Math.max(prev, page + 1) : page));
+        setTotalPages((prev) =>
+          farmData.length === farmsPerPage ? Math.max(prev, page + 1) : page
+        );
 
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
-        setError(err.response?.data?.message || err.message || "Error fetching farms.");
+        setError(
+          err.response?.data?.message || err.message || "Error fetching farms."
+        );
         setHasMore(false);
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "Failed to fetch farms: " + (err.response?.data?.message || err.message),
+          text:
+            "Failed to fetch farms: " +
+            (err.response?.data?.message || err.message),
           confirmButtonColor: "#d33",
         });
       } finally {
@@ -173,7 +194,10 @@ function Allfarms() {
       const response = await api.get(
         `/farm/?action=getFarmFertilizer&manager=${managerId}&farm=${farmId}`,
         {
-          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -205,14 +229,19 @@ function Allfarms() {
     const token = localStorage.getItem("token");
     try {
       const response = await api.get("/master_data/?action=getfertilizer", {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
       setMasterFertilizers(response.data.data || []);
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to fetch master fertilizers: " + (error.response?.data?.message || error.message),
+        text:
+          "Failed to fetch master fertilizers: " +
+          (error.response?.data?.message || error.message),
         confirmButtonColor: "#d33",
       });
       setMasterFertilizers([]);
@@ -240,13 +269,18 @@ function Allfarms() {
       };
 
       const response = await api.post(`/farm/`, payload, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
       });
 
       const newFertilizer = {
         id: response.data.data.id,
         fertilizer_id: response.data.data.fertilizer,
-        fertilizer_name: masterFertilizers.find((f) => f.id === response.data.data.fertilizer)?.name || "Unknown",
+        fertilizer_name:
+          masterFertilizers.find((f) => f.id === response.data.data.fertilizer)
+            ?.name || "Unknown",
         farm_id: response.data.data.farm,
         date: response.data.data.date,
       };
@@ -268,7 +302,9 @@ function Allfarms() {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to add fertilizer: " + (error.response?.data?.message || error.message),
+        text:
+          "Failed to add fertilizer: " +
+          (error.response?.data?.message || error.message),
         confirmButtonColor: "#d33",
       });
     } finally {
@@ -297,7 +333,10 @@ function Allfarms() {
       };
 
       await api.delete(`/farm/`, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         data: payload,
       });
 
@@ -313,7 +352,9 @@ function Allfarms() {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to delete fertilizer: " + (error.response?.data?.message || error.message),
+        text:
+          "Failed to delete fertilizer: " +
+          (error.response?.data?.message || error.message),
         confirmButtonColor: "#d33",
       });
     } finally {
@@ -343,20 +384,28 @@ function Allfarms() {
       };
 
       const response = await api.patch(`/farm/`, payload, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
       });
 
       const updatedFertilizer = {
         id: fertilizerFormData.id,
         fertilizer_id: Number(fertilizerFormData.fertilizer_id),
-        fertilizer_name: masterFertilizers.find((f) => f.id === Number(fertilizerFormData.fertilizer_id))?.name || "Unknown",
+        fertilizer_name:
+          masterFertilizers.find(
+            (f) => f.id === Number(fertilizerFormData.fertilizer_id)
+          )?.name || "Unknown",
         farm_id: selectedFarm?.id,
         date: response.data.data.date,
       };
 
       setFertilizers((prevFertilizers) => {
         const updatedFertilizers = prevFertilizers.map((fert) =>
-          fert.id === updatedFertilizer.id ? { ...fert, ...updatedFertilizer } : fert
+          fert.id === updatedFertilizer.id
+            ? { ...fert, ...updatedFertilizer }
+            : fert
         );
         return [...updatedFertilizers];
       });
@@ -372,7 +421,9 @@ function Allfarms() {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to update fertilizer: " + (error.response?.data?.message || error.message),
+        text:
+          "Failed to update fertilizer: " +
+          (error.response?.data?.message || error.message),
         confirmButtonColor: "#d33",
       });
     } finally {
@@ -384,9 +435,7 @@ function Allfarms() {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
     setFilteredFarms(
-      farms.filter((farm) =>
-        (farm.name.toLowerCase() || "").includes(query)
-      )
+      farms.filter((farm) => (farm.name.toLowerCase() || "").includes(query))
     );
   };
 
@@ -465,20 +514,20 @@ function Allfarms() {
   }, [fetchFarms, fetchMasterFertilizers, currentPage]);
 
   return (
-    <div className="container mt-2 px-2">
-      <div className="card shadow-sm mb-4">
-        <div className="card-header bg-success text-white d-flex align-items-center justify-content-between flex-wrap">
+    <div className="container mt-2 p-0 border-none">
+      <div className="card border-none mb-4">
+        <div className="card-header border-none bg-success text-white d-flex align-items-center justify-content-between flex-wrap">
           <BackButton className="btn fs-4" />
           <h2 className="mb-0 text-white text-center flex-grow-1">
             <FaWarehouse className="me-2" /> {labels[language].title}
           </h2>
           <div></div>
         </div>
-        <div className="card-body">
+        <div className="card-body ">
           <div className="input-group mb-3">
-            <span className="input-group-text bg-light">
+            {/* <span className="input-group-text bg-light">
               <i className="fa fa-search"></i>
-            </span>
+            </span> */}
             <input
               type="search"
               className="form-control"
@@ -487,64 +536,88 @@ function Allfarms() {
               onChange={handleSearch}
             />
           </div>
-          <div className="alert alert-info" role="alert">
-            <strong>{labels[language].manager}:</strong> {managerName} (ID: {managerId || "N/A"})
+          <div className="alert alert-success" role="alert">
+            <strong>{labels[language].manager}</strong> {managerName} (ID:{" "}
+            {managerId || "N/A"})
           </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="text-center"><Spinner /></div>
+        <div className="text-center">
+          <Spinner />
+        </div>
       ) : error ? (
-        <div className="alert alert-danger" role="alert">{error}</div>
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
       ) : filteredFarms.length > 0 ? (
         <div className="row">
           {filteredFarms.map((farm) => (
             <div key={farm.id} className="col-md-4 mb-3">
               <div
-                className={`card shadow-sm ${selectedFarm?.id === farm.id ? "border-success" : ""}`}
+                className={`card p-2 my-0 ${
+                  selectedFarm?.id === farm.id ? "border-success" : ""
+                }`}
                 style={{ cursor: "pointer" }}
                 onClick={() => handleFarmClick(farm)}
               >
-                <div className="card-body">
+                {/* <div className="card-body"> */}
+                <li type="none" className="d-flex shadow-none">
                   <h5 className="card-title text-success">
-                    <FaTractor className="me-2" /> {farm.name}
+                    {/* <FaTractor className="me-2" />  */}
+                    {farm.name}
                   </h5>
-                </div>
+                </li>
+                {/* </div> */}
               </div>
 
               {selectedFarm?.id === farm.id && (
                 <div className="mt-3">
-                  <h6 className="text-success mb-3">{labels[language].fertilizers}</h6>
+                  <h6 className="mb-3">{labels[language].fertilizers}</h6>
                   {fertilizers.length > 0 ? (
                     <div className="table-responsive">
                       <table className="table table-bordered table-hover table-striped table-sm shadow-sm">
                         <thead className="bg-success text-white">
                           <tr>
-                            <th scope="col" className="text-center">#</th>
-                            <th scope="col">{labels[language].fertilizerName}</th>
+                            <th scope="col" className="text-center">
+                              #
+                            </th>
+                            <th scope="col">
+                              {labels[language].fertilizerName}
+                            </th>
                             <th scope="col">{labels[language].date}</th>
-                            <th scope="col" className="text-center">Actions</th>
+                            <th scope="col" className="text-center">
+                              Actions
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
                           {fertilizers.map((fert, index) => (
                             <tr key={fert.id}>
                               <td className="text-center">{index + 1}</td>
-                              <td>{fert.fertilizer_name || "Unknown Fertilizer"}</td>
-                              <td>{formatDateForDisplay(fert.date) || "N/A"}</td>
+                              <td>
+                                {fert.fertilizer_name || "Unknown Fertilizer"}
+                              </td>
+                              <td>
+                                {formatDateForDisplay(fert.date) || "N/A"}
+                              </td>
                               <td className="text-center">
                                 <div className="d-flex gap-2 justify-content-center">
                                   <button
                                     className="btn btn-primary btn-sm d-flex align-items-center"
-                                    onClick={() => handleEditFertilizerOpen(fert)}
+                                    onClick={() =>
+                                      handleEditFertilizerOpen(fert)
+                                    }
                                     title={labels[language].edit}
                                   >
                                     <FaEdit />
                                   </button>
                                   <button
                                     className="btn btn-danger btn-sm d-flex align-items-center"
-                                    onClick={() => handleDeleteFertilizer(fert.id)}
+                                    onClick={() =>
+                                      handleDeleteFertilizer(fert.id)
+                                    }
                                     title={labels[language].delete}
                                   >
                                     <FaTrash />
@@ -557,7 +630,9 @@ function Allfarms() {
                       </table>
                     </div>
                   ) : (
-                    <p className="text-muted">{labels[language].noFertilizers}</p>
+                    <p className="text-muted">
+                      {labels[language].noFertilizers}
+                    </p>
                   )}
                   <button
                     className="btn btn-success btn-sm mt-2"
@@ -571,14 +646,20 @@ function Allfarms() {
           ))}
         </div>
       ) : (
-        <div className="alert alert-info" role="alert">{labels[language].noFarms}</div>
+        <div className="alert alert-info" role="alert">
+          {labels[language].noFarms}
+        </div>
       )}
 
       {filteredFarms.length > 0 && (
         <div className="card-footer mt-4">
           <nav>
             <ul className="pagination pagination-sm flex-wrap justify-content-center">
-              <li className={`page-item ${currentPage === 1 || loading ? "disabled" : ""}`}>
+              <li
+                className={`page-item ${
+                  currentPage === 1 || loading ? "disabled" : ""
+                }`}
+              >
                 <button
                   className="page-link"
                   onClick={handlePrevious}
@@ -592,7 +673,9 @@ function Allfarms() {
                   {currentPage} / {totalPages}
                 </span>
               </li>
-              <li className={`page-item ${!hasMore || loading ? "disabled" : ""}`}>
+              <li
+                className={`page-item ${!hasMore || loading ? "disabled" : ""}`}
+              >
                 <button
                   className="page-link"
                   onClick={handleNext}

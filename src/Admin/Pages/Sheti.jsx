@@ -502,16 +502,16 @@ function Sheti() {
             value={searchQuery}
             onChange={handleSearch}
           />
-          <span className="input-group-text border-0" id="search-addon">
+          {/* <span className="input-group-text border-0" id="search-addon">
             <i className="fa fa-search"></i>
-          </span>
+          </span> */}
         </div>
       </div>
-      <div className="container px-3">
+      <div className="container">
         <div className="d-flex justify-content-end">
           <button
             onClick={handleAddFarmClick}
-            className="btn btn-success btn-sm fw-bold m-2 p-1 rounded d-flex align-items-center"
+            className="btn btn-success  fw-bold m-1 p-1 rounded d-flex align-items-center"
           >
             <FaPlus className="me-1 text-white" />
             {language === "en" ? "Add Farm" : "शेती जोडा"}
@@ -541,20 +541,20 @@ function Sheti() {
             <Spinner />
           </div>
         ) : (
-          <div className="row g-4">
+          <div className="row">
             {filteredFarms.length > 0 ? (
               filteredFarms.map((farm) => (
                 <div key={farm.id} className="col-12 col-md-6 col-lg-4">
                   <div
-                    className="card shadow-lg border-0 rounded-3 h-100"
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.transform = "scale(1.02)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.transform = "scale(1)")
-                    }
+                    className="card border rounded-3 h-100"
+                    // onMouseEnter={(e) =>
+                    //   (e.currentTarget.style.transform = "scale(1.02)")
+                    // }
+                    // onMouseLeave={(e) =>
+                    //   (e.currentTarget.style.transform = "scale(1)")
+                    // }
                   >
-                    <div className="card-body d-flex flex-column">
+                    <div className="card-body d-flex flex-column shadow-none">
                       <h5 className="card-title text-success fw-bold">
                         {farm.name || "Unnamed Farm"}
                       </h5>
@@ -577,22 +577,22 @@ function Sheti() {
                         <button
                           className="btn btn-success btn-sm align-items-center"
                           onClick={() => handleViewFarm(farm)}
-                          style={{
-                            borderRadius: "6px",
-                            backgroundColor: "#198754",
-                            color: "#fff",
-                            transition: "background-color 0.2s, color 0.2s",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = "#007bff";
-                            e.currentTarget.style.color = "#fff";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = "#198754";
-                            e.currentTarget.style.color = "#fff";
-                          }}
+                          // style={{
+                          //   borderRadius: "6px",
+                          //   backgroundColor: "#198754",
+                          //   color: "#fff",
+                          //   // transition: "background-color 0.2s, color 0.2s",
+                          // }}
+                          // onMouseEnter={(e) => {
+                          //   e.currentTarget.style.backgroundColor = "#007bff";
+                          //   e.currentTarget.style.color = "#fff";
+                          // }}
+                          // onMouseLeave={(e) => {
+                          //   e.currentTarget.style.backgroundColor = "#198754";
+                          //   e.currentTarget.style.color = "#fff";
+                          // }}
                         >
-                          <FaEye className="me-2" /> {labels[language].view}
+                          <FaEye className="me-1" /> {labels[language].view}
                         </button>
                       </div>
                     </div>

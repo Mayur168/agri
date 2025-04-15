@@ -1,25 +1,24 @@
-
-import React, { useContext } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import SignUp from "./Admin/Auth/Signup";
-import Login from "./Admin/Auth/Login";
-import AdminApp from "./Admin/AdminApp";
-import ManagerApp from "./Manager/ManagerApp";
-import { LanguageProvider } from "./contexts/LanguageContext";
-import { AuthContext, AuthProvider } from "./contexts/AuthContext";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import React, { useContext } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import SignUp from './Admin/Auth/Signup';
+import Login from './Admin/Auth/Login';
+import AdminApp from './Admin/AdminApp';
+import ManagerApp from './Manager/ManagerApp';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { AuthContext, AuthProvider } from './contexts/AuthContext';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 function MainApp() {
   const { authenticated, user } = useContext(AuthContext);
 
-  console.log("MainApp - Authenticated:", authenticated, "User:", user); // Debug
+  console.log('MainApp - Authenticated:', authenticated, 'User:', user); // Debug
 
   const getDefaultRedirect = () => {
-    if (!authenticated) return "/login";
-    if (user?.role === "admin") return "/Admin";
-    if (user?.role === "manager") return "/Manager";
-    return "/Home"; // Default route
+    if (!authenticated) return '/login';
+    if (user?.role === 'admin') return '/Admin';
+    if (user?.role === 'manager') return '/Manager';
+    return '/Home'; // Default route
   };
 
   return (
@@ -32,7 +31,7 @@ function MainApp() {
       <Route
         path="/Admin/*"
         element={
-          authenticated && user?.role === "admin" ? (
+          authenticated && user?.role === 'admin' ? (
             <AdminApp />
           ) : (
             <Navigate to="/login" />
@@ -42,7 +41,7 @@ function MainApp() {
       <Route
         path="/manager/*"
         element={
-          authenticated && user?.role === "manager" ? (
+          authenticated && user?.role === 'manager' ? (
             <ManagerApp />
           ) : (
             <Navigate to="/login" />
