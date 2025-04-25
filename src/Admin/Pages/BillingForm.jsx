@@ -23,8 +23,9 @@ const Billing = () => {
   const translations = {
     en: {
       title: "Billing Management",
-      addBilling: "Add New Billing",
-      searchPlaceholder: "Search..",
+      addBilling: "Add Bill",
+      editBillingTitle: "Edit Billing",
+      searchPlaceholder: "Search by date...",
       noBillingsFound: "No billings found.",
       farm: "Farm",
       product: "Product",
@@ -48,8 +49,9 @@ const Billing = () => {
     },
     mr: {
       title: "बिलिंग व्यवस्थापन",
-      addBilling: "नवीन बिलिंग जोडा",
-      searchPlaceholder: "शोधा..",
+      addBilling: "बिलिंग जोडा",
+      editBillingTitle: "बिलिंग संपादित करा",
+      searchPlaceholder: "तारखेनुसार शोधा..",
       noBillingsFound: "कोणतेही बिलिंग सापडले नाही.",
       farm: "शेत",
       product: "उत्पादन",
@@ -80,7 +82,13 @@ const Billing = () => {
   const fetchBillings = async () => {
     setFetchLoading(true);
     try {
-      const response = await api.get("/billing/?action=getBilling");
+      const user = JSON.parse(localStorage.getItem("user"));
+      const farmerId = user?.farmer_id;
+
+      if (!farmerId) {
+        throw new Error("Farmer ID not found in user data");
+      }
+      const response = await api.get(`/billing/?action=getBilling&farmers=${farmerId}`);
       setBillings(response.data.data || []);
     } catch (error) {
       console.error("Error fetching billings:", error);
@@ -99,9 +107,15 @@ const Billing = () => {
     if (farms.length > 0) return;
     setIsLoadingFarms(true);
     try {
-      const response = await api.get("/farm/?action=getFarm");
+      const user = JSON.parse(localStorage.getItem("user"));
+      const farmerId = user?.farmer_id;
+
+      if (!farmerId) {
+        throw new Error("Farmer ID not found in user data");
+      }
+      const response = await api.get(`/farm/?action=getFarm&farmers=${farmerId}`);
       setFarms(response.data.data || []);
-      console.log("Fetched farms:", response.data.data);
+      console.log("Fetched farms for farmer:", response.data.data);
       await fetchProducts();
     } catch (error) {
       console.error("Error fetching farms:", error);
@@ -154,16 +168,16 @@ const Billing = () => {
   const handleView = (billing) => {
     setFormData({
       id: billing.id,
-      farm_id: billing.farm,
-      product_id: billing.product,
-      bill_date: billing.bill_date,
-      trader_name: billing.trader_name,
-      vehicle_number: billing.vehicle_number,
-      rate: billing.rate,
-      trees: billing.trees,
-      leaves: billing.leaves,
-      weight: billing.weight,
-      travelling_amount: billing.travelling_amount,
+      farm_id: billing.farm_id || "", // Use farm_id instead of farm name
+      product_id: billing.product_id || "", // Use product_id instead of product name
+      bill_date: billing.bill_date || "",
+      trader_name: billing.trader_name || "",
+      vehicle_number: billing.vehicle_number || "",
+      rate: billing.rate || "",
+      trees: billing.trees || "",
+      leaves: billing.leaves || "",
+      weight: billing.weight || "",
+      travelling_amount: billing.travelling_amount || "",
     });
     setIsEditing(false);
     setIsModalOpen(true);
@@ -172,16 +186,16 @@ const Billing = () => {
   const handleEdit = (billing) => {
     setFormData({
       id: billing.id,
-      farm_id: billing.farm,
-      product_id: billing.product,
-      bill_date: billing.bill_date,
-      trader_name: billing.trader_name,
-      vehicle_number: billing.vehicle_number,
-      rate: billing.rate,
-      trees: billing.trees,
-      leaves: billing.leaves,
-      weight: billing.weight,
-      travelling_amount: billing.travelling_amount,
+      farm_id: billing.farm_id || "", // Use farm_id instead of farm name
+      product_id: billing.product_id || "", // Use product_id instead of product name
+      bill_date: billing.bill_date || "",
+      trader_name: billing.trader_name || "",
+      vehicle_number: billing.vehicle_number || "",
+      rate: billing.rate || "",
+      trees: billing.trees || "",
+      leaves: billing.leaves || "",
+      weight: billing.weight || "",
+      travelling_amount: billing.travelling_amount || "",
     });
     setIsEditing(true);
     setIsModalOpen(true);
@@ -272,7 +286,7 @@ const Billing = () => {
       confirmButtonText: translations[language].delete,
       cancelButtonText: translations[language].cancel,
     });
-  
+
     if (result.isConfirmed) {
       try {
         const payload = { action: "deleteBilling", id: id.toString() };
@@ -281,8 +295,8 @@ const Billing = () => {
           headers: { "Content-Type": "application/json" },
         });
         Swal.fire("Deleted", translations[language].delete, "success");
-        fetchBillings(); // Refresh the billings list
-        setIsModalOpen(false); // Close the modal after deletion
+        fetchBillings();
+        setIsModalOpen(false);
       } catch (error) {
         console.error("Error deleting billing:", error);
         Swal.fire(
@@ -298,12 +312,13 @@ const Billing = () => {
 
   const filteredBillings = billings.filter(
     (billing) =>
-      billing.trader_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      billing.bill_date.toLowerCase().includes(searchQuery.toLowerCase())
+      billing.trader_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      billing.bill_date?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      billing.farm?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="container  p-0">
+    <div className="container p-0">
       <div className="mb-3 d-flex align-items-center py-3 header-container bg-success">
         <BackButton className="backbtn fs-4 ms-2" />
         <h2 className="fs-4 text-white m-0 d-flex align-items-center justify-content-center flex-grow-1">

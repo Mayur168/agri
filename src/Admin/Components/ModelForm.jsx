@@ -2027,7 +2027,7 @@ import {
   FaUserTag,
   FaTractor,
   FaRuler,
-  FaDollarSign,
+  FaRupeeSign,
   FaLeaf,
   FaCalendarAlt,
   FaFileAlt,
@@ -2056,6 +2056,7 @@ const ModalForm = ({
   fertilizers = [],
   isLoadingFertilizers,
   onEdit,
+  viewMode,
 }) => {
   if (!isOpen) return null;
 
@@ -2125,25 +2126,45 @@ const ModalForm = ({
             <h4 className="modal-title ms-auto">
               {formType === "fertilizer"
                 ? formData.id && isEditing
-                  ? labels[language]. Edit_Fertilizer
+                  ? labels[language].Edit_Fertilizer
                   : labels[language].addFertilizer
-                : formData.id && isEditing
-                ? labels[language].modalTitle
-                : formData.id && !isEditing && formType === "managerExpense"
-                ? labels[language].modalTitleManager
+                : formType === "adminExpense"
+                ? formData.id && isEditing
+                  ? labels[language].modalTitleAdmin
+                  : labels[language].addAdminExpense
+                : formType === "managerExpense"
+                ? formData.id
+                  ? labels[language].modalTitleManager
+                  : labels[language].addManagerExpense
+                : formType === "manager"
+                ? formData.id
+                  ? !isEditing
+                    ? viewMode === "admins"
+                      ? labels[language].viewAdmin
+                      : labels[language].viewManager
+                    : viewMode === "admins"
+                    ? labels[language].editAdminTitle
+                    : labels[language].editManagerTitle
+                  : formData.role === "Admin"
+                  ? labels[language].addAdmin
+                  : labels[language].modalTitle
+                : formType === "billing"
+                ? formData.id && isEditing
+                  ? labels[language].editBillingTitle
+                  : labels[language].addBilling
+                : formType === "farm"
+                ? formData.id && !isEditing
+                  ? labels[language].viewFarm
+                  : formData.id && isEditing
+                  ? labels[language].editFarm
+                  : labels[language].addFarm
                 : `Add ${
                     formType === "expense"
-                      ? "Expense"
-                      : formType === "fertilizer"
-                      ? "Fertilizer"
-                      : formType === "manager"
-                      ? "Manager"
-                      : formType === "billing"
-                      ? "Billing"
+                      ? labels[language].adminExpense + " Expense"
                       : formType === "adminExpense"
-                      ? "Admin Expense"
+                      ? labels[language].addAdminExpense
                       : formType === "managerExpense"
-                      ? "Manager Expense"
+                      ? labels[language].addManagerExpense
                       : "Farm"
                   }`}
             </h4>
@@ -2431,7 +2452,7 @@ const ModalForm = ({
                         </label>
                       </div>
                     </div>
-                    {isEditing && !formData.id && (
+                    {isEditing && (
                       <>
                         <div className="col-md-6">
                           <div className="form-floating">
@@ -2442,6 +2463,7 @@ const ModalForm = ({
                               value={formData.password || ""}
                               onChange={handleChange}
                               placeholder={labels[language].password}
+                              disabled={!isEditing}
                             />
                             <label>
                               <FaLock className="me-2 text-success" />{" "}
@@ -2458,6 +2480,7 @@ const ModalForm = ({
                               value={formData.confirm_password || ""}
                               onChange={handleChange}
                               placeholder={labels[language].confirmPassword}
+                              disabled={!isEditing}
                             />
                             <label>
                               <FaLock className="me-2 text-success" />{" "}
@@ -2544,9 +2567,63 @@ const ModalForm = ({
                         </div>
                       </>
                     )}
+                    {formData.role === "Admin" && (
+                      <>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="farm_name"
+                              value={formData.farm_name || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].farmName}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaTractor className="me-2 text-success" />{" "}
+                              {labels[language].farmName}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="farm_location"
+                              value={formData.farm_location || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].farmLocation}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaMapPin className="me-2 text-success" />{" "}
+                              {labels[language].farmLocation}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="number"
+                              className="form-control"
+                              name="farm_size"
+                              value={formData.farm_size || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].farmSize}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaRuler className="me-2 text-success" />{" "}
+                              {labels[language].farmSize}
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
-
                 {/* Fertilizer Form */}
                 {formType === "fertilizer" && (
                   <>
@@ -2658,7 +2735,7 @@ const ModalForm = ({
                           min="0"
                         />
                         <label>
-                          <FaDollarSign className="me-2 text-success" />{" "}
+                          <FaRupeeSign className="me-2 text-success" />{" "}
                           {labels[language].amount}
                         </label>
                       </div>
@@ -2821,7 +2898,7 @@ const ModalForm = ({
                           min="0"
                         />
                         <label>
-                          <FaDollarSign className="me-2 text-success" />{" "}
+                          <FaRupeeSign className="me-2 text-success" />{" "}
                           {labels[language].rate}
                         </label>
                       </div>
@@ -2895,7 +2972,7 @@ const ModalForm = ({
                           min="0"
                         />
                         <label>
-                          <FaDollarSign className="me-2 text-success" />{" "}
+                          <FaRupeeSign className="me-2 text-success" />{" "}
                           {labels[language].travellingAmount}
                         </label>
                       </div>
@@ -2918,7 +2995,7 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaDollarSign className="me-2 text-success" />{" "}
+                          <FaRupeeSign className="me-2 text-success" />{" "}
                           {labels[language].amount}
                         </label>
                       </div>
@@ -2977,7 +3054,7 @@ const ModalForm = ({
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaDollarSign className="me-2 text-success" />{" "}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
                               {labels[language].amount}
                             </label>
                           </div>

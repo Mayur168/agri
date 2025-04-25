@@ -105,16 +105,16 @@ function Profile() {
                     <p className="mb-0 bg-light p-2 rounded-3 border">{idValue}</p>
                   </Col>
                   <Col md={6} xs={12}>
-                    <small className="text-muted fw-bold d-block mb-1">{translations[language].email}</small>
-                    <p className="mb-0 bg-light p-2 rounded-3 border">{user.email || "N/A"}</p>
-                  </Col>
-                  <Col md={6} xs={12}>
                     <small className="text-muted fw-bold d-block mb-1">{translations[language].firstName}</small>
                     <p className="mb-0 bg-light p-2 rounded-3 border">{user.first_name || "N/A"}</p>
                   </Col>
                   <Col md={6} xs={12}>
                     <small className="text-muted fw-bold d-block mb-1">{translations[language].lastName}</small>
                     <p className="mb-0 bg-light p-2 rounded-3 border">{user.last_name || "N/A"}</p>
+                  </Col>
+                  <Col md={6} xs={12}>
+                    <small className="text-muted fw-bold d-block mb-1">{translations[language].email}</small>
+                    <p className="mb-0 bg-light p-2 rounded-3 border">{user.email || "N/A"}</p>
                   </Col>
                   <Col md={6} xs={12}>
                     <small className="text-muted fw-bold d-block mb-1">{translations[language].phone}</small>

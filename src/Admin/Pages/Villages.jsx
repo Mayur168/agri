@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../Spinner/Spinner";
 import api from "../../Api/axiosInstance";
 import { FaSave, FaTimes, FaGlobe } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const Villages = () => {
   const navigate = useNavigate();
@@ -32,7 +33,13 @@ const Villages = () => {
   const [serverVillages, setServerVillages] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showShetiModal, setShowShetiModal] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState({
+    states: false,
+    districts: false,
+    talukas: false,
+    villages: false,
+    submit: false,
+  });
   const [fetchLoading, setFetchLoading] = useState(true);
   const [states, setStates] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -43,6 +50,13 @@ const Villages = () => {
   const [selectedTaluka, setSelectedTaluka] = useState(null);
   const [selectedVillage, setSelectedVillage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Cache for fetched data to avoid refetching
+  const [dataCache, setDataCache] = useState({
+    districts: {},
+    talukas: {},
+    villages: {},
+  });
 
   const translations = useMemo(
     () => ({
@@ -67,11 +81,11 @@ const Villages = () => {
           villageExistsError: "This village is already added",
           villageAddedSuccess: "Village added successfully!",
           villageAddError: "Failed to add village",
-          timeoutError: "Request timed out. Please try again.",
+          timeoutError: "Request timed out. Please try again." // Removed trailing comma
         },
       },
       mr: {
-        title: "माझे गावे",
+        title: "माझी गावे",
         addSheti: "गावे जोडा",
         AllFarms: "सर्व शेत",
         searchPlaceholder: "शोधा",
@@ -91,7 +105,7 @@ const Villages = () => {
           villageExistsError: "हे गाव आधीपासूनच जोडले गेले आहे",
           villageAddedSuccess: "गाव यशस्वीरित्या जोडले गेले!",
           villageAddError: "गाव जोडण्यात अयशस्वी",
-          timeoutError: "विनंती वेळ संपली. कृपया पुन्हा प्रयत्न करा。",
+          timeoutError: "विनंती वेळ संपली. कृपया पुन्हा प्रयत्न करा.",
         },
       },
     }),
@@ -121,17 +135,26 @@ const Villages = () => {
   };
 
   const fetchStates = useCallback(async () => {
+    setLoading((prev) => ({ ...prev, states: true }));
     try {
       const response = await fetchWithRetry("/master_data/?action=getState");
       setStates(response.data.data || []);
     } catch (err) {
       toast.error(translations[language].toast.fetchStatesError);
+    } finally {
+      setLoading((prev) => ({ ...prev, states: false }));
     }
   }, [language, translations]);
 
   const fetchDistricts = useCallback(
     async (stateId) => {
-      setLoading(true);
+      if (dataCache.districts[stateId]) {
+        setDistricts(dataCache.districts[stateId]);
+        setLoading((prev) => ({ ...prev, districts: false }));
+        return;
+      }
+
+      setLoading((prev) => ({ ...prev, districts: true }));
       try {
         const response = await fetchWithRetry(
           `/master_data/?action=getDistrict&state_id=${stateId}`
@@ -140,19 +163,28 @@ const Villages = () => {
           (district) => district.state?.id === stateId
         );
         setDistricts(filteredDistricts || []);
+        setDataCache((prev) => ({
+          ...prev,
+          districts: { ...prev.districts, [stateId]: filteredDistricts },
+        }));
       } catch (err) {
         toast.error(translations[language].toast.fetchDistrictsError);
-        setDistricts([]);
       } finally {
-        setLoading(false);
+        setLoading((prev) => ({ ...prev, districts: false }));
       }
     },
-    [language, translations]
+    [language, translations, dataCache]
   );
 
   const fetchTalukas = useCallback(
     async (districtId) => {
-      setLoading(true);
+      if (dataCache.talukas[districtId]) {
+        setTalukas(dataCache.talukas[districtId]);
+        setLoading((prev) => ({ ...prev, talukas: false }));
+        return;
+      }
+
+      setLoading((prev) => ({ ...prev, talukas: true }));
       try {
         const response = await fetchWithRetry(
           `/master_data/?action=getTaluka&district_id=${districtId}`
@@ -161,44 +193,56 @@ const Villages = () => {
           (taluka) => taluka.district?.id === districtId
         );
         setTalukas(filteredTalukas || []);
+        setDataCache((prev) => ({
+          ...prev,
+          talukas: { ...prev.talukas, [districtId]: filteredTalukas },
+        }));
       } catch (err) {
         toast.error(translations[language].toast.fetchTalukasError);
-        setTalukas([]);
       } finally {
-        setLoading(false);
+        setLoading((prev) => ({ ...prev, talukas: false }));
       }
     },
-    [language, translations]
+    [language, translations, dataCache]
   );
 
   const fetchVillagesForTaluka = useCallback(
-    async (taluka_id) => {
-      setLoading(true);
+    async (talukaId) => {
+      if (dataCache.villages[talukaId]) {
+        setAvailableVillages(dataCache.villages[talukaId]);
+        setLoading((prev) => ({ ...prev, villages: false }));
+        return;
+      }
+
+      setLoading((prev) => ({ ...prev, villages: true }));
       try {
         const response = await fetchWithRetry(
-          `/master_data/?action=getVillage&taluka=${taluka_id}`
+          `/master_data/?action=getVillage&taluka=${talukaId}`
         );
         const filteredVillages = response.data.data.filter(
-          (village) => village.taluka?.id === taluka_id
+          (village) => village.taluka?.id === talukaId
         );
         setAvailableVillages(filteredVillages || []);
+        setDataCache((prev) => ({
+          ...prev,
+          villages: { ...prev.villages, [talukaId]: filteredVillages },
+        }));
       } catch (err) {
         toast.error(
           err.response?.status === 504 || err.code === "ECONNABORTED"
             ? translations[language].toast.timeoutError
             : translations[language].toast.fetchVillagesError
         );
-        setAvailableVillages([]);
       } finally {
-        setLoading(false);
+        setLoading((prev) => ({ ...prev, villages: false }));
       }
     },
-    [language, translations]
+    [language, translations, dataCache]
   );
 
   const fetchInitialVillages = useCallback(async () => {
     setFetchLoading(true);
-    setLoading(true);
+    setLoading((prev) => ({ ...prev, submit: true }));
     try {
       const response = await fetchWithRetry("/farm/?action=getFarmVillage");
       if (response.data && Array.isArray(response.data.data)) {
@@ -228,7 +272,7 @@ const Villages = () => {
       localStorage.setItem("villages", JSON.stringify([]));
     } finally {
       setFetchLoading(false);
-      setLoading(false);
+      setLoading((prev) => ({ ...prev, submit: false }));
     }
   }, [language, translations]);
 
@@ -249,7 +293,8 @@ const Villages = () => {
   useEffect(() => {
     if (selectedState) {
       fetchDistricts(selectedState.id);
-    } else {
+    }
+    if (!selectedState) {
       setDistricts([]);
       setSelectedDistrict(null);
       setTalukas([]);
@@ -262,7 +307,8 @@ const Villages = () => {
   useEffect(() => {
     if (selectedDistrict) {
       fetchTalukas(selectedDistrict.id);
-    } else {
+    }
+    if (!selectedDistrict) {
       setTalukas([]);
       setSelectedTaluka(null);
       setAvailableVillages([]);
@@ -273,7 +319,8 @@ const Villages = () => {
   useEffect(() => {
     if (selectedTaluka) {
       fetchVillagesForTaluka(selectedTaluka.id);
-    } else {
+    }
+    if (!selectedTaluka) {
       setAvailableVillages([]);
       setSelectedVillage(null);
     }
@@ -281,19 +328,29 @@ const Villages = () => {
 
   const handleSubmitSheti = async () => {
     if (!selectedTaluka || !selectedVillage) {
-      toast.error(translations[language].toast.selectTalukaVillageError);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: translations[language].toast.selectTalukaVillageError,
+        confirmButtonColor: "#dc3545",
+      });
       return;
     }
 
     setIsSubmitting(true);
-    setLoading(true);
+    setLoading((prev) => ({ ...prev, submit: true }));
     try {
       const existingVillage = serverVillages.find(
         (village) => village && village.village?.id === selectedVillage.id
       );
 
       if (existingVillage) {
-        toast.error(translations[language].toast.villageExistsError);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: translations[language].toast.villageExistsError,
+          confirmButtonColor: "#dc3545",
+        });
         return;
       }
 
@@ -308,9 +365,6 @@ const Villages = () => {
         timeout: 30000,
       });
 
-      console.log("POST response:", response.data); // Debug response
-
-      // Broaden success condition to handle common success cases
       if (
         response.status === 200 ||
         response.data.success ||
@@ -332,7 +386,6 @@ const Villages = () => {
           },
         };
 
-        // Use functional updates to ensure latest state
         setVillages((prevVillages) => {
           const updated = [...prevVillages, newVillage];
           localStorage.setItem("villages", JSON.stringify(updated));
@@ -343,14 +396,10 @@ const Villages = () => {
           newVillage,
         ]);
 
-        console.log("Village added to state"); // Debug state update
-        toast.success(translations[language].toast.villageAddedSuccess, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
+        Swal.fire({
+          icon: "success",
+          title: translations[language].toast.villageAddedSuccess,
+          confirmButtonColor: "#28a745",
         });
 
         setShowShetiModal(false);
@@ -362,18 +411,17 @@ const Villages = () => {
         throw new Error("Unexpected response format");
       }
     } catch (err) {
-      console.error("Error adding village:", err);
-      toast.error(
-        err.response?.data?.message ||
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          err.response?.data?.message ||
           translations[language].toast.villageAddError,
-        {
-          position: "top-right",
-          autoClose: 3000,
-        }
-      );
+        confirmButtonColor: "#dc3545",
+      });
     } finally {
       setIsSubmitting(false);
-      setLoading(false);
+      setLoading((prev) => ({ ...prev, submit: false }));
     }
   };
 
@@ -421,7 +469,7 @@ const Villages = () => {
             className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
             style={{ whiteSpace: "nowrap" }}
             onClick={() => setShowShetiModal(true)}
-            disabled={loading}
+            disabled={loading.submit}
           >
             {translations[language].addSheti}
           </button>
@@ -429,7 +477,7 @@ const Villages = () => {
             className="btn btn-success btn-sm fw-bold p-2"
             style={{ whiteSpace: "nowrap" }}
             onClick={() => navigate("/Admin/allfarms")}
-            disabled={loading}
+            disabled={loading.submit}
           >
             {translations[language].AllFarms}
           </button>
@@ -490,7 +538,7 @@ const Villages = () => {
                   type="button"
                   className="btn-close btn-close-white"
                   onClick={() => setShowShetiModal(false)}
-                  disabled={loading || isSubmitting}
+                  disabled={loading.submit || isSubmitting}
                   aria-label="Close"
                 ></button>
               </div>
@@ -511,14 +559,21 @@ const Villages = () => {
                       const stateId = parseInt(e.target.value, 10);
                       const state = states.find((s) => s.id === stateId);
                       setSelectedState(state || null);
+                      setSelectedDistrict(null);
+                      setSelectedTaluka(null);
+                      setSelectedVillage(null);
                     }}
                   >
                     <option value="">Select State</option>
-                    {states.map((state) => (
-                      <option key={state.id} value={state.id}>
-                        {state.name}
-                      </option>
-                    ))}
+                    {loading.states ? (
+                      <option value="">Loading States...</option>
+                    ) : (
+                      states.map((state) => (
+                        <option key={state.id} value={state.id}>
+                          {state.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
                 <div className="mb-4">
@@ -532,7 +587,7 @@ const Villages = () => {
                   <select
                     id="districtSelect"
                     className="form-select"
-                    disabled={!selectedState || loading}
+                    disabled={!selectedState || loading.districts}
                     value={selectedDistrict ? selectedDistrict.id : ""}
                     onChange={(e) => {
                       const districtId = parseInt(e.target.value, 10);
@@ -540,10 +595,12 @@ const Villages = () => {
                         (d) => d.id === districtId
                       );
                       setSelectedDistrict(district || null);
+                      setSelectedTaluka(null);
+                      setSelectedVillage(null);
                     }}
                   >
                     <option value="">Select District</option>
-                    {loading ? (
+                    {loading.districts ? (
                       <option value="">Loading Districts...</option>
                     ) : districts.length > 0 ? (
                       districts.map((district) => (
@@ -567,16 +624,17 @@ const Villages = () => {
                   <select
                     id="talukaSelect"
                     className="form-select"
-                    disabled={!selectedDistrict || loading}
+                    disabled={!selectedDistrict || loading.talukas}
                     value={selectedTaluka ? selectedTaluka.id : ""}
                     onChange={(e) => {
                       const talukaId = parseInt(e.target.value, 10);
                       const taluka = talukas.find((t) => t.id === talukaId);
                       setSelectedTaluka(taluka || null);
+                      setSelectedVillage(null);
                     }}
                   >
                     <option value="">Select Taluka</option>
-                    {loading ? (
+                    {loading.talukas ? (
                       <option value="">Loading Talukas...</option>
                     ) : talukas.length > 0 ? (
                       talukas.map((taluka) => (
@@ -600,7 +658,7 @@ const Villages = () => {
                   <select
                     id="villageSelect"
                     className="form-select"
-                    disabled={!selectedTaluka || loading}
+                    disabled={!selectedTaluka || loading.villages}
                     value={selectedVillage ? selectedVillage.id : ""}
                     onChange={(e) => {
                       const villageId = parseInt(e.target.value, 10);
@@ -611,7 +669,7 @@ const Villages = () => {
                     }}
                   >
                     <option value="">Select Village</option>
-                    {loading ? (
+                    {loading.villages ? (
                       <option value="">Loading Villages...</option>
                     ) : availableVillages.length > 0 ? (
                       availableVillages.map((village) => (
@@ -630,7 +688,7 @@ const Villages = () => {
                   type="button"
                   className="btn btn-secondary btn-sm d-flex align-items-center"
                   onClick={() => setShowShetiModal(false)}
-                  disabled={loading || isSubmitting}
+                  disabled={loading.submit || isSubmitting}
                 >
                   <FaTimes className="me-2" /> {translations[language].cancel}
                 </button>
@@ -638,7 +696,7 @@ const Villages = () => {
                   type="button"
                   className="btn btn-success btn-sm d-flex align-items-center"
                   onClick={handleSubmitSheti}
-                  disabled={loading || isSubmitting || !selectedVillage}
+                  disabled={loading.submit || isSubmitting || !selectedVillage}
                 >
                   <FaSave className="me-2" />{" "}
                   {isSubmitting ? "Submitting..." : "Submit"}

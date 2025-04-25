@@ -275,8 +275,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthContext } from "../../contexts/AuthContext";
 import api from "../../Api/axiosInstance";
-import "bootstrap/dist/css/bootstrap.min.css"; // Ensure Bootstrap CSS is imported
-import { FaPhone, FaLock, FaSpinner } from "react-icons/fa"; // Icons for visual appeal
+import "bootstrap/dist/css/bootstrap.min.css"; 
+import { FaPhone, FaLock, FaSpinner } from "react-icons/fa"; 
 
 function Login() {
   const navigate = useNavigate();

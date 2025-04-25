@@ -36,6 +36,7 @@ function ExpenseForm() {
   const translations = {
     en: {
       title: "Daily Expenses",
+      addManagerExpense:"Add Expense",
       edit: "Edit",
       delete: "Delete",
       save: "Save",
@@ -46,7 +47,7 @@ function ExpenseForm() {
       amount: "Amount",
       reason: "Reason",
       managerId: "Manager ID",
-      modalTitle: "Edit Expense",
+      modalTitleManager: "Edit Expense",
       submit: "Save",
       searchPlaceholder: "Search...",
       addButton: "Expense",
@@ -55,6 +56,7 @@ function ExpenseForm() {
     mr: {
       title: "दैनिक खर्च",
       edit: "संपादन",
+       addManagerExpense:"खर्च जोडा",
       delete: "हटवा",
       save: "जतन करा",
       close: "बंद करा",
@@ -64,7 +66,7 @@ function ExpenseForm() {
       amount: "रक्कम",
       reason: "कारण",
       managerId: "व्यवस्थापक आयडी",
-      modalTitle: "खर्च संपादन",
+      modalTitleManager: "खर्च संपादन",
       submit: "जतन करा",
       searchPlaceholder: "शोधा...",
       addButton: "खर्च",
@@ -200,43 +202,6 @@ function ExpenseForm() {
     }
   };
 
-  // const handleDelete = async (id) => {
-  //   Swal.fire({
-  //     title: language === "en" ? "Are you sure?" : "आपण खात्री आहात का?",
-  //     text: labels.deleteConfirm,
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#3085d6",
-  //     cancelButtonColor: "#d33",
-  //     confirmButtonText: language === "en" ? "Yes, delete it!" : "होय, हटवा!",
-  //     cancelButtonText: language === "en" ? "Cancel" : "रद्द करा",
-  //   }).then(async (result) => {
-  //     if (result.isConfirmed) {
-  //       try {
-  //         const payload = {
-  //           action: "delManagerExpenses",
-  //           id: id,
-  //         };
-  //         await api.delete("/farm/", { data: payload });
-  //         setExpenses(expenses.filter((item) => item.id !== id));
-  //         Swal.fire({
-  //           icon: "success",
-  //           title: "Deleted!",
-  //           text: "Expense has been deleted.",
-  //         });
-  //         resetForm(); // Close modal and reset form data
-  //         console.log("After resetForm: isOpen should be false");
-  //       } catch (error) {
-  //         console.error("Error deleting expense:", error.response || error);
-  //         Swal.fire({
-  //           icon: "error",
-  //           title: "Error",
-  //           text: "Failed to delete expense.",
-  //         });
-  //       }
-  //     }
-  //   });
-  // };
   const handleDelete = async (id) => {
     console.log("Deleting expense with id:", id);
     Swal.fire({
@@ -314,13 +279,25 @@ function ExpenseForm() {
     setIsOpen(true);
   };
 
-  const filteredExpenses = Array.isArray(expenses)
-    ? expenses.filter((item) =>
-        item && typeof item.description === "string"
-          ? item.description.toLowerCase().includes(searchQuery.toLowerCase())
-          : false
-      )
-    : [];
+const filteredExpenses = Array.isArray(expenses)
+  ? expenses.filter((item) => {
+      if (!item) return false;
+
+      const query = searchQuery.toLowerCase();
+      const description = item.description?.toLowerCase() || '';
+      const reason = item.reason?.toLowerCase() || '';
+      const amount = item.amount?.toString() || '';
+      const date = item.date_created?.toLowerCase() || '';
+
+      return (
+        description.includes(query) ||
+        reason.includes(query) ||
+        amount.includes(query) ||
+        date.includes(query)
+      );
+    })
+  : [];
+
 
   return (
     <div className="container mb-5 p-0">

@@ -41,7 +41,10 @@ function Allfarms() {
 
   const labels = {
     en: {
-      title: "View Farm",
+      title: "View Farms",
+      viewFarm:"View Farm",
+      addFarm: "Add Farm",
+      editFarm: "Edit Farm",
       noFarms: "No farms available.",
       farmName: "Farm Name",
       address: "Address",
@@ -57,9 +60,15 @@ function Allfarms() {
       cancel: "Cancel",
       close: "Close",
       fetchFertilizersError: "Failed to fetch fertilizers",
+      fertilizers: "Fertilizers",
+      fertilizerName: "Fertilizer Name",
+      date: "Date",
     },
     mr: {
       title: "शेत पहा",
+      viewFarm:"शेत पहा",
+      addFarm: "शेत जोडा",
+      editFarm: "शेत संपादित करा",
       noFarms: "कोणतीही शेती उपलब्ध नाही.",
       farmName: "शेताचे नाव",
       address: "पत्ता",
@@ -75,8 +84,12 @@ function Allfarms() {
       cancel: "रद्द करा",
       close: "बंद करा",
       fetchFertilizersError: "खते आणण्यात अयशस्वी",
+      fertilizers: "खते",
+      fertilizerName: "खताचे नाव",
+      date: "तारीख",
     },
   };
+  
 
   const fetchManagers = useCallback(async () => {
     const token = localStorage.getItem("token");
@@ -99,18 +112,88 @@ function Allfarms() {
     }
   }, [language]);
 
+  // const fetchFarms = useCallback(
+  //   async (page = 1) => {
+  //     const token = localStorage.getItem("token");
+  //     if (!token) {
+  //       setError(labels[language].unauthorized);
+  //       return;
+  //     }
+
+  //     setLoading(true);
+  //     try {
+  //       const response = await api.get(
+  //         `/farm/?action=getFarm&page=${page}&records_number=${farmsPerPage}&fertilizer=true`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
+
+  //       const result = response.data;
+  //       const farmData = Array.isArray(result.data) ? result.data : [result.data].filter(Boolean);
+
+  //       if (farmData.length === 0 && page > 1) {
+  //         setHasMore(false);
+  //         Swal.fire({
+  //           icon: "info",
+  //           title: "No More Data",
+  //           text: "There are no more farms available.",
+  //           confirmButtonColor: "#28a745",
+  //         });
+  //         return;
+  //       }
+
+  //       const normalizedFarms = farmData.map((farm) => ({
+  //         id: farm.id,
+  //         name: farm.name || "N/A",
+  //         address: farm.address || "N/A",
+  //         location_url: farm.location_url || "N/A",
+  //         farm_size: farm.farm_size || "N/A",
+  //         manager_id: farm.manager || null,
+  //         farm_fertilizer: farm.farm_fertilizer || [], // Include fertilizer data
+  //       }));
+
+  //       setFarms(normalizedFarms);
+  //       setFilteredFarms(normalizedFarms);
+
+  //       setHasMore(farmData.length === farmsPerPage);
+  //       setTotalPages((prev) => (farmData.length === farmsPerPage ? Math.max(prev, page + 1) : page));
+
+  //       window.scrollTo({ top: 0, behavior: "smooth" });
+  //     } catch (err) {
+  //       setError(err.response?.data?.message || err.message || "Error fetching farms.");
+  //       setHasMore(false);
+
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Error",
+  //         text: "Invalid page number or no data available.",
+  //         confirmButtonColor: "#dc3545",
+  //       });
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   },
+  //   [language, farmsPerPage]
+  // );
   const fetchFarms = useCallback(
     async (page = 1) => {
       const token = localStorage.getItem("token");
+      const user = JSON.parse(localStorage.getItem("user")); 
+      const farmerId = user?.farmer_id; 
+  
       if (!token) {
         setError(labels[language].unauthorized);
         return;
       }
-
+  
       setLoading(true);
       try {
         const response = await api.get(
-          `/farm/?action=getFarm&page=${page}&records_number=${farmsPerPage}&fertilizer=true`,
+          `/farm/?action=getFarm&page=${page}&records_number=${farmsPerPage}&fertilizer=true&farmers=${farmerId}`, 
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -118,10 +201,10 @@ function Allfarms() {
             },
           }
         );
-
+  
         const result = response.data;
         const farmData = Array.isArray(result.data) ? result.data : [result.data].filter(Boolean);
-
+  
         if (farmData.length === 0 && page > 1) {
           setHasMore(false);
           Swal.fire({
@@ -132,7 +215,7 @@ function Allfarms() {
           });
           return;
         }
-
+  
         const normalizedFarms = farmData.map((farm) => ({
           id: farm.id,
           name: farm.name || "N/A",
@@ -140,20 +223,20 @@ function Allfarms() {
           location_url: farm.location_url || "N/A",
           farm_size: farm.farm_size || "N/A",
           manager_id: farm.manager || null,
-          farm_fertilizer: farm.farm_fertilizer || [], // Include fertilizer data
+          farm_fertilizer: farm.farm_fertilizer || [],
         }));
-
+  
         setFarms(normalizedFarms);
         setFilteredFarms(normalizedFarms);
-
+  
         setHasMore(farmData.length === farmsPerPage);
         setTotalPages((prev) => (farmData.length === farmsPerPage ? Math.max(prev, page + 1) : page));
-
+  
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
         setError(err.response?.data?.message || err.message || "Error fetching farms.");
         setHasMore(false);
-
+  
         Swal.fire({
           icon: "error",
           title: "Error",
@@ -166,7 +249,7 @@ function Allfarms() {
     },
     [language, farmsPerPage]
   );
-
+  
   const fetchFertilizers = useCallback(async (farmId) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -203,10 +286,17 @@ function Allfarms() {
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-    setCurrentPage(1);
-    setTotalPages(1);
-    setHasMore(true);
-    fetchFarms(1);
+    
+    if (query.trim() === "") {
+      setFilteredFarms(farms); // Reset to all farms if query is empty
+    } else {
+      const filtered = farms.filter((farm) =>
+        (farm.name?.toLowerCase() || "").includes(query) ||
+        (farm.farm_size?.toString().toLowerCase() || "").includes(query) ||
+        (farm.address?.toLowerCase() || "").includes(query)
+      );
+      setFilteredFarms(filtered);
+    }
   };
 
   const handleViewFarm = (farm) => {

@@ -81,7 +81,7 @@ function Allfarms() {
       noFertilizers: "No fertilizers available for this farm.",
       noFertilizersPresent: "Fertilizers are not present.",
       edit: "Edit",
-      Edit_Fertilizer: "Update Fertilizer", // Add this
+      Edit_Fertilizer: "Edit Fertilizer", // Add this
       delete: "Delete",
     },
     mr: {
@@ -573,73 +573,82 @@ function Allfarms() {
               </div>
 
               {selectedFarm?.id === farm.id && (
-                <div className="mt-3">
-                  <h6 className="mb-3">{labels[language].fertilizers}</h6>
-                  {fertilizers.length > 0 ? (
-                    <div className="table-responsive">
-                      <table className="table table-bordered table-hover table-striped table-sm shadow-sm">
-                        <thead className="bg-success text-white">
-                          <tr>
-                            <th scope="col" className="text-center">
-                              #
-                            </th>
-                            <th scope="col">
-                              {labels[language].fertilizerName}
-                            </th>
-                            <th scope="col">{labels[language].date}</th>
-                            <th scope="col" className="text-center">
-                              Actions
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {fertilizers.map((fert, index) => (
-                            <tr key={fert.id}>
-                              <td className="text-center">{index + 1}</td>
-                              <td>
-                                {fert.fertilizer_name || "Unknown Fertilizer"}
-                              </td>
-                              <td>
-                                {formatDateForDisplay(fert.date) || "N/A"}
-                              </td>
-                              <td className="text-center">
-                                <div className="d-flex gap-2 justify-content-center">
-                                  <button
-                                    className="btn btn-primary btn-sm d-flex align-items-center"
-                                    onClick={() =>
-                                      handleEditFertilizerOpen(fert)
-                                    }
-                                    title={labels[language].edit}
-                                  >
-                                    <FaEdit />
-                                  </button>
-                                  <button
-                                    className="btn btn-danger btn-sm d-flex align-items-center"
-                                    onClick={() =>
-                                      handleDeleteFertilizer(fert.id)
-                                    }
-                                    title={labels[language].delete}
-                                  >
-                                    <FaTrash />
-                                  </button>
-                                </div>
-                              </td>
+                <div className="card mt-3 border-success">
+                  <div className="card-header bg-success text-white d-flex align-items-center">
+                    <FaTractor className="me-2" />
+                    <h5 className="mb-0">{farm.name}</h5>
+                  </div>
+                  <div className="card-body">
+                    <h6 className="card-title">
+                      {labels[language].fertilizers}
+                    </h6>
+                    {fertilizers.length > 0 ? (
+                      <div className="table-responsive">
+                        <table className="table table-bordered table-hover table-striped table-sm shadow-sm">
+                          <thead className="bg-success text-white">
+                            <tr>
+                              <th scope="col" className="text-center">
+                                #
+                              </th>
+                              <th scope="col">
+                                {labels[language].fertilizerName}
+                              </th>
+                              <th scope="col">{labels[language].date}</th>
+                              <th scope="col" className="text-center">
+                                Actions
+                              </th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <p className="text-muted">
-                      {labels[language].noFertilizers}
-                    </p>
-                  )}
-                  <button
-                    className="btn btn-success btn-sm mt-2"
-                    onClick={() => handleAddFertilizerOpen(farm)}
-                  >
-                    <FaPlus /> {labels[language].addFertilizer}
-                  </button>
+                          </thead>
+                          <tbody>
+                            {fertilizers.map((fert, index) => (
+                              <tr key={fert.id}>
+                                <td className="text-center">{index + 1}</td>
+                                <td>
+                                  {fert.fertilizer_name || "Unknown Fertilizer"}
+                                </td>
+                                <td>
+                                  {formatDateForDisplay(fert.date) || "N/A"}
+                                </td>
+                                <td className="text-center">
+                                  <div className="d-flex gap-2 justify-content-center">
+                                    <button
+                                      className="btn btn-primary btn-sm d-flex align-items-center"
+                                      onClick={() =>
+                                        handleEditFertilizerOpen(fert)
+                                      }
+                                      title={labels[language].edit}
+                                    >
+                                      <FaEdit />
+                                    </button>
+                                    <button
+                                      className="btn btn-danger btn-sm d-flex align-items-center"
+                                      onClick={() =>
+                                        handleDeleteFertilizer(fert.id)
+                                      }
+                                      title={labels[language].delete}
+                                    >
+                                      <FaTrash />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <p className="text-muted">
+                        {labels[language].noFertilizers}
+                      </p>
+                    )}
+                    <button
+                      className="btn btn-success btn-sm mt-2 d-flex align-items-center"
+                      onClick={() => handleAddFertilizerOpen(farm)}
+                    >
+                      <FaPlus className="me-1" />{" "}
+                      {labels[language].addFertilizer}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
