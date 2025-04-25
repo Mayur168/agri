@@ -112,73 +112,7 @@ function Allfarms() {
     }
   }, [language]);
 
-  // const fetchFarms = useCallback(
-  //   async (page = 1) => {
-  //     const token = localStorage.getItem("token");
-  //     if (!token) {
-  //       setError(labels[language].unauthorized);
-  //       return;
-  //     }
-
-  //     setLoading(true);
-  //     try {
-  //       const response = await api.get(
-  //         `/farm/?action=getFarm&page=${page}&records_number=${farmsPerPage}&fertilizer=true`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //             "Content-Type": "application/json",
-  //           },
-  //         }
-  //       );
-
-  //       const result = response.data;
-  //       const farmData = Array.isArray(result.data) ? result.data : [result.data].filter(Boolean);
-
-  //       if (farmData.length === 0 && page > 1) {
-  //         setHasMore(false);
-  //         Swal.fire({
-  //           icon: "info",
-  //           title: "No More Data",
-  //           text: "There are no more farms available.",
-  //           confirmButtonColor: "#28a745",
-  //         });
-  //         return;
-  //       }
-
-  //       const normalizedFarms = farmData.map((farm) => ({
-  //         id: farm.id,
-  //         name: farm.name || "N/A",
-  //         address: farm.address || "N/A",
-  //         location_url: farm.location_url || "N/A",
-  //         farm_size: farm.farm_size || "N/A",
-  //         manager_id: farm.manager || null,
-  //         farm_fertilizer: farm.farm_fertilizer || [], // Include fertilizer data
-  //       }));
-
-  //       setFarms(normalizedFarms);
-  //       setFilteredFarms(normalizedFarms);
-
-  //       setHasMore(farmData.length === farmsPerPage);
-  //       setTotalPages((prev) => (farmData.length === farmsPerPage ? Math.max(prev, page + 1) : page));
-
-  //       window.scrollTo({ top: 0, behavior: "smooth" });
-  //     } catch (err) {
-  //       setError(err.response?.data?.message || err.message || "Error fetching farms.");
-  //       setHasMore(false);
-
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: "Error",
-  //         text: "Invalid page number or no data available.",
-  //         confirmButtonColor: "#dc3545",
-  //       });
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   },
-  //   [language, farmsPerPage]
-  // );
+ 
   const fetchFarms = useCallback(
     async (page = 1) => {
       const token = localStorage.getItem("token");

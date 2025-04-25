@@ -100,10 +100,10 @@ function Profile() {
               {/* Right Column: User Details */}
               <Col md={9} xs={12}>
                 <Row className="g-3">
-                  <Col md={6} xs={12}>
+                  {/* <Col md={6} xs={12}>
                     <small className="text-muted fw-bold d-block mb-1">{idLabel}</small>
                     <p className="mb-0 bg-light p-2 rounded-3 border">{idValue}</p>
-                  </Col>
+                  </Col> */}
                   <Col md={6} xs={12}>
                     <small className="text-muted fw-bold d-block mb-1">{translations[language].firstName}</small>
                     <p className="mb-0 bg-light p-2 rounded-3 border">{user.first_name || "N/A"}</p>

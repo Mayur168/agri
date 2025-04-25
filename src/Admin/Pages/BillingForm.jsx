@@ -84,11 +84,14 @@ const Billing = () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       const farmerId = user?.farmer_id;
-
+      const Id = user?.id; // Get the user ID from the user object
+  
       if (!farmerId) {
         throw new Error("Farmer ID not found in user data");
       }
-      const response = await api.get(`/billing/?action=getBilling&farmers=${farmerId}`);
+  
+      // Add user_created filter to the API query
+      const response = await api.get(`/billing/?action=getBilling&farmers=${farmerId}&user_created=${Id}`);
       setBillings(response.data.data || []);
     } catch (error) {
       console.error("Error fetching billings:", error);

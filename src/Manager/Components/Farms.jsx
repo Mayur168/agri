@@ -536,10 +536,6 @@ function Allfarms() {
               onChange={handleSearch}
             />
           </div>
-          <div className="alert alert-success" role="alert">
-            <strong>{labels[language].manager}</strong> {managerName} (ID:{" "}
-            {managerId || "N/A"})
-          </div>
         </div>
       </div>
 

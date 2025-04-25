@@ -49,13 +49,13 @@ function NavBar() {
                   Sheti
                 </Nav.Link> */}
                 <Nav.Link as={NavLink} to="/admin/manager-list" onClick={closeMenu}>
-                  ManagerList
+                    Users
                 </Nav.Link>
                 <Nav.Link as={NavLink} to="/admin/billing" onClick={closeMenu}>
                   Billing
                 </Nav.Link>
                 <Nav.Link as={NavLink} to="/admin/AdminExpense" onClick={closeMenu}>
-                  ExpenseForm
+                  Expense
                 </Nav.Link>
                 {user && (
                   <Nav.Link as={NavLink} to="/admin/profile" onClick={closeMenu}>
