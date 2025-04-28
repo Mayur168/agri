@@ -1700,7 +1700,7 @@ const ManagersList = () => {
         </h2>
       </div>
 
-      <div className="container">
+      <div className="container w-100 ">
         <div className="d-flex flex-nowrap ms-auto align-items-center justify-content-center gap-2 flex-md-wrap">
           {isSuperFarmer ? (
             <>
