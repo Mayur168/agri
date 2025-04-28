@@ -725,6 +725,7 @@
 
 // export default ManagersList;\
 
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -760,6 +761,10 @@ const ManagersList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const recordsPerPage = 10;
+  
+
+  // Button state
+  const [activeButton, setActiveButton] = useState("managers"); // Tracks active button ("managers", "admins", "addManager", or null)
 
   // Debug log to verify isSuperFarmer value
   useEffect(() => {
@@ -909,6 +914,10 @@ const ManagersList = () => {
           managerData = Array.isArray(response.data.data)
             ? response.data.data
             : [];
+          // Assume API returns total_count or estimate totalPages
+          const totalCount = response.data.total_count || managerData.length;
+          setTotalPages(Math.ceil(totalCount / recordsPerPage) || 1);
+          setHasMore(managerData.length === recordsPerPage && page < Math.ceil(totalCount / recordsPerPage));
         } else {
           const response = await api.get(
             `/users/?action=getFarmManager&user_created=${Id}&page=${page}&records_number=${recordsPerPage}`
@@ -917,17 +926,14 @@ const ManagersList = () => {
           managerData = Array.isArray(response.data.data)
             ? response.data.data
             : [];
+          // Assume API returns total_count or estimate totalPages
+          const totalCount = response.data.total_count || managerData.length;
+          setTotalPages(Math.ceil(totalCount / recordsPerPage) || 1);
+          setHasMore(managerData.length === recordsPerPage && page < Math.ceil(totalCount / recordsPerPage));
         }
 
         setManagers(managerData);
         localStorage.setItem("managers", JSON.stringify(managerData));
-
-        setHasMore(managerData.length === recordsPerPage);
-        setTotalPages((prev) =>
-          managerData.length === recordsPerPage
-            ? Math.max(prev, page + 1)
-            : page
-        );
 
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
@@ -941,6 +947,7 @@ const ManagersList = () => {
         setManagers([]);
         localStorage.setItem("managers", JSON.stringify([]));
         setHasMore(false);
+        setTotalPages(1);
       } finally {
         setFetchLoading(false);
       }
@@ -1109,6 +1116,7 @@ const ManagersList = () => {
   const handleViewAdmin = async () => {
     setFetchLoading(true);
     setViewMode("admins");
+    setActiveButton("admins"); // Set active button
     setCurrentPage(1);
     try {
       const user = JSON.parse(localStorage.getItem("user"));
@@ -1141,12 +1149,10 @@ const ManagersList = () => {
   
       setAdmins(normalizedAdmins);
       localStorage.setItem("admins", JSON.stringify(normalizedAdmins));
-      setHasMore(normalizedAdmins.length === recordsPerPage);
-      setTotalPages((prev) =>
-        normalizedAdmins.length === recordsPerPage
-          ? Math.max(prev, currentPage + 1)
-          : currentPage
-      );
+      // Assume API returns total_count or estimate totalPages
+      const totalCount = response.data.total_count || normalizedAdmins.length;
+      setTotalPages(Math.ceil(totalCount / recordsPerPage) || 1);
+      setHasMore(normalizedAdmins.length === recordsPerPage && currentPage < Math.ceil(totalCount / recordsPerPage));
   
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -1160,6 +1166,7 @@ const ManagersList = () => {
       setAdmins([]);
       localStorage.setItem("admins", JSON.stringify([]));
       setHasMore(false);
+      setTotalPages(1);
     } finally {
       setFetchLoading(false);
     }
@@ -1168,6 +1175,7 @@ const ManagersList = () => {
   const handleViewManagers = async () => {
     setFetchLoading(true);
     setViewMode("managers");
+    setActiveButton("managers"); // Set active button
     setCurrentPage(1); // Reset to first page
     try {
       const user = JSON.parse(localStorage.getItem("user"));
@@ -1188,12 +1196,10 @@ const ManagersList = () => {
       // Update state
       setManagers(managerData);
       localStorage.setItem("managers", JSON.stringify(managerData));
-      setHasMore(managerData.length === recordsPerPage);
-      setTotalPages((prev) =>
-        managerData.length === recordsPerPage
-          ? Math.max(prev, currentPage + 1)
-          : currentPage
-      );
+      // Assume API returns total_count or estimate totalPages
+      const totalCount = response.data.total_count || managerData.length;
+      setTotalPages(Math.ceil(totalCount / recordsPerPage) || 1);
+      setHasMore(managerData.length === recordsPerPage && currentPage < Math.ceil(totalCount / recordsPerPage));
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -1207,6 +1213,7 @@ const ManagersList = () => {
       setManagers([]);
       localStorage.setItem("managers", JSON.stringify([]));
       setHasMore(false);
+      setTotalPages(1);
     } finally {
       setFetchLoading(false);
     }
@@ -1308,292 +1315,291 @@ const ManagersList = () => {
     setShowViewModal(true);
   };
 
-
   const handleUpdateManager = async (e) => {
-  e.preventDefault();
-  console.log("handleUpdateManager triggered");
-  console.log("initialFormData:", initialFormData);
-  console.log("formData:", formData);
-  console.log("editManagerId:", editManagerId);
-  console.log("editAdminId:", editAdminId);
+    e.preventDefault();
+    console.log("handleUpdateManager triggered");
+    console.log("initialFormData:", initialFormData);
+    console.log("formData:", formData);
+    console.log("editManagerId:", editManagerId);
+    mots: console.log("editAdminId:", editAdminId);
 
-  if (!formData.phone.trim()) {
-    Swal.fire({
-      icon: "error",
-      title: translations[language].toast.phoneRequired,
-    });
-    return;
-  }
-
-  if (!initialFormData) {
-    Swal.fire({
-      icon: "error",
-      title: "Error: Initial data not set. Please try again.",
-    });
-    setLoading(false);
-    return;
-  }
-
-  const confirmResult = await Swal.fire({
-    title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
-    text:
-      language === "en"
-        ? `Do you want to update this ${formData.role.toLowerCase()}?`
-        : `तुम्ही हा ${
-            formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-          } अपडेट करू इच्छिता?`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: language === "en" ? "Yes, update!" : "होय, अपडेट करा!",
-    cancelButtonText: language === "en" ? "No, cancel!" : "नाही, रद्द करा!",
-  });
-
-  if (!confirmResult.isConfirmed) return;
-
-  setLoading(true);
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      throw new Error("Unauthorized: No token found.");
-    }
-
-    let changedPayload;
-    let hasChanges = false;
-
-    const entityId = formData.role === "Manager" ? editManagerId : editAdminId;
-
-    if (!entityId) {
-      throw new Error(`No valid ID found for ${formData.role}`);
-    }
-
-    console.log("Selected entityId:", entityId);
-    console.log("Role:", formData.role);
-
-    if (formData.role === "Manager") {
-      changedPayload = { id: entityId, action: "patchFarmManager" };
-      if (formData.first_name.trim() !== initialFormData.first_name) {
-        changedPayload.user = changedPayload.user || {};
-        changedPayload.user.first_name = formData.first_name.trim();
-        hasChanges = true;
-      }
-      if (formData.last_name.trim() !== initialFormData.last_name) {
-        changedPayload.user = changedPayload.user || {};
-        changedPayload.user.last_name = formData.last_name.trim();
-        hasChanges = true;
-      }
-      if (formData.email.trim() !== initialFormData.email) {
-        changedPayload.user = changedPayload.user || {};
-        changedPayload.user.email = formData.email.trim();
-        hasChanges = true;
-      }
-      if (formData.phone.trim() !== initialFormData.phone) {
-        changedPayload.user = changedPayload.user || {};
-        changedPayload.user.phone = formData.phone.trim();
-        hasChanges = true;
-      }
-      if (formData.farm_name.trim() !== initialFormData.farm_name) {
-        changedPayload.farm_name = formData.farm_name.trim() || null;
-        hasChanges = true;
-      }
-      if (formData.farm_location.trim() !== initialFormData.farm_location) {
-        changedPayload.farm_location = formData.farm_location.trim() || null;
-        hasChanges = true;
-      }
-      if (
-        parseInt(formData.manager_experience) !==
-        parseInt(initialFormData.manager_experience)
-      ) {
-        changedPayload.manager_experience =
-          parseInt(formData.manager_experience) || 0;
-        hasChanges = true;
-      }
-    } else {
-      changedPayload = { id: entityId, action: "patchFarmer" };
-      if (
-        formData.first_name.trim() !== initialFormData.first_name ||
-        formData.last_name.trim() !== initialFormData.last_name ||
-        formData.email.trim() !== initialFormData.email ||
-        formData.phone.trim() !== initialFormData.phone
-      ) {
-        changedPayload.user = {};
-        if (formData.first_name.trim() !== initialFormData.first_name) {
-          changedPayload.user.first_name = formData.first_name.trim();
-          hasChanges = true;
-        }
-        if (formData.last_name.trim() !== initialFormData.last_name) {
-          changedPayload.user.last_name = formData.last_name.trim();
-          hasChanges = true;
-        }
-        if (formData.email.trim() !== initialFormData.email) {
-          changedPayload.user.email = formData.email.trim();
-          hasChanges = true;
-        }
-        if (formData.phone.trim() !== initialFormData.phone) {
-          changedPayload.user.phone = formData.phone.trim();
-          hasChanges = true;
-        }
-      }
-      if (formData.farm_name.trim() !== initialFormData.farm_name) {
-        changedPayload.farm_name = formData.farm_name.trim() || "";
-        hasChanges = true;
-      }
-      if (formData.farm_location.trim() !== initialFormData.farm_location) {
-        changedPayload.farm_location = formData.farm_location.trim() || "";
-        hasChanges = true;
-      }
-      if (formData.farm_size.trim() !== initialFormData.farm_size) {
-        changedPayload.farm_size = formData.farm_size.trim()
-          ? parseInt(formData.farm_size)
-          : 0;
-        hasChanges = true;
-      }
-    }
-
-    if (!hasChanges) {
+    if (!formData.phone.trim()) {
       Swal.fire({
-        icon: "info",
-        title: translations[language].toast.noChanges,
+        icon: "error",
+        title: translations[language].toast.phoneRequired,
       });
-      setShowEditModal(false);
-      setShowViewModal(false);
+      return;
+    }
+
+    if (!initialFormData) {
+      Swal.fire({
+        icon: "error",
+        title: "Error: Initial data not set. Please try again.",
+      });
       setLoading(false);
       return;
     }
 
-    console.log("Update Payload:", changedPayload);
-    console.log("Sending PATCH request to /users/");
-    const response = await api.patch("/users/", changedPayload, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log("API Response:", response.data);
-
-    const updatedEntity = response.data.data;
-
-    if (formData.role === "Manager") {
-      const updatedManagers = managers.map((m) =>
-        m.id === entityId ? { ...m, ...updatedEntity } : m
-      );
-      setManagers(updatedManagers);
-      localStorage.setItem("managers", JSON.stringify(updatedManagers));
-    } else {
-      // Refresh admin list from server
-      setViewMode("admins");
-      await handleViewAdmin();
-    }
-
-    Swal.fire({
-      icon: "success",
-      title: translations[language].toast.managerUpdatedSuccess,
-      showConfirmButton: false,
-      timer: 2000,
+    const confirmResult = await Swal.fire({
+      title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
+      text:
+        language === "en"
+          ? `Do you want to update this ${formData.role.toLowerCase()}?`
+          : `तुम्ही हा ${
+              formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
+            } अपडेट करू इच्छिता?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: language === "en" ? "Yes, update!" : "होय, अपडेट करा!",
+      cancelButtonText: language === "en" ? "No, cancel!" : "नाही, रद्द करा!",
     });
 
-    setShowEditModal(false);
-    setShowViewModal(false);
-  } catch (err) {
-    console.error("API Error (Update Manager):", err.response || err);
-    Swal.fire({
-      icon: "error",
-      title:
-        err.response?.data?.message ||
-        translations[language].toast.updateManagerError,
-    });
-  } finally {
-    setLoading(false);
-  }
-};
+    if (!confirmResult.isConfirmed) return;
 
-const handleDeleteManager = async (managerId) => {
-  const result = await Swal.fire({
-    title: `${translations[language].delete} ${formData.role}`,
-    text:
-      language === "en"
-        ? `Are you sure you want to delete this ${formData.role.toLowerCase()}? This action cannot be undone.`
-        : `आपण खात्रीने हे ${
-            formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-          } हटवू इच्छिता का? ही क्रिया परत करता येणार नाही.`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
-    confirmButtonText: translations[language].delete,
-    cancelButtonText: translations[language].cancel,
-  });
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        throw new Error("Unauthorized: No token found.");
+      }
 
-  if (!result.isConfirmed) return;
+      let changedPayload;
+      let hasChanges = false;
 
-  setLoading(true);
+      const entityId = formData.role === "Manager" ? editManagerId : editAdminId;
 
-  try {
-    const token = localStorage.getItem("token");
-    const deletePayload = {
-      action: formData.role === "Manager" ? "delFarmManager" : "delFarmer",
-      id: managerId,
-      role: formData.role === "Manager" ? undefined : "farmer",
-    };
+      if (!entityId) {
+        throw new Error(`No valid ID found for ${formData.role}`);
+      }
 
-    const response = await api.delete("/users/", {
-      data: deletePayload,
-      headers: { Authorization: `Bearer ${token}` },
-    });
+      console.log("Selected entityId:", entityId);
+      console.log("Role:", formData.role);
 
-    if (response.status === 200 || response.status === 204) {
       if (formData.role === "Manager") {
-        const updatedManagers = managers.filter((m) => m.id !== managerId);
+        changedPayload = { id: entityId, action: "patchFarmManager" };
+        if (formData.first_name.trim() !== initialFormData.first_name) {
+          changedPayload.user = changedPayload.user || {};
+          changedPayload.user.first_name = formData.first_name.trim();
+          hasChanges = true;
+        }
+        if (formData.last_name.trim() !== initialFormData.last_name) {
+          changedPayload.user = changedPayload.user || {};
+          changedPayload.user.last_name = formData.last_name.trim();
+          hasChanges = true;
+        }
+        if (formData.email.trim() !== initialFormData.email) {
+          changedPayload.user = changedPayload.user || {};
+          changedPayload.user.email = formData.email.trim();
+          hasChanges = true;
+        }
+        if (formData.phone.trim() !== initialFormData.phone) {
+          changedPayload.user = changedPayload.user || {};
+          changedPayload.user.phone = formData.phone.trim();
+          hasChanges = true;
+        }
+        if (formData.farm_name.trim() !== initialFormData.farm_name) {
+          changedPayload.farm_name = formData.farm_name.trim() || null;
+          hasChanges = true;
+        }
+        if (formData.farm_location.trim() !== initialFormData.farm_location) {
+          changedPayload.farm_location = formData.farm_location.trim() || null;
+          hasChanges = true;
+        }
+        if (
+          parseInt(formData.manager_experience) !==
+          parseInt(initialFormData.manager_experience)
+        ) {
+          changedPayload.manager_experience =
+            parseInt(formData.manager_experience) || 0;
+          hasChanges = true;
+        }
+      } else {
+        changedPayload = { id: entityId, action: "patchFarmer" };
+        if (
+          formData.first_name.trim() !== initialFormData.first_name ||
+          formData.last_name.trim() !== initialFormData.last_name ||
+          formData.email.trim() !== initialFormData.email ||
+          formData.phone.trim() !== initialFormData.phone
+        ) {
+          changedPayload.user = {};
+          if (formData.first_name.trim() !== initialFormData.first_name) {
+            changedPayload.user.first_name = formData.first_name.trim();
+            hasChanges = true;
+          }
+          if (formData.last_name.trim() !== initialFormData.last_name) {
+            changedPayload.user.last_name = formData.last_name.trim();
+            hasChanges = true;
+          }
+          if (formData.email.trim() !== initialFormData.email) {
+            changedPayload.user.email = formData.email.trim();
+            hasChanges = true;
+          }
+          if (formData.phone.trim() !== initialFormData.phone) {
+            changedPayload.user.phone = formData.phone.trim();
+            hasChanges = true;
+          }
+        }
+        if (formData.farm_name.trim() !== initialFormData.farm_name) {
+          changedPayload.farm_name = formData.farm_name.trim() || "";
+          hasChanges = true;
+        }
+        if (formData.farm_location.trim() !== initialFormData.farm_location) {
+          changedPayload.farm_location = formData.farm_location.trim() || "";
+          hasChanges = true;
+        }
+        if (formData.farm_size.trim() !== initialFormData.farm_size) {
+          changedPayload.farm_size = formData.farm_size.trim()
+            ? parseInt(formData.farm_size)
+            : 0;
+          hasChanges = true;
+        }
+      }
+
+      if (!hasChanges) {
+        Swal.fire({
+          icon: "info",
+          title: translations[language].toast.noChanges,
+        });
+        setShowEditModal(false);
+        setShowViewModal(false);
+        setLoading(false);
+        return;
+      }
+
+      console.log("Update Payload:", changedPayload);
+      console.log("Sending PATCH request to /users/");
+      const response = await api.patch("/users/", changedPayload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("API Response:", response.data);
+
+      const updatedEntity = response.data.data;
+
+      if (formData.role === "Manager") {
+        const updatedManagers = managers.map((m) =>
+          m.id === entityId ? { ...m, ...updatedEntity } : m
+        );
         setManagers(updatedManagers);
         localStorage.setItem("managers", JSON.stringify(updatedManagers));
       } else {
         // Refresh admin list from server
         setViewMode("admins");
-        if (admins.length === 1 && currentPage > 1) {
-          setCurrentPage(currentPage - 1); // Go to previous page if current page is empty
-        }
         await handleViewAdmin();
       }
 
-      await Swal.fire({
-        title: language === "en" ? "Deleted!" : "हटवले!",
-        text:
-          language === "en"
-            ? `${formData.role} has been deleted successfully.`
-            : `${
-                formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-              } यशस्वीरित्या हटवले गेले आहे.`,
+      Swal.fire({
         icon: "success",
-        confirmButtonText: "OK",
+        title: translations[language].toast.managerUpdatedSuccess,
+        showConfirmButton: false,
+        timer: 2000,
       });
 
+      setShowEditModal(false);
       setShowViewModal(false);
-    } else {
-      throw new Error("Unexpected response status: " + response.status);
+    } catch (err) {
+      console.error("API Error (Update Manager):", err.response || err);
+      Swal.fire({
+        icon: "error",
+        title:
+          err.response?.data?.message ||
+          translations[language].toast.updateManagerError,
+      });
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("API Error (Delete Manager):", {
-      message: err.message,
-      response: err.response?.data,
-      status: err.response?.status,
+  };
+
+  const handleDeleteManager = async (managerId) => {
+    const result = await Swal.fire({
+      title: `${translations[language].delete} ${formData.role}`,
+      text:
+        language === "en"
+          ? `Are you sure you want to delete this ${formData.role.toLowerCase()}? This action cannot be undone.`
+          : `आपण खात्रीने हे ${
+              formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
+            } हटवू इच्छिता का? ही क्रिया परत करता येणार नाही.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: translations[language].delete,
+      cancelButtonText: translations[language].cancel,
     });
 
-    const errorMessage =
-      err.response?.data?.message ||
-      err.response?.data?.error_msg ||
-      (language === "en"
-        ? `Failed to delete ${formData.role.toLowerCase()}. Please try again or contact support.`
-        : `${
-            formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-          } हटविण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा किंवा समर्थनाशी संपर्क साधा.`);
+    if (!result.isConfirmed) return;
 
-    await Swal.fire({
-      title: language === "en" ? "Error!" : "त्रुटी!",
-      text: errorMessage,
-      icon: "error",
-      confirmButtonText: "OK",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      const deletePayload = {
+        action: formData.role === "Manager" ? "delFarmManager" : "delFarmer",
+        id: managerId,
+        role: formData.role === "Manager" ? undefined : "farmer",
+      };
+
+      const response = await api.delete("/users/", {
+        data: deletePayload,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.status === 200 || response.status === 204) {
+        if (formData.role === "Manager") {
+          const updatedManagers = managers.filter((m) => m.id !== managerId);
+          setManagers(updatedManagers);
+          localStorage.setItem("managers", JSON.stringify(updatedManagers));
+        } else {
+          // Refresh admin list from server
+          setViewMode("admins");
+          if (admins.length === 1 && currentPage > 1) {
+            setCurrentPage(currentPage - 1); // Go to previous page if current page is empty
+          }
+          await handleViewAdmin();
+        }
+
+        await Swal.fire({
+          title: language === "en" ? "Deleted!" : "हटवले!",
+          text:
+            language === "en"
+              ? `${formData.role} has been deleted successfully.`
+              : `${
+                  formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
+                } यशस्वीरित्या हटवले गेले आहे.`,
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+
+        setShowViewModal(false);
+      } else {
+        throw new Error("Unexpected response status: " + response.status);
+      }
+    } catch (err) {
+      console.error("API Error (Delete Manager):", {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+      });
+
+      const errorMessage =
+        err.response?.data?.message ||
+        err.response?.data?.error_msg ||
+        (language === "en"
+          ? `Failed to delete ${formData.role.toLowerCase()}. Please try again or contact support.`
+          : `${
+              formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
+            } हटविण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा किंवा समर्थनाशी संपर्क साधा.`);
+
+      await Swal.fire({
+        title: language === "en" ? "Error!" : "त्रुटी!",
+        text: errorMessage,
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleToggleEdit = () => {
     if (!isViewingEditing) {
@@ -1617,58 +1623,58 @@ const handleDeleteManager = async (managerId) => {
       manager_experience: "",
     });
     setShowModal(true);
+    setActiveButton("addManager"); // Set active button
   };
 
-
- const filteredData =
-  viewMode === "admins"
-    ? admins
-        .flatMap((admin) => {
-          // Include the main admin and their sub-farmers
-          const adminEntry = {
-            id: admin.id,
-            first_name: admin.first_name || admin.user?.first_name || "",
-            last_name: admin.last_name || admin.user?.last_name || "",
-            phone: admin.phone || admin.user?.phone || "",
-            email: admin.email || admin.user?.email || "",
-            farm_name: admin.farm_name || "",
-            farm_location: admin.farm_location || "",
-            farm_size: admin.farm_size || "",
-            is_admin: true,
-          };
-          const subFarmerEntries = (admin.sub_farmers || []).map((subFarmer) => ({
-            id: subFarmer.id,
-            first_name: subFarmer.first_name || subFarmer.user?.first_name || "",
-            last_name: subFarmer.last_name || subFarmer.user?.last_name || "",
-            phone: subFarmer.phone || subFarmer.user?.phone || "",
-            email: subFarmer.email || subFarmer.user?.email || "",
-            farm_name: subFarmer.farm_name || "",
-            farm_location: subFarmer.farm_location || "",
-            farm_size: subFarmer.farm_size || "",
-            is_admin: true,
-          }));
-          return [adminEntry, ...subFarmerEntries];
-        })
-        // Remove duplicates by ID
-        .filter(
-          (admin, index, self) =>
-            admin &&
-            index === self.findIndex((a) => a.id === admin.id) &&
-            ((admin.phone || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-              (admin.first_name || "")
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase()))
-        )
-    : managers.filter(
-        (manager) =>
-          manager &&
-          ((manager.phone || manager.user?.phone)
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-            (manager.first_name || manager.user?.first_name)
+  const filteredData =
+    viewMode === "admins"
+      ? admins
+          .flatMap((admin) => {
+            // Include the main admin and their sub-farmers
+            const adminEntry = {
+              id: admin.id,
+              first_name: admin.first_name || admin.user?.first_name || "",
+              last_name: admin.last_name || admin.user?.last_name || "",
+              phone: admin.phone || admin.user?.phone || "",
+              email: admin.email || admin.user?.email || "",
+              farm_name: admin.farm_name || "",
+              farm_location: admin.farm_location || "",
+              farm_size: admin.farm_size || "",
+              is_admin: true,
+            };
+            const subFarmerEntries = (admin.sub_farmers || []).map((subFarmer) => ({
+              id: subFarmer.id,
+              first_name: subFarmer.first_name || subFarmer.user?.first_name || "",
+              last_name: subFarmer.last_name || subFarmer.user?.last_name || "",
+              phone: subFarmer.phone || subFarmer.user?.phone || "",
+              email: subFarmer.email || subFarmer.user?.email || "",
+              farm_name: subFarmer.farm_name || "",
+              farm_location: subFarmer.farm_location || "",
+              farm_size: subFarmer.farm_size || "",
+              is_admin: true,
+            }));
+            return [adminEntry, ...subFarmerEntries];
+          })
+          // Remove duplicates by ID
+          .filter(
+            (admin, index, self) =>
+              admin &&
+              index === self.findIndex((a) => a.id === admin.id) &&
+              ((admin.phone || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (admin.first_name || "")
+                  .toLowerCase()
+                  .includes(searchQuery.toLowerCase()))
+          )
+      : managers.filter(
+          (manager) =>
+            manager &&
+            ((manager.phone || manager.user?.phone)
               ?.toLowerCase()
-              .includes(searchQuery.toLowerCase()))
-      );
+              .includes(searchQuery.toLowerCase()) ||
+              (manager.first_name || manager.user?.first_name)
+                ?.toLowerCase()
+                .includes(searchQuery.toLowerCase()))
+        );
 
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -1695,12 +1701,12 @@ const handleDeleteManager = async (managerId) => {
       </div>
 
       <div className="container">
-        <div className="d-flex flex-nowrap ms-auto align-items-center justify-content-end gap-2 flex-md-wrap">
+        <div className="d-flex flex-nowrap ms-auto align-items-center justify-content-center gap-2 flex-md-wrap">
           {isSuperFarmer ? (
             <>
               <button
                 className={`btn btn-sm fw-bold d-flex align-items-center p-2 ${
-                  viewMode === "managers"
+                  activeButton === "managers"
                     ? "btn-success"
                     : "btn-outline-success"
                 }`}
@@ -1712,7 +1718,9 @@ const handleDeleteManager = async (managerId) => {
               </button>
               <button
                 className={`btn btn-sm fw-bold d-flex align-items-center p-2 ${
-                  viewMode === "admins" ? "btn-success" : "btn-outline-success"
+                  activeButton === "admins"
+                    ? "btn-success"
+                    : "btn-outline-success"
                 }`}
                 onClick={handleViewAdmin}
                 disabled={loading}
@@ -1721,7 +1729,11 @@ const handleDeleteManager = async (managerId) => {
                 {translations[language].viewAdmin}
               </button>
               <button
-                className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
+                className={`btn btn-sm fw-bold d-flex align-items-center p-2 ${
+                  activeButton === "addManager"
+                    ? "btn-success"
+                    : "btn-outline-success"
+                }`}
                 onClick={openAddManagerModal}
                 disabled={loading}
               >
@@ -1741,7 +1753,11 @@ const handleDeleteManager = async (managerId) => {
                 />
               </div>
               <button
-                className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
+                className={`btn btn-sm fw-bold d-flex align-items-center p-2 ${
+                  activeButton === "addManager"
+                    ? "btn-success"
+                    : "btn-outline-success"
+                }`}
                 onClick={openAddManagerModal}
                 disabled={loading}
               >
@@ -1849,7 +1865,7 @@ const handleDeleteManager = async (managerId) => {
             filteredData.map((item) => (
               <div
                 key={item.id}
-                className="manager-card rounded d-flex justify-content-between align-items-center flex-wrap bg-white shadow-none border"
+                className="manager-card rounded d-flex justify-content-between align ruler-items-center flex-wrap bg-white shadow-none border"
                 style={{ cursor: "pointer" }}
                 onClick={() => handleViewManager(item)}
               >
@@ -1897,13 +1913,13 @@ const handleDeleteManager = async (managerId) => {
             </li>
             <li
               className={`page-item ${
-                !hasMore || fetchLoading ? "disabled" : ""
+                currentPage >= totalPages || fetchLoading ? "disabled" : ""
               }`}
             >
               <button
                 className="page-link"
                 onClick={handleNext}
-                disabled={!hasMore || fetchLoading}
+                disabled={currentPage >= totalPages || fetchLoading}
               >
                 {translations[language].next} »
               </button>

@@ -166,9 +166,6 @@ function ExpenseForm() {
     try {
       // Debug: Log the API URL and managerId
       const apiUrl = `/farm/?action=getManagerExpenses&manager=${managerId}`;
-      console.log("Fetching manager expenses from:", api.baseURL + apiUrl);
-      console.log("Manager ID:", managerId);
-  
       const response = await api.get(apiUrl);
   
       let expensesData =
@@ -185,22 +182,19 @@ function ExpenseForm() {
             }))
           : [];
   
-      // Check if expenses are empty and show SweetAlert
       if (expensesData.length === 0) {
         Swal.fire({
           icon: "info",
           title: language === "en" ? "Info" : "माहिती",
-          text: translations[language].noExpenses, // "No expenses available" or "कोणतेही खर्च उपलब्ध नाहीत"
+          text: translations[language].noExpenses, 
         });
       }
   
       setManagerExpenses(expensesData);
     } catch (error) {
-      console.error("Error fetching manager expenses:", error);
       let errorMessage = error.message || translations[language].noExpenses;
       let title = language === "en" ? "Error" : "त्रुटी";
   
-      // Handle 404 as empty expenses
       if (error.response?.status === 404) {
         errorMessage = translations[language].noExpenses;
         title = language === "en" ? "Info" : "माहिती";
@@ -231,7 +225,6 @@ function ExpenseForm() {
           : [];
       setManagers(managersData);
     } catch (error) {
-      console.error("Error fetching managers:", error);
       Swal.fire("Error", "Failed to fetch manager list", "error");
       setManagers([]);
     } finally {
@@ -767,7 +760,6 @@ function ExpenseForm() {
                 >
                   <li type="none" style={styles.managerName}>
                     {manager.user?.first_name} {manager.user?.last_name}
-                    <span style={styles.managerId}>(ID: {manager.id})</span>
                   </li>
                 </div>
               ))}

@@ -1,6 +1,4 @@
 
-  
-  
   /* Navbar Title */
   .navbar-title {
     font-size: 19px;
@@ -10,8 +8,6 @@
     flex-grow: 0;
     margin-left: 4px;
   } /* Centering */
-  
-  
   
   /* Search Form */
   .search-container {
@@ -30,7 +26,6 @@
     border-radius: 5px;
   }
   
- 
   /* spinner */
   .spinner-container {
     display: flex;
@@ -39,7 +34,6 @@
     min-height: 20vh; /* Adjust this to control how far below the title it appears */
     margin-top: 10px; /* Adjust spacing */
   }
-  
   
   .backbtn{
     background-color: rgb(190, 100, 44) !important;
