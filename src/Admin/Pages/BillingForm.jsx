@@ -313,13 +313,24 @@ const Billing = () => {
     }
   };
 
-  const filteredBillings = billings.filter(
-    (billing) =>
-      billing.trader_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      billing.bill_date?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      billing.farm?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
+  const filteredBillings = billings.filter((billing) => {
+    // Helper function to safely get a searchable string
+    const getSearchableString = (value) => {
+      if (typeof value === "string") return value.toLowerCase();
+      if (value && typeof value === "object" && value.name) return value.name.toLowerCase();
+      return "";
+    };
+  
+    const traderName = getSearchableString(billing.trader_name);
+    const billDate = getSearchableString(billing.bill_date);
+    const farm = getSearchableString(billing.farm);
+  
+    return (
+      traderName.includes(searchQuery.toLowerCase()) ||
+      billDate.includes(searchQuery.toLowerCase()) ||
+      farm.includes(searchQuery.toLowerCase())
+    );
+  });
   return (
     <div className="container p-0">
       <div className="mb-3 d-flex align-items-center py-3 header-container bg-success">
