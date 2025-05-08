@@ -4,7 +4,7 @@ import { FaSave, FaTrash, FaTimes } from "react-icons/fa";
 
 const FormButtons = ({
   isEditing,
-  hasId, // Whether the form has an ID (for edit/delete scenarios)
+  hasId, 
   labels,
   language,
   onSubmit,
@@ -37,7 +37,7 @@ const FormButtons = ({
         <button
           type="submit"
           className="btn btn-success btn-sm d-flex align-items-center"
-          onClick={onSubmit} // Note: This is handled by form submission in ModalForm
+          onClick={onSubmit} 
         >
           <FaSave className="me-2" /> {labels[language][submitLabel] || "Save"}
         </button>

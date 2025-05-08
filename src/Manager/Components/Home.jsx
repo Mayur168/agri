@@ -82,7 +82,7 @@ const Home = () => {
         {/* Go to My Farm Button (No Container) */}
         <Link to="/Manager/farms">
           <button className="btn btn-success px-3 py-1 mt-2">
-          {language === "en" ? "Add Farm" : "शेती जोडा"}
+          {language === "en" ? "View Farm" : "शेती पाहा"}
           </button>
         </Link>
       </div>

@@ -16,7 +16,7 @@ function ExpenseForm() {
   const storedData = JSON.parse(localStorage.getItem("storedData")) || {};
   console.log("Stored Data from localStorage:", storedData);
 
-  // Extract manager_id from storedData.user, no fallback
+  // Extract manager_id from storedData.user
   const defaultManagerId = storedData.user?.manager_id || null;
   console.log("defaultManagerId:", defaultManagerId);
 
@@ -26,17 +26,18 @@ function ExpenseForm() {
     description: "",
     amount: "",
     reason: "",
-    manager_id: defaultManagerId, // Set default to manager_id from login response
+    manager_id: defaultManagerId,
   });
   const [isEditing, setIsEditing] = useState(true);
   const [expenses, setExpenses] = useState([]);
+  const [totalAmount, setTotalAmount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
   const translations = {
     en: {
       title: "Daily Expenses",
-      addManagerExpense:"Add Expense",
+      addManagerExpense: "Add Expense",
       edit: "Edit",
       delete: "Delete",
       save: "Save",
@@ -52,11 +53,12 @@ function ExpenseForm() {
       searchPlaceholder: "Search...",
       addButton: "Expense",
       noExpenses: "No expenses available",
+      totalAmount: "Total Expenses",
     },
     mr: {
       title: "दैनिक खर्च",
+      addManagerExpense: "खर्च जोडा",
       edit: "संपादन",
-       addManagerExpense:"खर्च जोडा",
       delete: "हटवा",
       save: "जतन करा",
       close: "बंद करा",
@@ -71,62 +73,69 @@ function ExpenseForm() {
       searchPlaceholder: "शोधा...",
       addButton: "खर्च",
       noExpenses: "कोणतेही खर्च उपलब्ध नाहीत",
+      totalAmount: "एकूण खर्च",
     },
   };
 
   const labels = translations[language];
 
+  const fetchExpenses = async () => {
+    if (!defaultManagerId) {
+      console.warn("No manager_id found in storedData. Skipping fetch.");
+      setExpenses([]);
+      setTotalAmount(0);
+      setLoading(false);
+      Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "No manager ID available. Please log in as a manager.",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await api.get(
+        `/farm/?action=getManagerExpenses&manager=${defaultManagerId}`
+      );
+      console.log("Raw API Response:", response);
+      console.log("Response Data:", response.data);
+
+      // Handle response structure
+      let expensesData = [];
+      let totalAmountData = 0;
+      if (response.data && Array.isArray(response.data.data)) {
+        expensesData = response.data.data;
+        totalAmountData = response.data.total_amount || 0;
+      } else {
+        console.warn("Unexpected response structure:", response.data);
+        expensesData = [];
+        totalAmountData = 0;
+      }
+
+      console.log("Filtered Expenses Data:", expensesData);
+      console.log("Total Amount:", totalAmountData);
+      setExpenses(expensesData);
+      setTotalAmount(totalAmountData);
+
+      if (expensesData.length === 0) {
+        console.log("No expenses found for manager_id:", defaultManagerId);
+      }
+    } catch (error) {
+      console.error("Error fetching expenses:", error.response || error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to load expenses for this manager.",
+      });
+      setExpenses([]);
+      setTotalAmount(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchExpenses = async () => {
-      if (!defaultManagerId) {
-        console.warn("No manager_id found in storedData. Skipping fetch.");
-        setExpenses([]);
-        setLoading(false);
-        Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "No manager ID available. Please log in as a manager.",
-        });
-        return;
-      }
-
-      setLoading(true);
-      try {
-        const response = await api.get(
-          `/farm/?action=getManagerExpenses&manager=${defaultManagerId}`
-        );
-        console.log("Raw API Response:", response); // Log full response
-        console.log("Response Data:", response.data);
-
-        // Handle different response structures
-        let expensesData = [];
-        if (Array.isArray(response.data)) {
-          expensesData = response.data;
-        } else if (response.data && Array.isArray(response.data.data)) {
-          expensesData = response.data.data;
-        } else {
-          console.warn("Unexpected response structure:", response.data);
-          expensesData = [];
-        }
-
-        console.log("Filtered Expenses Data:", expensesData);
-        setExpenses(expensesData);
-
-        if (expensesData.length === 0) {
-          console.log("No expenses found for manager_id:", defaultManagerId);
-        }
-      } catch (error) {
-        console.error("Error fetching expenses:", error.response || error);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Failed to load expenses for this manager.",
-        });
-        setExpenses([]);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchExpenses();
   }, [defaultManagerId]);
 
@@ -156,11 +165,6 @@ function ExpenseForm() {
         };
         console.log("Patch Payload:", payload);
         await api.patch("/farm/", payload);
-        setExpenses(
-          expenses.map((item) =>
-            item.id === formData.id ? { ...item, ...formData } : item
-          )
-        );
         Swal.fire({
           icon: "success",
           title: "Success",
@@ -175,16 +179,7 @@ function ExpenseForm() {
           manager_id: formData.manager_id,
         };
         console.log("Posting Payload:", payload);
-        const response = await api.post("/farm/", payload);
-        const newExpense = {
-          id: response.data.data.id,
-          date_created: response.data.data.date_created,
-          description: response.data.data.description,
-          amount: response.data.data.amount,
-          reason: response.data.data.reason,
-          manager: response.data.data.manager, // Match API response key
-        };
-        setExpenses([...expenses, newExpense]);
+        await api.post("/farm/", payload);
         Swal.fire({
           icon: "success",
           title: "Success",
@@ -192,6 +187,7 @@ function ExpenseForm() {
         });
       }
       resetForm();
+      await fetchExpenses(); // Refetch to update totalAmount and expenses
     } catch (error) {
       console.error("Error saving expense:", error.response || error);
       Swal.fire({
@@ -221,14 +217,13 @@ function ExpenseForm() {
             id: id,
           };
           await api.delete("/farm/", { data: payload });
-          setExpenses(expenses.filter((item) => item.id !== id));
           Swal.fire({
             icon: "success",
             title: "Deleted!",
             text: "Expense has been deleted.",
           });
-          resetForm(); // Closes modal by setting isOpen to false
-          console.log("After resetForm: isOpen should be false");
+          resetForm();
+          await fetchExpenses(); // Refetch to update totalAmount and expenses
         } catch (error) {
           console.error("Error deleting expense:", error.response || error);
           Swal.fire({
@@ -240,6 +235,7 @@ function ExpenseForm() {
       }
     });
   };
+
   const resetForm = () => {
     setFormData({
       id: null,
@@ -279,25 +275,24 @@ function ExpenseForm() {
     setIsOpen(true);
   };
 
-const filteredExpenses = Array.isArray(expenses)
-  ? expenses.filter((item) => {
-      if (!item) return false;
+  const filteredExpenses = Array.isArray(expenses)
+    ? expenses.filter((item) => {
+        if (!item) return false;
 
-      const query = searchQuery.toLowerCase();
-      const description = item.description?.toLowerCase() || '';
-      const reason = item.reason?.toLowerCase() || '';
-      const amount = item.amount?.toString() || '';
-      const date = item.date_created?.toLowerCase() || '';
+        const query = searchQuery.toLowerCase();
+        const description = item.description?.toLowerCase() || "";
+        const reason = item.reason?.toLowerCase() || "";
+        const amount = item.amount?.toString() || "";
+        const date = item.date_created?.toLowerCase() || "";
 
-      return (
-        description.includes(query) ||
-        reason.includes(query) ||
-        amount.includes(query) ||
-        date.includes(query)
-      );
-    })
-  : [];
-
+        return (
+          description.includes(query) ||
+          reason.includes(query) ||
+          amount.includes(query) ||
+          date.includes(query)
+        );
+      })
+    : [];
 
   return (
     <div className="container mb-5 p-0">
@@ -306,6 +301,22 @@ const filteredExpenses = Array.isArray(expenses)
         <h2 className="fs-4 text-white m-0 d-flex align-items-center justify-content-center flex-grow-1">
           <FaMoneyBillWave className="me-2" /> {labels.title}
         </h2>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "1rem",
+          marginBottom: "1.5rem",
+          padding: "1rem",
+          backgroundColor: "rgb(248, 249, 250)",
+          borderRadius: "8px",
+          border: "1px solid rgb(222, 226, 230)",
+        }}
+      >
+        <h4 className="fs-5 text-success m-0">
+          {labels.totalAmount}: {totalAmount}
+        </h4>
       </div>
 
       <div className="d-flex align-items-center mb-3">

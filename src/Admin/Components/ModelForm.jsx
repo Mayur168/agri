@@ -18,7 +18,9 @@ import {
   FaFileAlt,
   FaTags,
   FaTruck,
+  FaUser,
 } from "react-icons/fa";
+import moment from "moment-timezone"; 
 
 const ModalForm = ({
   isOpen,
@@ -42,6 +44,7 @@ const ModalForm = ({
   isLoadingFertilizers,
   onEdit,
   viewMode,
+  farmers = [],
 }) => {
   if (!isOpen) return null;
 
@@ -69,17 +72,18 @@ const ModalForm = ({
     handleSave(e);
   };
 
-  // Custom function to format date as "DD-MMM-YYYY hh:mm AM/PM"
+  // Format date for display in IST (DD-MMM-YYYY hh:mm A)
   const formatDateForDisplay = (date) => {
-    if (!date) return "";
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = d.toLocaleString("en-US", { month: "short" });
-    const year = d.getFullYear();
-    const hours = String(d.getHours() % 12 || 12).padStart(2, "0");
-    const minutes = String(d.getMinutes()).padStart(2, "0");
-    const ampm = d.getHours() >= 12 ? "PM" : "AM";
-    return `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
+    console.log("formatDateForDisplay - Input date:", date); 
+    if (!date || !moment(date, "DD-MMM-YYYY hh:mm A", true).isValid()) {
+      console.log("formatDateForDisplay - Invalid date");
+      return "";
+    }
+    const formatted = moment(date, "DD-MMM-YYYY hh:mm A").format(
+      "DD-MMM-YYYY hh:mm A"
+    );
+    console.log("formatDateForDisplay - Formatted:", formatted);
+    return formatted;
   };
 
   return (
@@ -89,7 +93,6 @@ const ModalForm = ({
       role="dialog"
       style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
     >
-      {/* Inline styles for focus color */}
       <style>{`
         .form-control:focus,
         .form-select:focus {
@@ -114,11 +117,15 @@ const ModalForm = ({
                   ? labels[language].Edit_Fertilizer
                   : labels[language].addFertilizer
                 : formType === "adminExpense"
-                ? formData.id && isEditing
+                ? !isEditing
+                  ? labels[language].viewAdminExpense
+                  : formData.id
                   ? labels[language].modalTitleAdmin
                   : labels[language].addAdminExpense
                 : formType === "managerExpense"
-                ? formData.id
+                ? !isEditing
+                  ? labels[language].viewManagerExpense
+                  : formData.id
                   ? labels[language].modalTitleManager
                   : labels[language].addManagerExpense
                 : formType === "manager"
@@ -136,6 +143,8 @@ const ModalForm = ({
                 : formType === "billing"
                 ? formData.id && isEditing
                   ? labels[language].editBillingTitle
+                  : formData.id && !isEditing
+                  ? labels[language].viewBilling || "View Billing"
                   : labels[language].addBilling
                 : formType === "farm"
                 ? formData.id && !isEditing
@@ -143,6 +152,10 @@ const ModalForm = ({
                   : formData.id && isEditing
                   ? labels[language].editFarm
                   : labels[language].addFarm
+                : formType === "takenAmount"
+                ? isEditing
+                  ? labels[language].addTakenAmount || "Add Taken Amount"
+                  : labels[language].viewTakenAmount || "View Taken Amount"
                 : `Add ${
                     formType === "expense"
                       ? labels[language].adminExpense + " Expense"
@@ -437,44 +450,40 @@ const ModalForm = ({
                         </label>
                       </div>
                     </div>
-                    {isEditing && (
-                      <>
-                        <div className="col-md-6">
-                          <div className="form-floating">
-                            <input
-                              type="password"
-                              className="form-control"
-                              name="password"
-                              value={formData.password || ""}
-                              onChange={handleChange}
-                              placeholder={labels[language].password}
-                              disabled={!isEditing}
-                            />
-                            <label>
-                              <FaLock className="me-2 text-success" />{" "}
-                              {labels[language].password}
-                            </label>
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="form-floating">
-                            <input
-                              type="password"
-                              className="form-control"
-                              name="confirm_password"
-                              value={formData.confirm_password || ""}
-                              onChange={handleChange}
-                              placeholder={labels[language].confirmPassword}
-                              disabled={!isEditing}
-                            />
-                            <label>
-                              <FaLock className="me-2 text-success" />{" "}
-                              {labels[language].confirmPassword}
-                            </label>
-                          </div>
-                        </div>
-                      </>
-                    )}
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="password"
+                          value={formData.password || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].password}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaLock className="me-2 text-success" />{" "}
+                          {labels[language].password}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="confirm_password"
+                          value={formData.confirm_password || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].confirmPassword}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaLock className="me-2 text-success" />{" "}
+                          {labels[language].confirmPassword}
+                        </label>
+                      </div>
+                    </div>
                     <div className="col-md-6">
                       <div className="form-floating">
                         <select
@@ -663,28 +672,31 @@ const ModalForm = ({
                           className="form-control"
                           name="date"
                           value={
-                            formData.date
-                              ? new Date(
-                                  new Date(formData.date).getTime() +
-                                    5.5 * 60 * 60 * 1000
-                                )
-                                  .toISOString()
-                                  .slice(0, 16)
+                            formData.date &&
+                            moment(formData.date, "DD-MMM-YYYY hh:mm A", true).isValid()
+                              ? moment
+                                  .tz(formData.date, "DD-MMM-YYYY hh:mm A", "Asia/Kolkata")
+                                  .format("YYYY-MM-DDTHH:mm")
                               : ""
                           }
                           onChange={(e) => {
                             const isoDate = e.target.value;
+                            console.log("Date input changed:", isoDate); // Debug
                             if (isoDate) {
-                              const istDate = new Date(isoDate);
-                              const utcDate = new Date(
-                                istDate.getTime() - 5.5 * 60 * 60 * 1000
-                              );
-                              handleChange({
-                                target: {
-                                  name: "date",
-                                  value: utcDate.toISOString(),
-                                },
-                              });
+                              const istDate = moment.tz(isoDate, "Asia/Kolkata");
+                              if (istDate.isValid()) {
+                                handleChange({
+                                  target: {
+                                    name: "date",
+                                    value: istDate.format("DD-MMM-YYYY hh:mm A"),
+                                  },
+                                });
+                              } else {
+                                console.warn("Invalid date input:", isoDate);
+                                handleChange({
+                                  target: { name: "date", value: "" },
+                                });
+                              }
                             } else {
                               handleChange({
                                 target: { name: "date", value: "" },
@@ -968,60 +980,130 @@ const ModalForm = ({
                 {/* Admin Expense Form */}
                 {formType === "adminExpense" && (
                   <>
-                    <div className="col-md-6">
-                      <div className="form-floating">
-                        <input
-                          type="number"
-                          className="form-control"
-                          name="amount"
-                          value={formData.amount || ""}
-                          onChange={handleChange}
-                          placeholder={labels[language].amount}
-                          disabled={!isEditing}
-                        />
-                        <label>
-                          <FaRupeeSign className="me-2 text-success" />{" "}
-                          {labels[language].amount}
-                        </label>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="form-floating">
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="reason"
-                          value={formData.reason || ""}
-                          onChange={handleChange}
-                          placeholder={labels[language].reason}
-                          disabled={!isEditing}
-                        />
-                        <label>
-                          <FaFileAlt className="me-2 text-success" />{" "}
-                          {labels[language].reason}
-                        </label>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="form-floating">
-                        <input
-                          type="text"
-                          className="form-control"
-                          name="description"
-                          value={formData.description || ""}
-                          onChange={handleChange}
-                          placeholder={labels[language].description}
-                          disabled={!isEditing}
-                        />
-                        <label>
-                          <FaFileAlt className="me-2 text-success" />{" "}
-                          {labels[language].description}
-                        </label>
-                      </div>
-                    </div>
+                    {isEditing ? (
+                      <>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="number"
+                              className="form-control"
+                              name="amount"
+                              value={formData.amount || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].amount}
+                              disabled={!isEditing}
+                              step="0.01"
+                              min="0"
+                            />
+                            <label>
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="reason"
+                              value={formData.reason || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].reason}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].reason}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="description"
+                              value={formData.description || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].description}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].description}
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="amount"
+                              value={
+                                formData.amount ? `₹${formData.amount}` : "N/A"
+                              }
+                              disabled
+                            />
+                            <label>
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="reason"
+                              value={formData.reason || "N/A"}
+                              disabled
+                            />
+                            <label>
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].reason}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="description"
+                              value={formData.description || "N/A"}
+                              disabled
+                            />
+                            <label>
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].description}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="date_created"
+                              value={formData.date_created || "N/A"}
+                              disabled
+                            />
+                            <label>
+                              <FaCalendarAlt className="me-2 text-success" />{" "}
+                              {labels[language].dateCreated}
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </>
                 )}
-
                 {/* Manager Expense Form */}
                 {formType === "managerExpense" && (
                   <>
@@ -1037,6 +1119,8 @@ const ModalForm = ({
                               onChange={handleChange}
                               placeholder={labels[language].amount}
                               disabled={!isEditing}
+                              step="0.01"
+                              min="0"
                             />
                             <label>
                               <FaRupeeSign className="me-2 text-success" />{" "}
@@ -1080,36 +1164,212 @@ const ModalForm = ({
                         </div>
                       </>
                     ) : (
-                      <div className="row g-3">
+                      <>
                         <div className="col-md-6">
-                          <p>
-                            <strong>{labels[language].amount}:</strong>{" "}
-                            {formData.amount || "N/A"}
-                          </p>
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="amount"
+                              value={
+                                formData.amount ? `₹${formData.amount}` : "N/A"
+                              }
+                              disabled
+                            />
+                            <label>
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
+                            </label>
+                          </div>
                         </div>
                         <div className="col-md-6">
-                          <p>
-                            <strong>{labels[language].reason}:</strong>{" "}
-                            {formData.reason || "N/A"}
-                          </p>
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="reason"
+                              value={formData.reason || "N/A"}
+                              disabled
+                            />
+                            <label>
+                              <FaTags className="me-2 text-success" />{" "}
+                              {labels[language].reason}
+                            </label>
+                          </div>
                         </div>
                         <div className="col-md-12">
-                          <p>
-                            <strong>{labels[language].description}:</strong>{" "}
-                            {formData.description || "N/A"}
-                          </p>
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="description"
+                              value={formData.description || "N/A"}
+                              disabled
+                            />
+                            <label>
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].description}
+                            </label>
+                          </div>
                         </div>
                         <div className="col-md-6">
-                          <p>
-                            <strong>{labels[language].dateCreated}:</strong>{" "}
-                            {formData.date_created
-                              ? new Date(
-                                  formData.date_created
-                                ).toLocaleDateString()
-                              : "N/A"}
-                          </p>
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="date_created"
+                              value={formData.date_created || "N/A"}
+                              disabled
+                            />
+                            <label>
+                              <FaCalendarAlt className="me-2 text-success" />{" "}
+                              {labels[language].dateCreated}
+                            </label>
+                          </div>
                         </div>
-                      </div>
+                      </>
+                    )}
+                  </>
+                )}
+                {formType === "takenAmount" && (
+                  <>
+                    {isEditing ? (
+                      <>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="farmer"
+                              value={
+                                farmers.find((f) => f.id === formData.farmer)
+                                  ?.user?.first_name ||
+                                formData.farmer ||
+                                "N/A"
+                              }
+                              disabled
+                            />
+                            <label>
+                              <FaUser className="me-2 text-success" />{" "}
+                              {labels[language].farmer}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="number"
+                              className="form-control"
+                              name="taken_amount"
+                              value={formData.taken_amount || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].takenAmount}
+                              step="0.01"
+                              min="0"
+                            />
+                            <label>
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].takenAmount}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="number"
+                              className="form-control"
+                              name="pending_amount"
+                              value={formData.pending_amount || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].pendingAmount}
+                              step="0.01"
+                              min="0"
+                            />
+                            <label>
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].pendingAmount}
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="farmer"
+                              value={
+                                farmers.find((f) => f.id === formData.farmer)
+                                  ?.user?.first_name ||
+                                formData.farmer ||
+                                "N/A"
+                              }
+                              disabled
+                            />
+                            <label>
+                              <FaUser className="me-2 text-success" />{" "}
+                              {labels[language].farmer}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="taken_amount"
+                              value={
+                                formData.taken_amount
+                                  ? `₹${formData.taken_amount}`
+                                  : "N/A"
+                              }
+                              disabled
+                            />
+                            <label>
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].takenAmount}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="pending_amount"
+                              value={
+                                formData.pending_amount
+                                  ? `₹${formData.pending_amount}`
+                                  : "N/A"
+                              }
+                              disabled
+                            />
+                            <label>
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].pendingAmount}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="date_created"
+                              value={formatDateForDisplay(
+                                formData.date_created
+                              )}
+                              disabled
+                            />
+                            <label>
+                              <FaCalendarAlt className="me-2 text-success" />{" "}
+                              {labels[language].dateCreated}
+                            </label>
+                          </div>
+                        </div>
+                      </>
                     )}
                   </>
                 )}
@@ -1150,10 +1410,7 @@ const ModalForm = ({
                     className="btn btn-secondary btn-sm d-flex align-items-center"
                     onClick={onClose}
                   >
-                    <FaTimes className="me-2" />{" "}
-                    {formType === "managerExpense"
-                      ? labels[language].close
-                      : labels[language].cancel}
+                    <FaTimes className="me-2" /> {labels[language].cancel}
                   </button>
                 </>
               )}

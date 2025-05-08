@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
@@ -13,10 +15,12 @@ import {
   FaArrowRight,
   FaEdit,
   FaTrash,
+  FaLeaf,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import { FaWarehouse } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
-
+import moment from "moment-timezone"; // Use moment-timezone
 function Allfarms() {
   const { language } = useLanguage();
   const { user } = useContext(AuthContext);
@@ -41,27 +45,45 @@ function Allfarms() {
   const [isEditing, setIsEditing] = useState(false);
   const farmsPerPage = 10;
 
-  // Custom function to format date as "DD-MMM-YYYY hh:mm AM/PM"
+  // Format date for display in IST (DD-MMM-YYYY hh:mm A)
   const formatDateForDisplay = (date) => {
-    if (!date) return "";
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = d.toLocaleString("en-US", { month: "short" });
-    const year = d.getFullYear();
-    const hours = String(d.getHours() % 12 || 12).padStart(2, "0");
-    const minutes = String(d.getMinutes()).padStart(2, "0");
-    const ampm = d.getHours() >= 12 ? "PM" : "AM";
-    return `${day}-${month}-${year} ${hours}:${minutes} ${ampm}`;
+    console.log("formatDateForDisplay - Input date:", date); // Debug
+    if (!date) {
+      console.log("formatDateForDisplay - No date provided");
+      return "";
+    }
+    let parsedDate;
+    if (moment(date, "DD-MMM-YYYY hh:mm A", true).isValid()) {
+      parsedDate = moment.tz(date, "DD-MMM-YYYY hh:mm A", "Asia/Kolkata");
+    } else if (moment(date, moment.ISO_8601, true).isValid()) {
+      parsedDate = moment.tz(date, "Asia/Kolkata");
+    } else {
+      console.log("formatDateForDisplay - Invalid date format:", date);
+      return "";
+    }
+    const formatted = parsedDate.format("DD-MMM-YYYY hh:mm A");
+    console.log("formatDateForDisplay - Formatted:", formatted);
+    return formatted;
   };
 
-  // Convert date to IST and format for API
-  const convertToIST = (dateStr) => {
-    if (!dateStr) return "";
-    const date = new Date(dateStr);
-    // Convert to IST by adding 5 hours 30 minutes (UTC+5:30)
-    const istOffset = 5.5 * 60 * 60 * 1000; // 5 hours 30 minutes in milliseconds
-    const istDate = new Date(date.getTime() + istOffset);
-    return formatDateForDisplay(istDate);
+  const convertToUTC = (dateStr) => {
+    console.log("convertToUTC - Input date:", dateStr); // Debug
+    if (!dateStr) {
+      console.log("convertToUTC - No date provided");
+      return "";
+    }
+    let parsedDate;
+    if (moment(dateStr, "DD-MMM-YYYY hh:mm A", true).isValid()) {
+      parsedDate = moment.tz(dateStr, "DD-MMM-YYYY hh:mm A", "Asia/Kolkata");
+    } else if (moment(dateStr, moment.ISO_8601, true).isValid()) {
+      parsedDate = moment.tz(dateStr, "Asia/Kolkata");
+    } else {
+      console.log("convertToUTC - Invalid date format:", dateStr);
+      return "";
+    }
+    const formattedDate = parsedDate.format("DD-MMM-YYYY hh:mm A");
+    console.log("convertToUTC - Formatted Output:", formattedDate);
+    return formattedDate;
   };
 
   const labels = {
@@ -81,7 +103,7 @@ function Allfarms() {
       noFertilizers: "No fertilizers available for this farm.",
       noFertilizersPresent: "Fertilizers are not present.",
       edit: "Edit",
-      Edit_Fertilizer: "Edit Fertilizer", // Add this
+      Edit_Fertilizer: "Edit Fertilizer",
       delete: "Delete",
     },
     mr: {
@@ -207,7 +229,7 @@ function Allfarms() {
             fertilizer_id: item.fertilizer.id,
             fertilizer_name: item.fertilizer.name,
             farm_id: farmId,
-            date: item.date,
+            date: formatDateForDisplay(item.date),
           }))
         : [];
 
@@ -263,7 +285,7 @@ function Allfarms() {
     try {
       const payload = {
         fertilizer_id: Number(fertilizerFormData.fertilizer_id),
-        date: convertToIST(fertilizerFormData.date),
+        date: convertToUTC(fertilizerFormData.date),
         farm_id: selectedFarm?.id,
         action: "postFarmFertilizer",
       };
@@ -282,7 +304,7 @@ function Allfarms() {
           masterFertilizers.find((f) => f.id === response.data.data.fertilizer)
             ?.name || "Unknown",
         farm_id: response.data.data.farm,
-        date: response.data.data.date,
+        date: formatDateForDisplay(response.data.data.date),
       };
 
       setFertilizers((prevFertilizers) => {
@@ -379,7 +401,7 @@ function Allfarms() {
         id: fertilizerFormData.id,
         action: "patchFarmFertilizer",
         fertilizer_id: Number(fertilizerFormData.fertilizer_id),
-        date: convertToIST(fertilizerFormData.date),
+        date: convertToUTC(fertilizerFormData.date),
         farm_id: selectedFarm?.id,
       };
 
@@ -398,7 +420,7 @@ function Allfarms() {
             (f) => f.id === Number(fertilizerFormData.fertilizer_id)
           )?.name || "Unknown",
         farm_id: selectedFarm?.id,
-        date: response.data.data.date,
+        date: formatDateForDisplay(response.data.data.date),
       };
 
       setFertilizers((prevFertilizers) => {
@@ -466,7 +488,7 @@ function Allfarms() {
       id: fertilizer.id,
       fertilizer_id: fertilizer.fertilizer_id,
       farm_id: fertilizer.farm_id,
-      date: fertilizer.date,
+      date: fertilizer.date, // Already in "DD-MMM-YYYY hh:mm A" format
     });
     setIsEditing(true);
     setIsFertilizerModalOpen(true);
@@ -525,9 +547,6 @@ function Allfarms() {
         </div>
         <div className="card-body ">
           <div className="input-group mb-3">
-            {/* <span className="input-group-text bg-light">
-              <i className="fa fa-search"></i>
-            </span> */}
             <input
               type="search"
               className="form-control"
@@ -558,14 +577,9 @@ function Allfarms() {
                 style={{ cursor: "pointer" }}
                 onClick={() => handleFarmClick(farm)}
               >
-                {/* <div className="card-body"> */}
                 <li type="none" className="d-flex shadow-none">
-                  <h5 className="card-title text-success">
-                    {/* <FaTractor className="me-2" />  */}
-                    {farm.name}
-                  </h5>
+                  <h5 className="card-title text-success">{farm.name}</h5>
                 </li>
-                {/* </div> */}
               </div>
 
               {selectedFarm?.id === farm.id && (
