@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  FaUserTie,
-  FaPlus,
-  FaSave,
-  FaTrash,
-  FaTimes,
-  FaEye,
-} from "react-icons/fa";
+import { FaUserTie, FaPlus, FaEye } from "react-icons/fa";
 import "./villages.css";
 import BackButton from "../Components/BackButton";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -230,153 +223,207 @@ const ManagersList = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddManager = async (e) => {
-    e.preventDefault();
-    if (!formData.phone.trim() || !formData.first_name.trim()) {
-      Swal.fire({
-        icon: "error",
-        title: translations[language].toast.requiredFields,
+ const handleAddManager = async (e) => {
+  e.preventDefault();
+
+  // Validate required fields
+  if (!formData.phone.trim() || !formData.first_name.trim()) {
+    Swal.fire({
+      icon: "error",
+      title: translations[language].toast.requiredFields || "Please fill all required fields",
+      text: language === "en" ? "First name and phone number are required." : "प्रथम नाव आणि फोन नंबर आवश्यक आहेत.",
+    });
+    return;
+  }
+
+  // Validate phone number format
+  const phoneRegex = /^\d+$/; // Only digits
+  if (!phoneRegex.test(formData.phone.trim())) {
+    Swal.fire({
+      icon: "error",
+      title: translations[language].toast.invalidPhoneFormat || "Invalid phone number",
+      text: language === "en" ? "Phone number must contain only digits." : "फोन नंबरमध्ये फक्त अंक असावेत.",
+    });
+    return;
+  }
+
+  // Validate phone number length
+  if (formData.phone.trim().length !== 10) {
+    Swal.fire({
+      icon: "error",
+      title: translations[language].toast.invalidPhoneLength || "Invalid phone number length",
+      text: language === "en" ? "Phone number must be exactly 10 digits." : "फोन नंबर नेमके १० अंकांचा असावा.",
+    });
+    return;
+  }
+
+  // Validate password
+  if (!formData.password.trim()) {
+    Swal.fire({
+      icon: "error",
+      title: translations[language].toast.passwordRequired || "Password is required",
+      text: language === "en" ? "Please enter a valid password." : "कृपया वैध पासवर्ड प्रविष्ट करा.",
+    });
+    return;
+  }
+
+  // Validate confirm password
+  if (formData.password.trim() !== formData.confirm_password.trim()) {
+    Swal.fire({
+      icon: "error",
+      title: translations[language].toast.passwordsMismatch || "Passwords do not match",
+      text: language === "en" ? "The password and confirm password fields must match." : "पासवर्ड आणि पुष्टीकरण पासवर्ड फील्ड जुळले पाहिजेत.",
+    });
+    return;
+  }
+
+  // Confirm action
+  const confirmResult = await Swal.fire({
+    title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
+    text: language === "en" ? "Do you want to add this manager?" : "तुम्ही हा व्यवस्थापक जोडू इच्छिता?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: language === "en" ? "Yes, add it!" : "होय, जोडा!",
+    cancelButtonText: language === "en" ? "No, cancel!" : "नाही, रद्द करा!",
+  });
+
+  if (!confirmResult.isConfirmed) return;
+
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Unauthorized: No token found.");
+
+    let newUser;
+    if (formData.role === "Manager") {
+      const managerPayload = {
+        action: "postFarmManager",
+        user: {
+          first_name: formData.first_name.trim(),
+          last_name: formData.last_name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          password: formData.password.trim(),
+          confirm_password: formData.confirm_password.trim(),
+          is_admin: false,
+          is_manager: true,
+        },
+        farm_name: formData.farm_name.trim(),
+        farm_location: formData.farm_location.trim(),
+        manager_experience: parseInt(formData.manager_experience) || 0,
+      };
+
+      console.log("Manager Payload:", managerPayload);
+      const managerResponse = await api.post("/users/", managerPayload, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      return;
-    }
-    if (!formData.password.trim()) {
-      Swal.fire({
-        icon: "error",
-        title: translations[language].toast.passwordRequired,
+      console.log("API Response:", managerResponse.data);
+      newUser = managerResponse.data.data;
+    } else {
+      const userPayload = {
+        action: "postFarmer",
+        user: {
+          first_name: formData.first_name.trim(),
+          last_name: formData.last_name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          password: formData.password.trim(),
+          confirm_password: formData.confirm_password.trim(),
+          is_admin: true,
+          is_manager: false,
+        },
+        farm_name: formData.farm_name.trim() || "",
+        farm_location: formData.farm_location.trim() || "",
+        farm_size: formData.farm_size.trim() ? parseInt(formData.farm_size) : 0,
+      };
+
+      console.log("Admin Payload:", userPayload);
+      const userResponse = await api.post("/users/", userPayload, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      return;
-    }
-    if (formData.password.trim() !== formData.confirm_password.trim()) {
-      Swal.fire({
-        icon: "error",
-        title: translations[language].toast.passwordsMismatch,
-      });
-      return;
+      console.log("API Response:", userResponse.data);
+      newUser = userResponse.data.data;
     }
 
-    const confirmResult = await Swal.fire({
-      title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
-      text:
-        language === "en"
-          ? "Do you want to add this manager?"
-          : "तुम्ही हा व्यवस्थापक जोडू इच्छिता?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: language === "en" ? "Yes, add it!" : "होय, जोडा!",
-      cancelButtonText: language === "en" ? "No, cancel!" : "नाही, रद्द करा!",
+    // Update state and local storage
+    if (formData.role === "Manager") {
+      const updatedManagers = [newUser, ...managers];
+      setManagers(updatedManagers);
+      localStorage.setItem("managers", JSON.stringify(updatedManagers));
+    } else {
+      const updatedAdmins = [newUser, ...admins];
+      setAdmins(updatedAdmins);
+      localStorage.setItem("admins", JSON.stringify(updatedAdmins));
+      if (viewMode === "admins") {
+        await handleViewAdmin();
+      }
+    }
+
+    // Show success message
+    Swal.fire({
+      icon: "success",
+      title:
+        formData.role === "Manager"
+          ? translations[language].toast.managerAddedSuccess || "Manager added successfully!"
+          : translations[language].toast.adminAddedSuccess || "Admin added successfully!",
+      showConfirmButton: false,
+      timer: 2000,
     });
 
-    if (!confirmResult.isConfirmed) return;
+    // Reset form and close modal
+    setShowModal(false);
+    setFormData({
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirm_password: "",
+      role: "Manager",
+      farm_name: "",
+      farm_location: "",
+      farm_size: "",
+      manager_experience: "",
+    });
+  } catch (err) {
+    console.error("API Error (Add Manager):", err.response || err);
 
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Unauthorized: No token found.");
-
-      let newUser;
-      if (formData.role === "Manager") {
-        const managerPayload = {
-          action: "postFarmManager",
-          user: {
-            first_name: formData.first_name.trim(),
-            last_name: formData.last_name.trim(),
-            email: formData.email.trim(),
-            phone: formData.phone.trim(),
-            password: formData.password.trim(),
-            confirm_password: formData.confirm_password.trim(),
-            is_admin: false,
-            is_manager: true,
-          },
-          farm_name: formData.farm_name.trim(),
-          farm_location: formData.farm_location.trim(),
-          manager_experience: parseInt(formData.manager_experience) || 0,
-        };
-
-        console.log("Manager Payload:", managerPayload);
-        const managerResponse = await api.post("/users/", managerPayload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log("API Response:", managerResponse.data);
-        newUser = managerResponse.data.data;
-      } else {
-        const userPayload = {
-          action: "postFarmer",
-          user: {
-            first_name: formData.first_name.trim(),
-            last_name: formData.last_name.trim(),
-            email: formData.email.trim(),
-            phone: formData.phone.trim(),
-            password: formData.password.trim(),
-            confirm_password: formData.confirm_password.trim(),
-            is_admin: true,
-            is_manager: false,
-          },
-          farm_name: formData.farm_name.trim() || "",
-          farm_location: formData.farm_location.trim() || "",
-          farm_size: formData.farm_size.trim()
-            ? parseInt(formData.farm_size)
-            : 0,
-        };
-
-        console.log("Admin Payload:", userPayload);
-        const userResponse = await api.post("/users/", userPayload, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        console.log("API Response:", userResponse.data);
-        newUser = userResponse.data.data;
-      }
-
-      if (formData.role === "Manager") {
-        const updatedManagers = [newUser, ...managers];
-        setManagers(updatedManagers);
-        localStorage.setItem("managers", JSON.stringify(updatedManagers));
-      } else {
-        const updatedAdmins = [newUser, ...admins];
-        setAdmins(updatedAdmins);
-        localStorage.setItem("admins", JSON.stringify(updatedAdmins));
-        if (viewMode === "admins") {
-          await handleViewAdmin();
-        }
-      }
-
+    // Handle specific error cases
+    const errorMsg = err.response?.data?.error_msg?.toLowerCase() || err.response?.data?.message?.toLowerCase() || "";
+    if (errorMsg.includes("user_email_key")) {
       Swal.fire({
-        icon: "success",
-        title:
-          formData.role === "Manager"
-            ? translations[language].toast.managerAddedSuccess
-            : translations[language].toast.adminAddedSuccess,
-        showConfirmButton: false,
-        timer: 2000,
+        icon: "error",
+        title: language === "en" ? "Email already exists" : translations[language].toast.emailExists || "ईमेल आधीपासून अस्तित्वात आहे",
+        text: language === "en" ? "Please use a different email address." : "कृपया वेगळा ईमेल पत्ता वापरा.",
       });
-
-      setShowModal(false);
-      setFormData({
-        first_name: "",
-        last_name: "",
-        email: "",
-        phone: "",
-        password: "",
-        confirm_password: "",
-        role: "Manager",
-        farm_name: "",
-        farm_location: "",
-        farm_size: "",
-        manager_experience: "",
+    } else if (errorMsg.includes("user_phone_key")) {
+      Swal.fire({
+        icon: "error",
+        title: language === "en" ? "Phone number already exists" : translations[language].toast.phoneExists || "फोन नंबर आधीपासून अस्तित्वात आहे",
+        text: language === "en" ? "Please use a different phone number." : "कृपया वेगळा फोन नंबर वापरा.",
       });
-    } catch (err) {
-      console.error("API Error (Add Manager):", err.response || err);
+    } else if (errorMsg.includes("password")) {
+      Swal.fire({
+        icon: "error",
+        title: language === "en" ? "Invalid password" : translations[language].toast.invalidPassword || "अवैध पासवर्ड",
+        text: language === "en" ? "Please ensure the password meets the requirements." : "कृपया पासवर्ड आवश्यकता पूर्ण करते याची खात्री करा.",
+      });
+    } else {
+      // Handle other errors
       Swal.fire({
         icon: "error",
         title:
+          language === "en" ? err.response?.data?.message || "Failed to add manager" : err.response?.data?.message || translations[language].toast.addManagerError || "व्यवस्थापक जोडण्यात अयशस्वी",
+        text:
           formData.role !== "Manager"
-            ? "You are not a super farmer"
-            : err.response?.data?.message ||
-              translations[language].toast.addManagerError,
+            ? language === "en" ? "You are not a super farmer." : "तुम्ही सुपर शेतकरी नाही."
+            : language === "en" ? "An error occurred while adding the manager." : "व्यवस्थापक जोडताना त्रुटी आली.",
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleViewAdmin = async () => {
     setFetchLoading(true);

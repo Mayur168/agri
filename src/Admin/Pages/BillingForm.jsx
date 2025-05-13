@@ -27,8 +27,8 @@ const Billing = () => {
       editBillingTitle: "Edit Billing",
       searchPlaceholder: "Search by date...",
       noBillingsFound: "No billings found.",
-      farm: "Farm",
-      product: "Product",
+      farm: "Farm Name",
+      product: "Product Name",
       billDate: "Bill Date",
       traderName: "Trader Name",
       vehicleNumber: "Vehicle Number",
@@ -37,7 +37,8 @@ const Billing = () => {
       leaves: "Leaves (per kg)",
       weight: "Weight (per kg)",
       travellingAmount: "Travelling Amount",
-      totalAmount: "Total Amount",
+      managerAmount: "manager_amount",
+      totalAmount: "total_amount",
       finalAmount: "Final Amount",
       actions: "Actions",
       submit: "Save",
@@ -53,8 +54,8 @@ const Billing = () => {
       editBillingTitle: "बिलिंग संपादित करा",
       searchPlaceholder: "तारखेनुसार शोधा..",
       noBillingsFound: "कोणतेही बिलिंग सापडले नाही.",
-      farm: "शेत",
-      product: "उत्पादन",
+      farm: "शेतीचे नाव",
+      product: "उत्पादनाचे नाव",
       billDate: "बिल तारीख",
       traderName: "व्यापारी नाव",
       vehicleNumber: "वाहन क्रमांक",
@@ -62,8 +63,9 @@ const Billing = () => {
       trees: "झाडे",
       leaves: "पाने (प्रति किलो)",
       weight: "वजन (प्रति किलो)",
-      travellingAmount: "प्रवास खर्च",
+      "व्यवस्थापक रक्कम": "प्रवास खर्च",
       totalAmount: "एकूण रक्कम",
+      managerAmount: "व्यवस्थापक रक्कम",
       finalAmount: "अंतिम रक्कम",
       actions: "क्रिया",
       submit: "जतन करा",
@@ -84,13 +86,12 @@ const Billing = () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       const farmerId = user?.farmer_id;
-      const Id = user?.id; // Get the user ID from the user object
+      const Id = user?.id; 
 
       if (!farmerId) {
         throw new Error("Farmer ID not found in user data");
       }
 
-      // Add user_created filter to the API query
       const response = await api.get(
         `/billing/?action=getBilling&farmer=${farmerId}&user_created=${Id}`
       );
@@ -171,12 +172,14 @@ const Billing = () => {
     setIsEditing(true);
     setIsModalOpen(true);
   };
-
   const handleView = (billing) => {
+    console.log("Setting total_amount:", billing.total_amount); // Debug: Check total_amount
     setFormData({
       id: billing.id,
-      farm_id: billing.farm_id || "", // Use farm_id instead of farm name
-      product_id: billing.product_id || "", // Use product_id instead of product name
+      farm_id: billing.farm.id || "", 
+      farm_name: billing.farm.name || "", 
+      product_id: billing.product.id || "", 
+      product_name: billing.product.name || "", 
       bill_date: billing.bill_date || "",
       trader_name: billing.trader_name || "",
       vehicle_number: billing.vehicle_number || "",
@@ -185,28 +188,13 @@ const Billing = () => {
       leaves: billing.leaves || "",
       weight: billing.weight || "",
       travelling_amount: billing.travelling_amount || "",
+      manager_amount: billing.manager_amount || "0",
+      total_amount: billing.total_amount || "",
+
     });
     setIsEditing(false);
     setIsModalOpen(true);
   };
-
-  // const handleEdit = (billing) => {
-  //   setFormData({
-  //     id: billing.id,
-  //     farm_id: billing.farm_id || "", // Use farm_id instead of farm name
-  //     product_id: billing.product_id || "", // Use product_id instead of product name
-  //     bill_date: billing.bill_date || "",
-  //     trader_name: billing.trader_name || "",
-  //     vehicle_number: billing.vehicle_number || "",
-  //     rate: billing.rate || "",
-  //     trees: billing.trees || "",
-  //     leaves: billing.leaves || "",
-  //     weight: billing.weight || "",
-  //     travelling_amount: billing.travelling_amount || "",
-  //   });
-  //   setIsEditing(true);
-  //   setIsModalOpen(true);
-  // };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -243,45 +231,10 @@ const Billing = () => {
     }
   };
 
-  // const handlePatchBilling = async () => {
-  //   try {
-  //     const payload = {
-  //       action: "patchBilling",
-  //       id: formData.id,
-  //       farm_id: parseInt(formData.farm_id),
-  //       product_id: parseInt(formData.product_id),
-  //       bill_date: formData.bill_date,
-  //       trader_name: formData.trader_name,
-  //       vehicle_number: formData.vehicle_number,
-  //       rate: parseFloat(formData.rate),
-  //       trees: parseInt(formData.trees),
-  //       leaves: parseInt(formData.leaves),
-  //       weight: parseFloat(formData.weight),
-  //       travelling_amount: parseFloat(formData.travelling_amount),
-  //     };
-
-  //     await api.patch("/billing/", payload);
-  //     Swal.fire("Success", translations[language].submit, "success");
-  //     fetchBillings();
-  //     setIsModalOpen(false);
-  //   } catch (error) {
-  //     console.error("Error updating billing:", error);
-  //     Swal.fire(
-  //       "Error",
-  //       error.response?.data?.message || "Failed to update billing.",
-  //       "error"
-  //     );
-  //   }
-  // };
-
-  const handleSave = async () => {
-    // if (formData.id) {
-    //   await handlePatchBilling();
-    // } else {
-    //   await 
-    handlePostBilling();
-    }
   
+  const handleSave = async () => {
+    handlePostBilling();
+  };
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
@@ -319,7 +272,6 @@ const Billing = () => {
   };
 
   const filteredBillings = billings.filter((billing) => {
-    // Helper function to safely get a searchable string
     const getSearchableString = (value) => {
       if (typeof value === "string") return value.toLowerCase();
       if (value && typeof value === "object" && value.name)
@@ -330,11 +282,13 @@ const Billing = () => {
     const traderName = getSearchableString(billing.trader_name);
     const billDate = getSearchableString(billing.bill_date);
     const farm = getSearchableString(billing.farm);
+    const product = getSearchableString(billing.product);
 
     return (
       traderName.includes(searchQuery.toLowerCase()) ||
       billDate.includes(searchQuery.toLowerCase()) ||
-      farm.includes(searchQuery.toLowerCase())
+      farm.includes(searchQuery.toLowerCase()) ||
+      product.includes(searchQuery.toLowerCase())
     );
   });
   return (
@@ -379,11 +333,9 @@ const Billing = () => {
                   Serial Number
                 </th>
                 <th scope="col">{translations[language].farm}</th>
+                <th scope="col">{translations[language].product}</th>
                 <th scope="col">{translations[language].billDate}</th>
                 <th scope="col">{translations[language].traderName}</th>
-                <th scope="col">{translations[language].totalAmount}</th>
-                <th scope="col">{translations[language].travellingAmount}</th>
-                <th scope="col">{translations[language].finalAmount}</th>
                 <th scope="col">{translations[language].actions}</th>
               </tr>
             </thead>
@@ -396,13 +348,16 @@ const Billing = () => {
                       style={{ cursor: "pointer" }}
                       onClick={() => handleView(billing)}
                     >
-                      {billing.farm}
+                      {billing.farm.name || "N/A"}
+                    </td>
+                    <td
+                      style={{ cursor: "pointer" }}
+                      onClick={() => handleView(billing)}
+                    >
+                      {billing.product.name || "N/A"}
                     </td>
                     <td>{billing.bill_date}</td>
                     <td>{billing.trader_name}</td>
-                    <td>{billing.total_amount}</td>
-                    <td>{billing.travelling_amount}</td>
-                    <td>{billing.final_amount}</td>
                     <td>
                       <div className="d-flex gap-2">
                         <button
@@ -412,13 +367,6 @@ const Billing = () => {
                         >
                           <FaEye />
                         </button>
-                        {/* <button
-                          className="btn btn-primary btn-sm d-flex align-items-center"
-                          onClick={() => handleEdit(billing)}
-                          title={translations[language].edit}
-                        >
-                          <FaEdit />
-                        </button> */}
                         <button
                           className="btn btn-danger btn-sm d-flex align-items-center"
                           onClick={() => handleDelete(billing.id)}
@@ -461,146 +409,7 @@ const Billing = () => {
       />
     </div>
   );
+
+
 };
-
 export default Billing;
-//   return (
-//     <div className="container p-0">
-//       <div className="mb-3 d-flex align-items-center py-3 header-container bg-success">
-//         <BackButton className="backbtn fs-4 ms-2" />
-//         <h2 className="fs-4 text-white m-0 d-flex align-items-center justify-content-center flex-grow-1">
-//           <FaFileAlt className="me-2" /> {translations[language].title}
-//         </h2>
-//       </div>
-
-//       <div className="container">
-//         <div className="d-flex flex-nowrap ms-auto align-items-center justify-content-center gap-1 flex-md-wrap">
-//           <div className="input-group" style={{ flex: "1", width: "180px" }}>
-//             <input
-//               type="search"
-//               className="form-control rounded border-success"
-//               placeholder={translations[language].searchPlaceholder}
-//               value={searchQuery}
-//               onChange={(e) => setSearchQuery(e.target.value)}
-//             />
-//           </div>
-//           <button
-//             className="btn btn-success btn-sm fw-bold d-flex align-items-center p-2"
-//             onClick={handleAdd}
-//           >
-//             <FaPlus className="me-2" /> {translations[language].addBilling}
-//           </button>
-//         </div>
-//       </div>
-
-//       <div className="table-responsive mt-3">
-//         {fetchLoading && billings.length === 0 ? (
-//           <div className="text-center m-auto">
-//             <Spinner />
-//           </div>
-//         ) : (
-//           <table className="table table-striped table-bordered">
-//             <thead className="bg-dark text-white">
-//               <tr>
-//                 <th scope="col" className="d-none d-md-table-cell">
-//                   Serial Number
-//                 </th>
-//                 <th scope="col">{translations[language].farm}</th>
-//                 {/* <th scope="col" className="d-none d-md-table-cell">
-//                   {translations[language].product}
-//                 </th> */}
-//                 <th scope="col">{translations[language].billDate}</th>
-//                 <th scope="col">{translations[language].traderName}</th>
-//                 {/* <th scope="col" className="d-none d-md-table-cell">
-//                   {translations[language].rate}
-//                 </th>
-//                 <th scope="col" className="d-none d-md-table-cell">
-//                   {translations[language].trees}
-//                 </th>
-//                 <th scope="col" className="d-none d-md-table-cell">
-//                   {translations[language].leaves}
-//                 </th>
-//                 <th scope="col" className="d-none d-md-table-cell">
-//                   {translations[language].weight}
-//                 </th> */}
-//                 <th scope="col">{translations[language].totalAmount}</th>
-//                 <th scope="col">{translations[language].travellingAmount}</th>
-//                 <th scope="col">{translations[language].finalAmount}</th>
-//                 <th scope="col">{translations[language].actions}</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {filteredBillings.length > 0 ? (
-//                 filteredBillings.map((billing) => (
-//                   <tr key={billing.id}>
-//                     <td className="d-none d-md-table-cell">{billing.id}</td>
-//                     <td
-//                       style={{ cursor: "pointer" }}
-//                       onClick={() => handleView(billing)}
-//                     >
-//                       {billing.farm}
-//                     </td>
-//                     {/* <td className="d-none d-md-table-cell">{billing.product}</td> */}
-//                     <td>{billing.bill_date}</td>
-//                     <td>{billing.trader_name}</td>
-//                     {/* <td className="d-none d-md-table-cell">{billing.rate}</td>
-//                     <td className="d-none d-md-table-cell">{billing.trees}</td>
-//                     <td className="d-none d-md-table-cell">{billing.leaves}</td>
-//                     <td className="d-none d-md-table-cell">{billing.weight}</td> */}
-//                     <td>{billing.total_amount}</td>
-//                     <td>{billing.travelling_amount}</td>
-//                     <td>{billing.final_amount}</td>
-//                     <td>
-//                       <div className="d-flex gap-2">
-//                         <button
-//                           className="btn btn-primary btn-sm d-flex align-items-center"
-//                           onClick={() => handleEdit(billing)}
-//                           title={translations[language].edit}
-//                         >
-//                           <FaEdit />
-//                         </button>
-//                         <button
-//                           className="btn btn-danger btn-sm d-flex align-items-center"
-//                           onClick={() => handleDelete(billing.id)}
-//                           title={translations[language].delete}
-//                         >
-//                           <FaTrash />
-//                         </button>
-//                       </div>
-//                     </td>
-//                   </tr>
-//                 ))
-//               ) : (
-//                 <tr>
-//                   <td colSpan="13" className="text-center">
-//                     {translations[language].noBillingsFound}
-//                   </td>
-//                 </tr>
-//               )}
-//             </tbody>
-//           </table>
-//         )}
-//       </div>
-
-//       <ModalForm
-//         isOpen={isModalOpen}
-//         onClose={() => setIsModalOpen(false)}
-//         isEditing={isEditing}
-//         formData={formData}
-//         labels={translations}
-//         handleChange={handleChange}
-//         handleSave={handleSave}
-//         handleDelete={handleDelete}
-//         language={language}
-//         formType="billing"
-//         farms={farms}
-//         products={products}
-//         fetchFarms={fetchFarms}
-//         isLoadingFarms={isLoadingFarms}
-//         isLoadingProducts={isLoadingProducts}
-//       />
-//     </div>
-//   );
-// };
-
-// export default Billing;

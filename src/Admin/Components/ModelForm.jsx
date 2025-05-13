@@ -1,4 +1,3 @@
-
 import Swal from "sweetalert2";
 import {
   FaMapMarkerAlt,
@@ -20,7 +19,7 @@ import {
   FaTruck,
   FaUser,
 } from "react-icons/fa";
-import moment from "moment-timezone"; 
+import moment from "moment-timezone";
 
 const ModalForm = ({
   isOpen,
@@ -41,7 +40,7 @@ const ModalForm = ({
   isLoadingProducts,
   managers = [],
   fertilizers = [],
-  isLoadingFertilizers,
+  // isLoadingFertilizers,
   onEdit,
   viewMode,
   farmers = [],
@@ -74,7 +73,7 @@ const ModalForm = ({
 
   // Format date for display in IST (DD-MMM-YYYY hh:mm A)
   const formatDateForDisplay = (date) => {
-    console.log("formatDateForDisplay - Input date:", date); 
+    console.log("formatDateForDisplay - Input date:", date);
     if (!date || !moment(date, "DD-MMM-YYYY hh:mm A", true).isValid()) {
       console.log("formatDateForDisplay - Invalid date");
       return "";
@@ -673,9 +672,17 @@ const ModalForm = ({
                           name="date"
                           value={
                             formData.date &&
-                            moment(formData.date, "DD-MMM-YYYY hh:mm A", true).isValid()
+                            moment(
+                              formData.date,
+                              "DD-MMM-YYYY hh:mm A",
+                              true
+                            ).isValid()
                               ? moment
-                                  .tz(formData.date, "DD-MMM-YYYY hh:mm A", "Asia/Kolkata")
+                                  .tz(
+                                    formData.date,
+                                    "DD-MMM-YYYY hh:mm A",
+                                    "Asia/Kolkata"
+                                  )
                                   .format("YYYY-MM-DDTHH:mm")
                               : ""
                           }
@@ -683,12 +690,17 @@ const ModalForm = ({
                             const isoDate = e.target.value;
                             console.log("Date input changed:", isoDate); // Debug
                             if (isoDate) {
-                              const istDate = moment.tz(isoDate, "Asia/Kolkata");
+                              const istDate = moment.tz(
+                                isoDate,
+                                "Asia/Kolkata"
+                              );
                               if (istDate.isValid()) {
                                 handleChange({
                                   target: {
                                     name: "date",
-                                    value: istDate.format("DD-MMM-YYYY hh:mm A"),
+                                    value: istDate.format(
+                                      "DD-MMM-YYYY hh:mm A"
+                                    ),
                                   },
                                 });
                               } else {
@@ -923,24 +935,6 @@ const ModalForm = ({
                         <input
                           type="number"
                           className="form-control"
-                          name="leaves"
-                          value={formData.leaves || ""}
-                          onChange={handleChange}
-                          placeholder={labels[language].leaves}
-                          disabled={!isEditing}
-                          min="0"
-                        />
-                        <label>
-                          <FaLeaf className="me-2 text-success" />{" "}
-                          {labels[language].leaves}
-                        </label>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <div className="form-floating">
-                        <input
-                          type="number"
-                          className="form-control"
                           name="weight"
                           value={formData.weight || ""}
                           onChange={handleChange}
@@ -960,6 +954,25 @@ const ModalForm = ({
                         <input
                           type="number"
                           className="form-control"
+                          name="leaves"
+                          value={formData.leaves || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].leaves}
+                          disabled={!isEditing}
+                          min="0"
+                        />
+                        <label>
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].leaves}
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="number"
+                          className="form-control"
                           name="travelling_amount"
                           value={formData.travelling_amount || ""}
                           onChange={handleChange}
@@ -974,6 +987,47 @@ const ModalForm = ({
                         </label>
                       </div>
                     </div>
+
+                    {formData.id && !isEditing && (
+                      <div className="col-md-6">
+                        <div className="form-floating">
+                          <input
+                            type="number"
+                            className="form-control"
+                            name="manager_amount"
+                            value={formData.manager_amount || ""}
+                            placeholder={labels[language].managerAmount}
+                            disabled={true}
+                            step="0.01"
+                            min="0"
+                          />
+                          <label>
+                            <FaRupeeSign className="me-2 text-success" />{" "}
+                            {labels[language].managerAmount}
+                          </label>
+                        </div>
+                      </div>
+                    )}
+                     {formData.id && !isEditing && (
+                      <div className="col-md-6">
+                        <div className="form-floating">
+                          <input
+                            type="number"
+                            className="form-control"
+                            name="total_amount"
+                            value={formData.total_amount || ""}
+                            placeholder={labels[language].totalAmount}
+                            disabled={true}
+                            step="0.01"
+                            min="0"
+                          />
+                          <label>
+                            <FaRupeeSign className="me-2 text-success" />{" "}
+                            {labels[language].totalAmount}
+                          </label>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
 
