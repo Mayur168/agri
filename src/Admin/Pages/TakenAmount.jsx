@@ -1,16 +1,29 @@
 import React, { useState, useEffect } from "react";
 import ModalForm from "../../Admin/Components/ModelForm";
 import Swal from "sweetalert2";
-import { FaEye, FaFileAlt, FaPlus, FaRupeeSign, FaUser, FaCalendarAlt, FaMoneyBillWave } from "react-icons/fa";
+import {
+  FaEye,
+  FaPlus,
+  FaRupeeSign,
+  FaUser,
+  FaCalendarAlt,
+} from "react-icons/fa";
 import api from "../../Api/axiosInstance";
 import Spinner from "../Spinner/Spinner";
 import BackButton from "../Components/BackButton";
 import { useLanguage } from "../../contexts/LanguageContext";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Header from "../Components/Header";
+import { translations } from "../Components/translations/index";
 
-const FarmerAmount = () => {
+const TakenAmount = () => {
   const { language } = useLanguage();
   const [amounts, setAmounts] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0); 
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [pendingAmount, setPendingAmount] = useState(0);
+  const [amountHistory, setAmountHistory] = useState([]);
+  const [filteredAmountHistory, setFilteredAmountHistory] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     farmer: null,
@@ -19,49 +32,12 @@ const FarmerAmount = () => {
   });
   const [selectedAmount, setSelectedAmount] = useState(null);
   const [fetchLoading, setFetchLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [farmers, setFarmers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const pageSize = 10;
 
-  const translations = {
-    en: {
-      title: "Farmer Amount",
-      addTakenAmount: "Add Amount",
-      searchPlaceholder: "Search by date...",
-      noTakenAmounts: "No amounts found.",
-      farmer: "Farmer",
-      takenAmount: "Taken Amount",
-      pendingAmount: "Pending Amount",
-      dateCreated: "Date Created",
-      actions: "Actions",
-      submit: "Save",
-      cancel: "Close",
-      view: "View",
-      previous: "Previous",
-      next: "Next",
-      totalAmount: "Total Taken Amount",
-    },
-    mr: {
-      title: "शेतकरी रक्कम",
-      addTakenAmount: "रक्कम जोडा",
-      searchPlaceholder: "तारखेनुसार शोधा..",
-      noTakenAmounts: "कोणताही रक्कम सापडली नाही.",
-      farmer: "शेतकरी",
-      takenAmount: "घेतलेली रक्कम",
-      pendingAmount: "प्रलंबित रक्कम",
-      dateCreated: "निर्मिती तारीख",
-      actions: "क्रिया",
-      submit: "जतन करा",
-      cancel: "बंद करा",
-      view: "पहा",
-      previous: "मागील",
-      next: "पुढे",
-      totalAmount: "एकूण घेतलेली रक्कम",
-    },
-  };
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -80,18 +56,35 @@ const FarmerAmount = () => {
     fetchAmounts(farmerId, currentPage);
   }, [currentPage]);
 
+  useEffect(() => {
+    setFilteredAmountHistory(amountHistory);
+  }, [amountHistory]);
+
   const fetchAmounts = async (farmerId, page) => {
     setFetchLoading(true);
     try {
-      const response = await api.get(`/farm/?action=getFarmerAmount&farmer=${farmerId}&page=${page}&page_size=${pageSize}`);
+      const response = await api.get(
+        `/farm/?action=getFarmerAmount&farmer=${farmerId}&page=${page}&page_size=${pageSize}`
+      );
       const amountsData = response.data.data || [];
-      const totalAmountData = response.data.total_amount || amountsData.reduce((sum, item) => sum + (parseFloat(item.taken_amount) || 0), 0);
+      const totalAmountData = amountsData.reduce(
+        (sum, item) => sum + (parseFloat(item.taken_amount) || 0),
+        0
+      );
+      const pendingAmountData = amountsData.reduce(
+        (sum, item) => sum + (parseFloat(item.pending_amount) || 0),
+        0
+      );
+      const history = amountsData[0]?.amount_history || [];
+
       setAmounts(amountsData);
       setTotalAmount(totalAmountData);
+      setPendingAmount(pendingAmountData);
+      setAmountHistory(history);
+      setFilteredAmountHistory(history); // Initialize filtered history
       setTotalPages(response.data.total_pages || 1);
       setHasMore(response.data.has_more || false);
     } catch (error) {
-      console.error("Error fetching amounts:", error);
       Swal.fire(
         "Error",
         error.response?.data?.message || translations[language].noTakenAmounts,
@@ -99,6 +92,9 @@ const FarmerAmount = () => {
       );
       setAmounts([]);
       setTotalAmount(0);
+      setPendingAmount(0);
+      setAmountHistory([]);
+      setFilteredAmountHistory([]);
     } finally {
       setFetchLoading(false);
     }
@@ -145,16 +141,20 @@ const FarmerAmount = () => {
         action: "postFarmerAmount",
         farmer: formData.farmer,
         taken_amount: parseFloat(formData.taken_amount) || 0,
-        pending_amount: parseFloat(formData.pending_amount) || 0,
+        pending_amount: 0,
       };
 
-      await api.post("/farm/", payload);
+      const response = await api.post("/farm/", payload);
+      const updatedData = response.data.data;
+      setAmounts([updatedData]);
+      setTotalAmount(updatedData.taken_amount || 0);
+      setPendingAmount(updatedData.pending_amount || 0);
+      setAmountHistory(updatedData.amount_history || []);
+
       Swal.fire("Success", translations[language].submit, "success");
-      fetchAmounts(formData.farmer, currentPage); // Refetch to update totalAmount
       setIsModalOpen(false);
       setSelectedAmount(null);
     } catch (error) {
-      console.error("Error posting amount:", error);
       Swal.fire(
         "Error",
         error.response?.data?.message || "Failed to post amount.",
@@ -168,8 +168,15 @@ const FarmerAmount = () => {
   };
 
   const handleSearch = (e) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1);
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    setFilteredAmountHistory(
+      amountHistory.filter(
+        (history) =>
+          formatDateForDisplay(history.date).toLowerCase().includes(query) ||
+          history.amount.toString().toLowerCase().includes(query)
+      )
+    );
   };
 
   const handlePrevious = () => {
@@ -184,19 +191,6 @@ const FarmerAmount = () => {
     }
   };
 
- 
-  const filteredAmounts = amounts.filter((amount) => {
-    const query = searchQuery.toLowerCase();
-    const date = amount.date_created?.toLowerCase() || "";
-    const takenAmount = amount.taken_amount?.toString() || "";
-    const pendingAmount = amount.pending_amount?.toString() || "";
-    return (
-      date.includes(query) ||
-      takenAmount.includes(query) ||
-      pendingAmount.includes(query)
-    );
-  });
-
   const formatDateForDisplay = (date) => {
     if (!date) return "N/A";
     const d = new Date(date);
@@ -204,167 +198,187 @@ const FarmerAmount = () => {
       year: "numeric",
       month: "long",
       day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   };
 
   return (
-    <div className="container mt-1 px-0">
-      <div className="bg-success text-white py-2 rounded px-3 d-flex align-items-center justify-content-between flex-column gap-1">
-        <div className="d-flex align-items-center justify-content-between w-100">
-          <BackButton className="backbtn fs-4" />
-          <h2 className="text-white m-0 flex-grow-1 text-center me-4">
-            <FaRupeeSign className="me-2" /> {translations[language].title}
-          </h2>
-        </div>
-        <div className="input-group rounded my-2 container">
-          <input
-            type="search"
-            className="form-control rounded"
-            placeholder={translations[language].searchPlaceholder}
-            aria-label="Search"
-            value={searchQuery}
-            onChange={handleSearch}
-          />
-        </div>
-      </div>
+    <div
+      className="container mt-1 px-0"
+      style={{ height: "100vh", overflow: "hidden" }}
+    >
+      {/* Header Section */}
+      <Header title={translations[language].takenamounttitle} icon={FaRupeeSign} />
 
-      <div
-        className="card shadow-sm rounded-lg border-0 mt-3"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: "1rem",
-          marginBottom: "1.5rem",
-          padding: "1rem",
-          backgroundColor: "rgb(248, 249, 250)",
-          borderRadius: "8px",
-          border: "1px solid rgb(222, 226, 230)",
-        }}
-      >
-        <div className="d-flex align-items-center">
-          <FaMoneyBillWave className="text-success me-2" size={24} />
-          <h4 className="fs-5 text-success m-0">
-            {translations[language].totalAmount}: ₹{totalAmount}
-          </h4>
-        </div>
-      </div>
+      {/* Cards Section */}
+      <div className="mt-3">
+        <div className="row g-3">
+          {/* Taken & Pending Amount Card */}
+          <div className="col-12 col-md-6 mx-auto">
+            <div className="card shadow-sm border bg-light">
+              <div className="card-body d-flex align-items-center justify-content-between">
+                {/* Taken Amount Section */}
+                <div className="d-flex align-items-center" style={{ flex: 1 }}>
+                  <FaRupeeSign className="text-success me-3 fs-3" />
+                  <div>
+                    <h6 className="card-title mb-1 text-muted">
+                      {translations[language].takenAmount}
+                    </h6>
+                    <p className="mb-0 fs-5 fw-bold text-dark">
+                      ₹{totalAmount}
+                    </p>
+                  </div>
+                </div>
 
-      <div className="d-flex justify-content-end mt-3">
-        <button
-          className="btn btn-success d-flex align-items-center"
-          onClick={handleAdd}
-        >
-          <FaPlus className="me-2" /> {translations[language].addTakenAmount}
-        </button>
-      </div>
+                {/* Divider Line */}
+                <div
+                  style={{
+                    width: "1px",
+                    backgroundColor: "#ccc",
+                    height: "50px",
+                    margin: "0 15px",
+                  }}
+                ></div>
 
-      {fetchLoading ? (
-        <div className="text-center mt-3">
-          <Spinner />
-        </div>
-      ) : filteredAmounts.length > 0 ? (
-        <div className="mt-3">
-          <div className="row g-3">
-            {filteredAmounts.map((amount) => (
-              <div key={amount.id} className="col-md-6 col-lg-4">
-                <div className="card h-100 shadow-sm rounded-lg border-0 hover:shadow-md transition-shadow">
-                  <div className="card-body p-4">
-                    <h5 className="card-title text-lg font-bold text-gray-800 mb-3">
-                      {farmers.find((f) => f.id === amount.farmer)?.user
-                        ?.first_name || "Unknown Farmer"}
-                    </h5>
-                    <div className="space-y-2">
-                      <div className="d-flex align-items-center">
-                        <FaUser className="me-2 text-success" />
-                        <span className="font-semibold text-gray-700">
-                          {translations[language].farmer}:
-                        </span>
-                        <span className="ml-2 text-gray-600">
-                          {farmers.find((f) => f.id === amount.farmer)?.user
-                            ?.first_name || amount.farmer}
-                        </span>
-                      </div>
-                      <div className="d-flex align-items-center">
-                        <FaRupeeSign className="me-2 text-success" />
-                        <span className="font-semibold text-gray-700">
-                          {translations[language].takenAmount}:
-                        </span>
-                        <span className="ml-2 text-gray-600">
-                          ₹{amount.taken_amount}
-                        </span>
-                      </div>
-                      <div className="d-flex align-items-center">
-                        <FaRupeeSign className="me-2 text-success" />
-                        <span className="font-semibold text-gray-700">
-                          {translations[language].pendingAmount}:
-                        </span>
-                        <span className="ml-2 text-gray-600">
-                          ₹{amount.pending_amount}
-                        </span>
-                      </div>
-                      <div className="d-flex align-items-center">
-                        <FaCalendarAlt className="me-2 text-success" />
-                        <span className="font-semibold text-gray-700">
-                          {translations[language].dateCreated}:
-                        </span>
-                        <span className="ml-2 text-gray-600">
-                          {formatDateForDisplay(amount.date_created)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="d-flex justify-content-end mt-4">
-                      <button
-                        className="btn btn-success btn-sm flex items-center gap-2 px-2 py-1 rounded-lg"
-                        onClick={() => handleView(amount)}
-                      >
-                        <FaEye className="me-1" /> {translations[language].view}
-                      </button>
-                    </div>
+                {/* Pending Amount Section */}
+                <div className="d-flex align-items-center" style={{ flex: 1 }}>
+                  <FaRupeeSign className="text-success me-3 fs-3" />
+                  <div>
+                    <h6 className="card-title mb-1 text-muted">
+                      {translations[language].pendingAmount}
+                    </h6>
+                    <p className="mb-0 fs-5 fw-bold text-dark">
+                      ₹{pendingAmount}
+                    </p>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-          <div className="d-flex justify-content-center mt-4">
-            <nav>
-              <ul className="pagination pagination-sm flex-wrap">
-                <li
-                  className={`page-item ${
-                    currentPage === 1 || fetchLoading ? "disabled" : ""
-                  }`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={handlePrevious}
-                    disabled={currentPage === 1 || fetchLoading}
-                  >
-                    « {translations[language].previous}
-                  </button>
-                </li>
-                <li className="page-item active">
-                  <span className="page-link bg-success text-white border-0">
-                    {currentPage} / {totalPages}
-                  </span>
-                </li>
-                <li
-                  className={`page-item ${!hasMore || fetchLoading ? "disabled" : ""}`}
-                >
-                  <button
-                    className="page-link"
-                    onClick={handleNext}
-                    disabled={!hasMore || fetchLoading}
-                  >
-                    {translations[language].next} »
-                  </button>
-                </li>
-              </ul>
-            </nav>
+            </div>
           </div>
         </div>
-      ) : (
-        <p className="mt-3 text-muted">{translations[language].noTakenAmounts}</p>
+
+        {/* Add Taken Amount Button */}
+        <div className="row g-1 mt-2">
+          <div className="col-12">
+            <div className="card shadow-sm border-0">
+              <div className="card-body text-center p-2">
+                <button
+                  className="btn btn-success w-100 d-flex align-items-center justify-content-center gap-2 py-2"
+                  onClick={handleAdd}
+                >
+                  <FaPlus /> {translations[language].addTakenAmount}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="input-group rounded my-2 container">
+        <input
+          type="search"
+          className="form-control rounded"
+          placeholder={translations[language].takenamountsearchPlaceholder}
+          value={searchQuery}
+          onChange={handleSearch}
+        />
+      </div>
+
+      {/* Amount History Section */}
+      <div
+        className="mt-4 pb-3"
+        style={{
+          height: "calc(100vh - 300px)",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <h3 className="fs-4 fw-bold text-center mb-3">
+          {translations[language].amountHistory}
+        </h3>
+        {fetchLoading ? (
+          <div className="text-center">
+            <Spinner />
+          </div>
+        ) : filteredAmountHistory.length > 0 ? (
+          <div style={{ flex: 1, overflow: "hidden" }}>
+            <table className="table table-bordered table-hover mb-0">
+              <thead className="table-light">
+                <tr>
+                  <th scope="col" style={{ width: "50%", textAlign: "center" }}>
+                    Date
+                  </th>
+                  <th scope="col" style={{ width: "50%", textAlign: "center" }}>
+                    Amount
+                  </th>
+                </tr>
+              </thead>
+            </table>
+            <div style={{ maxHeight: "calc(100% - 50px)", overflowY: "auto" }}>
+              <table className="table table-bordered table-hover mb-0">
+                <tbody>
+                  {filteredAmountHistory.map((history, index) => (
+                    <tr key={index}>
+                      <td style={{ width: "50%", textAlign: "center" }}>
+                        {formatDateForDisplay(history.date)}
+                      </td>
+                      <td style={{ width: "50%", textAlign: "center" }}>
+                        ₹{history.amount}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <p className="text-muted">{translations[language].noTakenAmounts}</p>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center mt-2">
+          <nav>
+            <ul className="pagination pagination-sm">
+              <li
+                className={`page-item ${
+                  currentPage === 1 || fetchLoading ? "disabled" : ""
+                }`}
+              >
+                <button
+                  className="page-link"
+                  onClick={handlePrevious}
+                  disabled={currentPage === 1 || fetchLoading}
+                >
+                  « {translations[language].previous}
+                </button>
+              </li>
+              <li className="page-item active">
+                <span className="page-link bg-success text-white border-0">
+                  {currentPage} / {totalPages}
+                </span>
+              </li>
+              <li
+                className={`page-item ${
+                  !hasMore || fetchLoading ? "disabled" : ""
+                }`}
+              >
+                <button
+                  className="page-link"
+                  onClick={handleNext}
+                  disabled={!hasMore || fetchLoading}
+                >
+                  {translations[language].next} »
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
       )}
 
+      {/* Modal */}
       <ModalForm
         isOpen={!!selectedAmount}
         onClose={() => {
@@ -384,4 +398,4 @@ const FarmerAmount = () => {
   );
 };
 
-export default FarmerAmount;
+export default TakenAmount;

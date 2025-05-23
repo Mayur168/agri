@@ -3,7 +3,6 @@ import React, { useContext } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Home from "../Manager/Components/Home";
 import ExpenseForm from "../Manager/Components/ExpenseForm";
-import SprayFertilizerForm from "../Manager/Components/SprayFertilizerform";
 import Profile from "../Admin/Components/Profile"; 
 import NavBar from "./Components/managerNavBar"; 
 import Farms from "./Components/Farms";
@@ -40,10 +39,6 @@ const ManagerRoutes = () => {
         path="/daily-expenses"
         element={<PrivateRoute element={<ExpenseForm />} requiredRole="manager" />}
       />
-      {/* <Route
-        path="/spray-fertilizer"
-        element={<PrivateRoute element={<SprayFertilizerForm />} requiredRole="manager" />}
-      /> */}
        <Route
         path="/farms"
         element={<PrivateRoute element={<Farms />} requiredRole="manager" />}
@@ -51,7 +46,7 @@ const ManagerRoutes = () => {
       <Route
         path="/profile"
         element={<PrivateRoute element={<Profile />} requiredRole="manager" />}
-      /> {/* Added Profile Route */}
+      /> 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );

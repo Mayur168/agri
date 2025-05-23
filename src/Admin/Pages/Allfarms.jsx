@@ -8,6 +8,7 @@ import BackButton from "../Components/BackButton";
 import ModalForm from "../Components/ModelForm";
 import api from "../../Api/axiosInstance";
 import Swal from "sweetalert2";
+import { translations } from "../Components/translations/index";
 import {
   FaMapPin,
   FaGlobe,
@@ -39,62 +40,10 @@ function Allfarms() {
   const [hasMore, setHasMore] = useState(true);
   const farmsPerPage = 10;
 
-  const labels = {
-    en: {
-      title: "View Farms",
-      viewFarm:"View Farm",
-      addFarm: "Add Farm",
-      editFarm: "Edit Farm",
-      noFarms: "No farms available.",
-      farmName: "Farm Name",
-      address: "Address",
-      locationUrl: "Location URL",
-      farmSize: "Farm Size (acres)",
-      manager: "Manager",
-      view: "View",
-      searchPlaceholder: "Search...",
-      unauthorized: "Unauthorized: No token found",
-      fetchManagersError: "Failed to fetch managers",
-      previous: "Previous",
-      next: "Next",
-      cancel: "Cancel",
-      close: "Close",
-      fetchFertilizersError: "Failed to fetch fertilizers",
-      fertilizers: "Fertilizers",
-      fertilizerName: "Fertilizer Name",
-      date: "Date",
-    },
-    mr: {
-      title: "शेत पहा",
-      viewFarm:"शेत पहा",
-      addFarm: "शेत जोडा",
-      editFarm: "शेत संपादित करा",
-      noFarms: "कोणतीही शेती उपलब्ध नाही.",
-      farmName: "शेताचे नाव",
-      address: "पत्ता",
-      locationUrl: "स्थान URL",
-      farmSize: "शेताचा आकार (एकर)",
-      manager: "व्यवस्थापक",
-      view: "पहा",
-      searchPlaceholder: "शोधा...",
-      unauthorized: "अनधिकृत: टोकन सापडले नाही",
-      fetchManagersError: "व्यवस्थापक आणण्यात अयशस्वी",
-      previous: "मागील",
-      next: "पुढील",
-      cancel: "रद्द करा",
-      close: "बंद करा",
-      fetchFertilizersError: "खते आणण्यात अयशस्वी",
-      fertilizers: "खते",
-      fertilizerName: "खताचे नाव",
-      date: "तारीख",
-    },
-  };
-  
-
   const fetchManagers = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error(labels[language].unauthorized);
+      toast.error(translations[language].unauthorized);
       return;
     }
 
@@ -107,7 +56,7 @@ function Allfarms() {
       });
       setManagers(response.data.data || []);
     } catch (err) {
-      toast.error(labels[language].fetchManagersError);
+      toast.error(translations[language].fetchManagersError);
       setManagers([]);
     }
   }, [language]);
@@ -120,7 +69,7 @@ function Allfarms() {
       const farmerId = user?.farmer_id; 
   
       if (!token) {
-        setError(labels[language].unauthorized);
+        setError(translations[language].unauthorized);
         return;
       }
   
@@ -184,33 +133,33 @@ function Allfarms() {
     [language, farmsPerPage]
   );
   
-  const fetchFertilizers = useCallback(async (farmId) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error(labels[language].unauthorized);
-      return [];
-    }
+  // const fetchFertilizers = useCallback(async (farmId) => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     toast.error(translations[language].unauthorized);
+  //     return [];
+  //   }
 
-    try {
-      const response = await api.get(`/farm/?action=getFarm&fertilizer=true&id=${farmId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+  //   try {
+  //     const response = await api.get(`/farm/?action=getFarm&fertilizer=true&id=${farmId}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
 
-      const result = response.data;
-      const fertilizerData = Array.isArray(result.farm_fertilizer) ? result.farm_fertilizer : [];
-      return fertilizerData.map((fertilizer) => ({
-        id: fertilizer.id,
-        name: fertilizer.fertilizer?.name || "Unknown Fertilizer",
-        date: fertilizer.date || null,
-      }));
-    } catch (err) {
-      toast.error(labels[language].fetchFertilizersError);
-      return [];
-    }
-  }, [language]);
+  //     const result = response.data;
+  //     const fertilizerData = Array.isArray(result.farm_fertilizer) ? result.farm_fertilizer : [];
+  //     return fertilizerData.map((fertilizer) => ({
+  //       id: fertilizer.id,
+  //       name: fertilizer.fertilizer?.name || "Unknown Fertilizer",
+  //       date: fertilizer.date || null,
+  //     }));
+  //   } catch (err) {
+  //     toast.error(translations[language].fetchFertilizersError);
+  //     return [];
+  //   }
+  // }, [language]);
 
   useEffect(() => {
     fetchFarms(currentPage);
@@ -268,21 +217,18 @@ function Allfarms() {
         <div className="d-flex align-items-center justify-content-between w-100">
           <BackButton className="backbtn fs-4" />
           <h2 className="text-white m-0 flex-grow-1 text-center me-3">
-            <FaWarehouse className="me-2" /> {labels[language].title}
+            <FaWarehouse className="me-2" /> {translations[language].allfarmtitle}
           </h2>
         </div>
         <div className="input-group rounded my-2 container">
           <input
             type="search"
             className="form-control rounded"
-            placeholder={labels[language].searchPlaceholder}
+            placeholder={translations[language].allfarmssearchPlaceholder}
             aria-label="Search"
             value={searchQuery}
             onChange={handleSearch}
           />
-          {/* <span className="input-group-text border-0 bg-white">
-            <i className="fa fa-search"></i>
-          </span> */}
         </div>
       </div>
 
@@ -304,11 +250,11 @@ function Allfarms() {
                     </h5>
                     <div className="d-flex align-items-center mb-2">
                       <FaMapPin className="me-2 text-success" />
-                      <strong>{labels[language].address}:</strong> {farm.address}
+                      <strong>{translations[language].address}:</strong> {farm.address}
                     </div>
                     <div className="d-flex align-items-center mb-2">
                       <FaGlobe className="me-2 text-success" />
-                      <strong>{labels[language].locationUrl}:</strong>{" "}
+                      <strong>{translations[language].locationUrl}:</strong>{" "}
                       <a
                         href={farm.location_url}
                         target="_blank"
@@ -321,10 +267,10 @@ function Allfarms() {
                     </div>
                     <div className="d-flex align-items-center mb-2">
                       <FaTractor className="me-2 text-success" />
-                      <strong>{labels[language].farmSize}:</strong> {farm.farm_size}
+                      <strong>{translations[language].farmSize}:</strong> {farm.farm_size}
                     </div>
                     <div className="d-flex align-items-center mb-2">
-                      <strong>{labels[language].manager}:</strong>{" "}
+                      <strong>{translations[language].manager}:</strong>{" "}
                       {farm.manager_id
                         ? managers.find((m) => m.id === farm.manager_id)?.user?.first_name +
                           " " +
@@ -337,7 +283,7 @@ function Allfarms() {
                         className="btn btn-success btn-sm"
                         onClick={() => handleViewFarm(farm)}
                       >
-                        <FaEye className="me-1" /> {labels[language].view}
+                        <FaEye className="me-1" /> {translations[language].view}
                       </button>
                     </div>
                   </div>
@@ -356,7 +302,7 @@ function Allfarms() {
                     onClick={handlePrevious}
                     disabled={currentPage === 1 || loading}
                   >
-                    « {labels[language].previous}
+                    « {translations[language].previous}
                   </button>
                 </li>
                 <li className="page-item active">
@@ -372,7 +318,7 @@ function Allfarms() {
                     onClick={handleNext}
                     disabled={!hasMore || loading}
                   >
-                    {labels[language].next} »
+                    {translations[language].next} »
                   </button>
                 </li>
               </ul>
@@ -380,7 +326,7 @@ function Allfarms() {
           </div>
         </div>
       ) : (
-        <p className="mt-3 text-muted">{labels[language].noFarms}</p>
+        <p className="mt-3 text-muted">{translations[language].noFarms}</p>
       )}
 
       <ModalForm
@@ -388,7 +334,7 @@ function Allfarms() {
         onClose={() => setSelectedFarm(null)}
         isEditing={false}
         formData={formData}
-        labels={labels}
+        labels={translations}
         language={language}
         formType="farm"
         managers={managers}

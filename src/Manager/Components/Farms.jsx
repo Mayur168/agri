@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback, useContext } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
@@ -8,19 +6,19 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import BackButton from "../../Admin/Components/BackButton";
 import ModalForm from "../../Admin/Components/ModelForm";
 import api from "../../Api/axiosInstance";
+import Header from "../../Admin/Components/Header";
+import { translations } from "../../Admin/Components/translations";
+
 import {
   FaTractor,
   FaPlus,
-  FaArrowLeft,
-  FaArrowRight,
   FaEdit,
   FaTrash,
-  FaLeaf,
-  FaCalendarAlt,
 } from "react-icons/fa";
 import { FaWarehouse } from "react-icons/fa";
 import { AuthContext } from "../../contexts/AuthContext";
-import moment from "moment-timezone"; // Use moment-timezone
+import moment from "moment-timezone";
+
 function Allfarms() {
   const { language } = useLanguage();
   const { user } = useContext(AuthContext);
@@ -47,9 +45,7 @@ function Allfarms() {
 
   // Format date for display in IST (DD-MMM-YYYY hh:mm A)
   const formatDateForDisplay = (date) => {
-    console.log("formatDateForDisplay - Input date:", date); // Debug
     if (!date) {
-      console.log("formatDateForDisplay - No date provided");
       return "";
     }
     let parsedDate;
@@ -58,18 +54,14 @@ function Allfarms() {
     } else if (moment(date, moment.ISO_8601, true).isValid()) {
       parsedDate = moment.tz(date, "Asia/Kolkata");
     } else {
-      console.log("formatDateForDisplay - Invalid date format:", date);
       return "";
     }
     const formatted = parsedDate.format("DD-MMM-YYYY hh:mm A");
-    console.log("formatDateForDisplay - Formatted:", formatted);
     return formatted;
   };
 
   const convertToUTC = (dateStr) => {
-    console.log("convertToUTC - Input date:", dateStr); // Debug
     if (!dateStr) {
-      console.log("convertToUTC - No date provided");
       return "";
     }
     let parsedDate;
@@ -78,53 +70,10 @@ function Allfarms() {
     } else if (moment(dateStr, moment.ISO_8601, true).isValid()) {
       parsedDate = moment.tz(dateStr, "Asia/Kolkata");
     } else {
-      console.log("convertToUTC - Invalid date format:", dateStr);
       return "";
     }
     const formattedDate = parsedDate.format("DD-MMM-YYYY hh:mm A");
-    console.log("convertToUTC - Formatted Output:", formattedDate);
     return formattedDate;
-  };
-
-  const labels = {
-    en: {
-      title: "All Farms",
-      noFarms: "No farms available.",
-      farmName: "Farm Name",
-      searchPlaceholder: "Search by farm name...",
-      unauthorized: "Unauthorized: No token found",
-      previous: "Previous",
-      next: "Next",
-      fertilizers: "Fertilizers",
-      addFertilizer: "Add Fertilizer",
-      fertilizerName: "Fertilizer Name",
-      date: "Date & Time",
-      submit: "Save",
-      noFertilizers: "No fertilizers available for this farm.",
-      noFertilizersPresent: "Fertilizers are not present.",
-      edit: "Edit",
-      Edit_Fertilizer: "Edit Fertilizer",
-      delete: "Delete",
-    },
-    mr: {
-      title: "सर्व शेती",
-      noFarms: "कोणतीही शेती उपलब्ध नाही.",
-      farmName: "शेताचे नाव",
-      searchPlaceholder: "शेताच्या नावाने शोधा...",
-      unauthorized: "अनधिकृत: टोकन सापडले नाही",
-      previous: "मागील",
-      next: "पुढील",
-      fertilizers: "खते",
-      addFertilizer: "खत जोडा",
-      fertilizerName: "खताचे नाव",
-      date: "दिनांक आणि वेळ",
-      submit: "जतन करा",
-      noFertilizers: "या शेतासाठी कोणतेही खते उपलब्ध नाहीत।",
-      noFertilizersPresent: "खते उपस्थित नाहीत।",
-      edit: "संपादन करा",
-      Edit_Fertilizer: "अद्यतन करा",
-      delete: "हटवा",
-    },
   };
 
   const managerId = user?.manager_id;
@@ -135,7 +84,7 @@ function Allfarms() {
     async (page = 1) => {
       const token = localStorage.getItem("token");
       if (!token || !managerId) {
-        setError(labels[language].unauthorized);
+        setError(translations[language].unauthorized);
         return;
       }
 
@@ -177,11 +126,7 @@ function Allfarms() {
         }));
 
         setFarms(normalizedFarms);
-        setFilteredFarms(
-          normalizedFarms.filter((farm) =>
-            (farm.name.toLowerCase() || "").includes(searchQuery.toLowerCase())
-          )
-        );
+        setFilteredFarms(normalizedFarms); // Initialize filteredFarms with all farms
 
         setHasMore(farmData.length === farmsPerPage);
         setTotalPages((prev) =>
@@ -206,7 +151,7 @@ function Allfarms() {
         setLoading(false);
       }
     },
-    [language, farmsPerPage, managerId, searchQuery]
+    [language, farmsPerPage, managerId] // Removed searchQuery from dependencies
   );
 
   const fetchFertilizers = async (farmId) => {
@@ -237,7 +182,7 @@ function Allfarms() {
     } catch (error) {
       Swal.fire({
         icon: "info",
-        title: labels[language].noFertilizersPresent,
+        title: translations[language].noFertilizersPresent,
         confirmButtonColor: "#3085d6",
         showConfirmButton: true,
       });
@@ -336,7 +281,7 @@ function Allfarms() {
 
   const handleDeleteFertilizer = async (id) => {
     const result = await Swal.fire({
-      title: labels[language].deleteConfirm || "Are you sure?",
+      title: translations[language].deleteConfirm || "Are you sure?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -456,8 +401,9 @@ function Allfarms() {
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
+    // Filter farms locally without triggering loading
     setFilteredFarms(
-      farms.filter((farm) => (farm.name.toLowerCase() || "").includes(query))
+      farms.filter((farm) => (farm.name || "").toLowerCase().includes(query))
     );
   };
 
@@ -488,7 +434,7 @@ function Allfarms() {
       id: fertilizer.id,
       fertilizer_id: fertilizer.fertilizer_id,
       farm_id: fertilizer.farm_id,
-      date: fertilizer.date, // Already in "DD-MMM-YYYY hh:mm A" format
+      date: fertilizer.date,
     });
     setIsEditing(true);
     setIsFertilizerModalOpen(true);
@@ -538,19 +484,14 @@ function Allfarms() {
   return (
     <div className="container mt-2 p-0 border-none">
       <div className="card border-none mb-4">
-        <div className="card-header border-none bg-success text-white d-flex align-items-center justify-content-between flex-wrap">
-          <BackButton className="btn fs-4" />
-          <h2 className="mb-0 text-white text-center flex-grow-1">
-            <FaWarehouse className="me-2" /> {labels[language].title}
-          </h2>
-          <div></div>
-        </div>
+        <Header title={translations[language].managerfarmtitle} icon={FaWarehouse} />
+
         <div className="card-body ">
           <div className="input-group mb-3">
             <input
               type="search"
               className="form-control"
-              placeholder={labels[language].searchPlaceholder}
+              placeholder={translations[language].farm_farmsearchPlaceholder}
               value={searchQuery}
               onChange={handleSearch}
             />
@@ -590,7 +531,7 @@ function Allfarms() {
                   </div>
                   <div className="card-body">
                     <h6 className="card-title">
-                      {labels[language].fertilizers}
+                      {translations[language].fertilizers}
                     </h6>
                     {fertilizers.length > 0 ? (
                       <div className="table-responsive">
@@ -601,9 +542,9 @@ function Allfarms() {
                                 #
                               </th>
                               <th scope="col">
-                                {labels[language].fertilizerName}
+                                {translations[language].fertilizerName}
                               </th>
-                              <th scope="col">{labels[language].date}</th>
+                              <th scope="col">{translations[language].date}</th>
                               <th scope="col" className="text-center">
                                 Actions
                               </th>
@@ -626,7 +567,7 @@ function Allfarms() {
                                       onClick={() =>
                                         handleEditFertilizerOpen(fert)
                                       }
-                                      title={labels[language].edit}
+                                      title={translations[language].edit}
                                     >
                                       <FaEdit />
                                     </button>
@@ -635,7 +576,7 @@ function Allfarms() {
                                       onClick={() =>
                                         handleDeleteFertilizer(fert.id)
                                       }
-                                      title={labels[language].delete}
+                                      title={translations[language].delete}
                                     >
                                       <FaTrash />
                                     </button>
@@ -648,7 +589,7 @@ function Allfarms() {
                       </div>
                     ) : (
                       <p className="text-muted">
-                        {labels[language].noFertilizers}
+                        {translations[language].noFertilizers}
                       </p>
                     )}
                     <button
@@ -656,7 +597,7 @@ function Allfarms() {
                       onClick={() => handleAddFertilizerOpen(farm)}
                     >
                       <FaPlus className="me-1" />{" "}
-                      {labels[language].addFertilizer}
+                      {translations[language].addFertilizer}
                     </button>
                   </div>
                 </div>
@@ -666,7 +607,7 @@ function Allfarms() {
         </div>
       ) : (
         <div className="alert alert-info" role="alert">
-          {labels[language].noFarms}
+          {translations[language]. noFarms}
         </div>
       )}
 
@@ -684,7 +625,7 @@ function Allfarms() {
                   onClick={handlePrevious}
                   disabled={currentPage === 1 || loading}
                 >
-                  « {labels[language].previous}
+                  « {translations[language].previous}
                 </button>
               </li>
               <li className="page-item active">
@@ -700,7 +641,7 @@ function Allfarms() {
                   onClick={handleNext}
                   disabled={!hasMore || loading}
                 >
-                  {labels[language].next} »
+                  {translations[language].next} »
                 </button>
               </li>
             </ul>
@@ -713,7 +654,7 @@ function Allfarms() {
         onClose={resetFertilizerForm}
         isEditing={isEditing}
         formData={fertilizerFormData}
-        labels={labels}
+        labels={translations}
         language={language}
         formType="fertilizer"
         handleChange={handleFertilizerChange}

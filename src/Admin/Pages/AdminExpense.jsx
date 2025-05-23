@@ -1,14 +1,20 @@
-
-
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import { FaMoneyBillWave, FaEdit, FaTrash, FaArrowLeft, FaEye, FaPlus } from "react-icons/fa";
+import {
+  FaMoneyBillWave,
+  FaEdit,
+  FaArrowLeft,
+  FaEye,
+  FaPlus,
+} from "react-icons/fa";
 import ModalForm from "../Components/ModelForm";
-import BackButton from "../Components/BackButton";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 import api from "../../Api/axiosInstance";
 import Spinner from "../Spinner/Spinner";
+import Header from "../Components/Header";
+import { translations } from "../Components/translations/index";
+
 
 function ExpenseForm() {
   const { language } = useLanguage();
@@ -52,77 +58,6 @@ function ExpenseForm() {
   });
   const [managerTotalAmount, setManagerTotalAmount] = useState(0);
 
-  const translations = {
-    en: {
-      title: "Expenses",
-      edit: "Edit",
-      delete: "Delete",
-      cancel: "Cancel",
-      deleteConfirm: "You won't be able to revert this!",
-      amount: "Amount",
-      reason: "Reason",
-      description: "Description",
-      farmerId: "Farmer ID",
-      managerId: "Manager ID",
-      dateCreated: "Date Created",
-      modalTitleAdmin: "Edit Admin Expense",
-      modalTitleManager: "Edit Manager Expense",
-      addAdminExpense: "Add Admin Expense",
-      addManagerExpense: "Add Manager Expense",
-      submit: "Save",
-      searchPlaceholder: "Search...",
-      managerExpense: "Manager",
-      adminExpense: "Admin",
-      noExpenses: "No expenses available",
-      managerListTitle: "Select Manager",
-      noManagers: "No managers available",
-      expenseTitle: "View Expense",
-      view: "View",
-      add: "Add",
-      viewAdminExpense: "View Admin Expense",
-      viewManagerExpense: "View Manager Expense",
-      actions: "Actions",
-      takenAmount: "Taken Amount",
-      pendingAmount: "Pending Amount",
-      totalExpense: "Total Expense",
-      noFarmerAmount: "No taken amount found. Expenses will be recorded but not linked to a taken amount.",
-    },
-    mr: {
-      title: "खर्च",
-      edit: "संपादन",
-      delete: "हटवा",
-      cancel: "रद्द करा",
-      deleteConfirm: "आपण हे परत करू शकणार नाही!",
-      amount: "रक्कम",
-      reason: "कारण",
-      description: "वर्णन",
-      farmerId: "शेतकरी आयडी",
-      managerId: "व्यवस्थापक आयडी",
-      dateCreated: "तारीख तयार झाली",
-      modalTitleAdmin: "प्रशासक खर्च संपादन",
-      modalTitleManager: "व्यवस्थापक खर्च संपादन",
-      addAdminExpense: "प्रशासक खर्च जोडा",
-      addManagerExpense: "व्यवस्थापक खर्च जोडा",
-      submit: "जतन करा",
-      searchPlaceholder: "शोधा...",
-      managerExpense: "व्यवस्थापक",
-      adminExpense: "प्रशासक",
-      noExpenses: "कोणतेही खर्च उपलब्ध नाहीत",
-      managerListTitle: "व्यवस्थापक निवडा",
-      noManagers: "कोणतेही व्यवस्थापक उपलब्ध नाहीत",
-      expenseTitle: "खर्च पहा",
-      view: "पहा",
-      add: "जोडा",
-      viewAdminExpense: "प्रशासक खर्च पहा",
-      viewManagerExpense: "व्यवस्थापक खर्च पहा",
-      actions: "कृती",
-      takenAmount: "घेतलेली रक्कम",
-      pendingAmount: "प्रलंबित रक्कम",
-      totalExpense: "एकूण खर्च",
-      noFarmerAmount: "कोणतीही घेतलेली रक्कम सापडली नाही. खर्च नोंदवले जातील परंतु घेतलेल्या रकमेशी जोडले जाणार नाहीत.",
-    },
-  };
-
   const labels = translations[language];
 
   const fetchAdminExpenses = async () => {
@@ -141,9 +76,7 @@ function ExpenseForm() {
       let farmerAmountId = null;
       try {
         const amountUrl = `/farm/?action=getFarmerAmount&farmer=${farmerId}`;
-        console.log("Fetching taken amount from:", amountUrl);
         const amountResponse = await api.get(amountUrl);
-        console.log("Taken amount response:", amountResponse.data);
         amountData = Array.isArray(amountResponse.data.data)
           ? amountResponse.data.data[0]
           : null;
@@ -151,13 +84,10 @@ function ExpenseForm() {
           takenAmount = parseFloat(amountData.taken_amount) || 0;
           farmerAmountId = amountData.id || null;
         }
-      } catch (error) {
-        console.warn("No taken amount found or error:", error);
-      }
+      } catch (error) {}
 
       // Fetch expenses
       const apiUrl = `/farm/?action=getFarmerExpenses&farmer=${farmerId}`;
-      console.log("Fetching expenses from:", apiUrl);
       const response = await api.get(apiUrl);
 
       let expensesData =
@@ -204,7 +134,6 @@ function ExpenseForm() {
 
       setAdminExpenses(expensesData);
     } catch (error) {
-      console.error("Error fetching admin expenses:", error);
       let errorMessage = error.message || labels.noExpenses;
       let title = language === "en" ? "Error" : "त्रुटी";
 
@@ -224,9 +153,7 @@ function ExpenseForm() {
         const user = JSON.parse(localStorage.getItem("user"));
         const farmerId = user?.farmer_id;
         const amountUrl = `/farm/?action=getFarmerAmount&farmer=${farmerId}`;
-        console.log("Retrying taken amount fetch from:", amountUrl);
         const amountResponse = await api.get(amountUrl);
-        console.log("Retry taken amount response:", amountResponse.data);
         const amountData = Array.isArray(amountResponse.data.data)
           ? amountResponse.data.data[0]
           : null;
@@ -246,7 +173,6 @@ function ExpenseForm() {
           });
         }
       } catch (retryError) {
-        console.warn("Failed to retry fetching taken amount:", retryError);
         setFarmerAmounts({
           taken_amount: 0,
           pending_amount: 0,
@@ -315,7 +241,9 @@ function ExpenseForm() {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       const Id = user?.id;
-      const response = await api.get(`/users/?action=getFarmManager&user_created=${Id}`);
+      const response = await api.get(
+        `/users/?action=getFarmManager&user_created=${Id}`
+      );
       let managersData =
         response.data && Array.isArray(response.data.data)
           ? response.data.data
@@ -364,7 +292,9 @@ function ExpenseForm() {
           });
         }
         if (formData.id) {
-          const oldExpense = adminExpenses.find((item) => item.id === formData.id);
+          const oldExpense = adminExpenses.find(
+            (item) => item.id === formData.id
+          );
           const oldAmount = parseFloat(oldExpense.amount);
           const newAmount = parseFloat(formData.amount);
           const amountDifference = newAmount - oldAmount;
@@ -496,7 +426,9 @@ function ExpenseForm() {
             showConfirmButton: false,
           });
         } else {
-          const oldExpense = managerExpenses.find((item) => item.id === formData.id);
+          const oldExpense = managerExpenses.find(
+            (item) => item.id === formData.id
+          );
           const oldAmount = parseFloat(oldExpense.amount);
           const newAmount = parseFloat(formData.amount);
           const amountDifference = newAmount - oldAmount;
@@ -540,7 +472,9 @@ function ExpenseForm() {
       await Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Failed to save expense: " + (error.response?.data?.message || error.message),
+        text:
+          "Failed to save expense: " +
+          (error.response?.data?.message || error.message),
         timer: 2000,
         showConfirmButton: false,
       });
@@ -568,7 +502,8 @@ function ExpenseForm() {
         setFarmerAmounts((prev) => ({
           ...prev,
           total_expense: prev.total_expense - parseFloat(deletedExpense.amount),
-          pending_amount: prev.pending_amount + parseFloat(deletedExpense.amount),
+          pending_amount:
+            prev.pending_amount + parseFloat(deletedExpense.amount),
         }));
         await Swal.fire({
           icon: "success",
@@ -579,7 +514,6 @@ function ExpenseForm() {
         });
         resetForm();
       } catch (error) {
-        console.error("Error deleting admin expense:", error);
         await Swal.fire({
           icon: "error",
           title: "Error",
@@ -609,7 +543,9 @@ function ExpenseForm() {
         await api.delete("/farm/", { data: payload });
         const deletedExpense = managerExpenses.find((item) => item.id === id);
         setManagerExpenses(managerExpenses.filter((item) => item.id !== id));
-        setManagerTotalAmount((prev) => prev - parseFloat(deletedExpense.amount));
+        setManagerTotalAmount(
+          (prev) => prev - parseFloat(deletedExpense.amount)
+        );
         await Swal.fire({
           icon: "success",
           title: "Success",
@@ -619,7 +555,6 @@ function ExpenseForm() {
         });
         resetForm();
       } catch (error) {
-        console.error("Error deleting manager expense:", error);
         await Swal.fire({
           icon: "error",
           title: "Error",
@@ -717,7 +652,10 @@ function ExpenseForm() {
       Swal.fire({
         icon: "info",
         title: language === "en" ? "Info" : "माहिती",
-        text: language === "en" ? "Please select a manager first." : "कृपया प्रथम व्यवस्थापक निवडा ",
+        text:
+          language === "en"
+            ? "Please select a manager first."
+            : "कृपया प्रथम व्यवस्थापक निवडा ",
       });
       return;
     }
@@ -774,7 +712,6 @@ function ExpenseForm() {
         item?.amount?.toString().toLowerCase()?.includes(searchLower)
       );
     });
-
   const styles = {
     managerListContainer: {
       backgroundColor: "#ffffff",
@@ -871,7 +808,7 @@ function ExpenseForm() {
     tabContainer: {
       display: "flex",
       justifyContent: "center",
-      gap: "1.5rem",
+      gap: "0.5rem",
       padding: "0.5rem",
       backgroundColor: "#f8f9fa",
       borderRadius: "8px",
@@ -902,9 +839,8 @@ function ExpenseForm() {
     amountContainer: {
       display: "flex",
       justifyContent: "space-between",
-      gap: "1rem",
+      gap: "0.3rem",
       marginBottom: "1.5rem",
-      padding: "1rem",
       backgroundColor: "#f8f9fa",
       borderRadius: "8px",
       border: "1px solid #dee2e6",
@@ -937,14 +873,16 @@ function ExpenseForm() {
   };
 
   return (
-    <div className="container bg-white mb-5 p-0">
-      <div className="mb-3 d-flex align-items-center px-3 py-3 bg-success text-white rounded-3">
-        <BackButton className="backbtn fs-4 ms-2" />
-        <h2 className="fs-4 text-white m-0 d-flex align-items-center justify-content-center flex-grow-1">
-          <FaMoneyBillWave className="me-2" />
-          {expenseType === "admin" ? labels.adminExpense : labels.managerExpense}
-        </h2>
-      </div>
+    <div
+      className="container bg-white mb-5 p-0 d-flex flex-column"
+      style={{ height: "100vh", overflow: "hidden" }}
+    >
+      <Header
+        title={
+          expenseType === "admin" ? labels.adminExpense : labels.managerExpense
+        }
+        icon={FaMoneyBillWave}
+      />
 
       <div style={styles.tabContainer}>
         <button
@@ -965,205 +903,256 @@ function ExpenseForm() {
         </button>
       </div>
 
-      {expenseType === "manager" && !selectedManagerId ? (
-        <div style={styles.managerListContainer}>
-          <div style={styles.titleContainer} className=" bg-success ">
-            <h3 className="text-white m-0 ">{labels.managerListTitle}</h3>
+      <div className="flex-grow-1 overflow-hidden">
+        {expenseType === "manager" && !selectedManagerId ? (
+          <div style={{ height: "100%", overflowY: "auto" }}>
+            <div style={styles.managerListContainer}>
+              <div style={styles.titleContainer} className="bg-success">
+                <h3 className="text-white m-0">{labels.managerListTitle}</h3>
+              </div>
+              {loading ? (
+                <Spinner />
+              ) : managers.length > 0 ? (
+                <div className="bg-white">
+                  {managers.map((manager) => (
+                    <div
+                      key={manager.id}
+                      className="border rounded shadow-none"
+                      style={styles.managerCard}
+                      onClick={() => handleManagerSelect(manager)}
+                    >
+                      <li type="none" style={styles.managerName}>
+                        {manager.user?.first_name} {manager.user?.last_name}
+                      </li>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={styles.noItems}>{labels.noManagers}</p>
+              )}
+            </div>
           </div>
-          {loading ? (
-            <Spinner />
-          ) : managers.length > 0 ? (
-            <div className="bg-white">
-              {managers.map((manager) => (
-                <div
-                  key={manager.id}
-                  className="border rounded shadow-none"
-                  style={styles.managerCard}
-                  onClick={() => handleManagerSelect(manager)}
-                >
-                  <li type="none" style={styles.managerName}>
-                    {manager.user?.first_name} {manager.user?.last_name}
-                  </li>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p style={styles.noItems}>{labels.noManagers}</p>
-          )}
-        </div>
-      ) : (
-        <div className="row">
-          {(expenseType === "admin" || (expenseType === "manager" && selectedManagerId)) && (
-            <div>
-              <div style={styles.titleContainer} className="bg-success d-flex align-items-center">
-                {expenseType === "manager" && selectedManagerId && (
-                  <button
-                    style={styles.backButton}
-                    onClick={() => setSelectedManagerId(null)}
-                    className="text-white border-0"
+        ) : (
+          <div className="row h-100">
+            <div
+              className="col-12 d-flex flex-column"
+              style={{ height: "100%" }}
+            >
+              {(expenseType === "admin" ||
+                (expenseType === "manager" && selectedManagerId)) && (
+                <>
+                  <div
+                    style={styles.titleContainer}
+                    className="bg-success d-flex align-items-center"
                   >
-                    <FaArrowLeft style={styles.backIcon} />
-                  </button>
-                )}
-                <h3 className="text-white m-0 flex-grow-1 text-center">
-                  {labels.expenseTitle}
-                </h3>
-                <button
-                  style={styles.addButton}
-                  className="bg-white text-success btn-sm"
-                  onClick={expenseType === "admin" ? handleAdminAdd : handleManagerAdd}
-                >
-                  <FaPlus /> {labels.add}
-                </button>
-              </div>
-              {expenseType === "admin" && (
-                <div style={styles.amountContainer}>
-                  <div style={styles.amountField}>
-                    <div style={styles.amountLabel}>{labels.takenAmount}</div>
-                    <div style={styles.amountValue}>₹{farmerAmounts.taken_amount}</div>
+                    {expenseType === "manager" && selectedManagerId && (
+                      <button
+                        style={styles.backButton}
+                        onClick={() => setSelectedManagerId(null)}
+                        className="text-white border-0"
+                      >
+                        <FaArrowLeft style={styles.backIcon} />
+                      </button>
+                    )}
+                    <h3 className="text-white m-0 flex-grow-1 text-center">
+                      {labels.expenseTitle}
+                    </h3>
+                    <button
+                      style={styles.addButton}
+                      className="bg-white text-success btn-sm"
+                      onClick={
+                        expenseType === "admin"
+                          ? handleAdminAdd
+                          : handleManagerAdd
+                      }
+                    >
+                      <FaPlus /> {labels.add}
+                    </button>
                   </div>
-                  <div style={styles.amountField}>
-                    <div style={styles.amountLabel}>{labels.pendingAmount}</div>
-                    <div style={styles.amountValue}>₹{farmerAmounts.pending_amount}</div>
-                  </div>
-                  <div style={styles.amountField}>
-                    <div style={styles.amountLabel}>{labels.totalExpense}</div>
-                    <div style={styles.amountValue}>₹{farmerAmounts.total_expense}</div>
-                  </div>
-                </div>
-              )}
-              {expenseType === "admin" && !farmerAmounts.farmer_amount_id && adminExpenses.length > 0 && (
-                <p style={styles.warningText}>{labels.noFarmerAmount}</p>
-              )}
-              {expenseType === "manager" && selectedManagerId && (
-                <div style={styles.amountContainer}>
-                  <div style={styles.amountField}>
-                    <div style={styles.amountLabel}>{labels.totalExpense}</div>
-                    <div style={styles.amountValue}>₹{managerTotalAmount}</div>
-                  </div>
-                </div>
-              )}
-              <div className="col-12 mb-4">
-                {loading ? (
-                  <div className="text-center my-5">
-                    <Spinner />
-                  </div>
-                ) : expenseType === "admin" ? (
-                  <div className="table-responsive">
-                    <table className="table table-striped table-bordered">
-                      <thead className="bg-success text-white">
-                        <tr>
-                          <th scope="col">{labels.dateCreated}</th>
-                          <th scope="col">{labels.amount}</th>
-                          <th scope="col">{labels.reason}</th>
-                          <th scope="col">{labels.actions}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredAdminExpenses.length > 0 ? (
-                          filteredAdminExpenses.map((item) => (
-                            <tr key={item.id}>
-                              <td>{item.date_created || "N/A"}</td>
-                              <td>₹{item.amount || "N/A"}</td>
-                              <td>{item.reason || "N/A"}</td>
-                              <td>
-                                <div className="d-flex gap-2">
-                                  <button
-                                    className="btn btn-info btn-sm d-flex align-items-center"
-                                    onClick={() => handleView(item)}
-                                    title={labels.view}
-                                  >
-                                    <FaEye />
-                                  </button>
-                                  <button
-                                    className="btn btn-primary btn-sm d-flex align-items-center"
-                                    onClick={() => handleEdit(item)}
-                                    title={labels.edit}
-                                  >
-                                    <FaEdit />
-                                  </button>
-                                  {/* <button
-                                    className="btn btn-danger btn-sm d-flex align-items-center"
-                                    onClick={() => handleDeleteAdmin(item.id)}
-                                    title={labels.delete}
-                                  >
-                                    <FaTrash />
-                                  </button> */}
-                                </div>
-                              </td>
+                  {expenseType === "admin" && (
+                    <div style={styles.amountContainer}>
+                      <div style={styles.amountField}>
+                        <div style={styles.amountLabel}>
+                          {labels.takenAmount}
+                        </div>
+                        <div style={styles.amountValue}>
+                          {farmerAmounts.taken_amount}
+                        </div>
+                      </div>
+                      <div style={styles.amountField}>
+                        <div style={styles.amountLabel}>
+                          {labels.pendingAmount}
+                        </div>
+                        <div style={styles.amountValue}>
+                          {farmerAmounts.pending_amount}
+                        </div>
+                      </div>
+                      <div style={styles.amountField}>
+                        <div style={styles.amountLabel}>
+                          {labels.totalExpense}
+                        </div>
+                        <div style={styles.amountValue}>
+                          {farmerAmounts.total_expense}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {expenseType === "admin" &&
+                    !farmerAmounts.farmer_amount_id &&
+                    adminExpenses.length > 0 && (
+                      <p style={styles.warningText}>{labels.noFarmerAmount}</p>
+                    )}
+                  {expenseType === "manager" && selectedManagerId && (
+                    <div style={styles.amountContainer}>
+                      <div style={styles.amountField}>
+                        <div style={styles.amountLabel}>
+                          {labels.totalExpense}
+                        </div>
+                        <div style={styles.amountValue}>
+                          ₹{managerTotalAmount}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <div style={{ flex: 1, overflow: "hidden" }}>
+                    {loading ? (
+                      <div className="text-center my-5">
+                        <Spinner />
+                      </div>
+                    ) : (
+                      <div style={{ height: "100%" }}>
+                        <table
+                          className="table table-striped table-bordered mb-0"
+                          style={{ tableLayout: "fixed" }}
+                        >
+                          <thead className="bg-success text-white">
+                            <tr>
+                              <th scope="col" style={{ width: "25%" }}>
+                                {labels.dateCreated}
+                              </th>
+                              <th scope="col" style={{ width: "25%" }}>
+                                {labels.amount}
+                              </th>
+                              <th scope="col" style={{ width: "25%" }}>
+                                {labels.reason}
+                              </th>
+                              <th scope="col" style={{ width: "25%" }}>
+                                {labels.actions}
+                              </th>
                             </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="4" className="text-center">
-                              {labels.noExpenses}
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+                          </thead>
+                        </table>
+                        <div
+                          style={{
+                            maxHeight: "calc(100% - 50px)",
+                            overflowY: "auto",
+                          }}
+                        >
+                          <table
+                            className="table table-striped table-bordered mb-0"
+                            style={{ tableLayout: "fixed" }}
+                          >
+                            <tbody>
+                              {expenseType === "admin" ? (
+                                filteredAdminExpenses.length > 0 ? (
+                                  filteredAdminExpenses.map((item) => (
+                                    <tr key={item.id}>
+                                      <td style={{ width: "25%" }}>
+                                        {item.date_created || "N/A"}
+                                      </td>
+                                      <td style={{ width: "25%" }}>
+                                        ₹{item.amount || "N/A"}
+                                      </td>
+                                      <td style={{ width: "25%" }}>
+                                        {item.reason || "N/A"}
+                                      </td>
+                                      <td style={{ width: "25%" }}>
+                                        <div className="d-flex gap-2">
+                                          <button
+                                            className="btn btn-info btn-sm d-flex align-items-center"
+                                            onClick={() => handleView(item)}
+                                            title={labels.view}
+                                          >
+                                            <FaEye />
+                                          </button>
+                                          <button
+                                            className="btn btn-primary btn-sm d-flex align-items-center"
+                                            onClick={() => handleEdit(item)}
+                                            title={labels.edit}
+                                          >
+                                            <FaEdit />
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  ))
+                                ) : (
+                                  <tr>
+                                    <td
+                                      colSpan="4"
+                                      style={{ textAlign: "center" }}
+                                    >
+                                      {labels.noExpenses}
+                                    </td>
+                                  </tr>
+                                )
+                              ) : expenseType === "manager" &&
+                                selectedManagerId ? (
+                                filteredManagerExpenses.length > 0 ? (
+                                  filteredManagerExpenses.map((item) => (
+                                    <tr key={item.id}>
+                                      <td style={{ width: "25%" }}>
+                                        {item.date_created || "N/A"}
+                                      </td>
+                                      <td style={{ width: "25%" }}>
+                                        ₹{item.amount || "N/A"}
+                                      </td>
+                                      <td style={{ width: "25%" }}>
+                                        {item.reason || "N/A"}
+                                      </td>
+                                      <td style={{ width: "25%" }}>
+                                        <div className="d-flex gap-2">
+                                          <button
+                                            className="btn btn-info btn-sm d-flex align-items-center"
+                                            onClick={() => handleView(item)}
+                                            title={labels.view}
+                                          >
+                                            <FaEye />
+                                          </button>
+                                          <button
+                                            className="btn btn-primary btn-sm d-flex align-items-center"
+                                            onClick={() => handleEdit(item)}
+                                            title={labels.edit}
+                                          >
+                                            <FaEdit />
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  ))
+                                ) : (
+                                  <tr>
+                                    <td
+                                      colSpan="4"
+                                      style={{ textAlign: "center" }}
+                                    >
+                                      {labels.noExpenses}
+                                    </td>
+                                  </tr>
+                                )
+                              ) : null}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                ) : expenseType === "manager" && selectedManagerId ? (
-                  <div className="table-responsive">
-                    <table className="table table-striped table-bordered">
-                      <thead className="bg-success text-white">
-                        <tr>
-                          <th scope="col">{labels.dateCreated}</th>
-                          <th scope="col">{labels.amount}</th>
-                          <th scope="col">{labels.reason}</th>
-                          <th scope="col">{labels.actions}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredManagerExpenses.length > 0 ? (
-                          filteredManagerExpenses.map((item) => (
-                            <tr key={item.id}>
-                              <td>{item.date_created || "N/A"}</td>
-                              <td>₹{item.amount || "N/A"}</td>
-                              <td>{item.reason || "N/A"}</td>
-                              <td>
-                                <div className="d-flex gap-2">
-                                  <button
-                                    className="btn btn-info btn-sm d-flex align-items-center"
-                                    onClick={() => handleView(item)}
-                                    title={labels.view}
-                                  >
-                                    <FaEye />
-                                  </button>
-                                  <button
-                                    className="btn btn-primary btn-sm d-flex align-items-center"
-                                    onClick={() => handleEdit(item)}
-                                    title={labels.edit}
-                                  >
-                                    <FaEdit />
-                                  </button>
-                                  {/* <button
-                                    className="btn btn-danger btn-sm d-flex align-items-center"
-                                    onClick={() => handleDeleteManager(item.id)}
-                                    title={labels.delete}
-                                  >
-                                    <FaTrash />
-                                  </button> */}
-                                </div>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="4" className="text-center">
-                              {labels.noExpenses}
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : null}
-              </div>
+                </>
+              )}
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
 
       <ModalForm
         isOpen={isOpen}

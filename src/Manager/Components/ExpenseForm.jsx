@@ -7,18 +7,15 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 import api from "../../Api/axiosInstance";
 import Spinner from "../../Admin/Spinner/Spinner";
+import Header from "../../Admin/Components/Header";
+import { translations } from "../../Admin/Components/translations";
 
 function ExpenseForm() {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
-  // Retrieve storedData from localStorage (set during login)
   const storedData = JSON.parse(localStorage.getItem("storedData")) || {};
-  console.log("Stored Data from localStorage:", storedData);
-
-  // Extract manager_id from storedData.user
   const defaultManagerId = storedData.user?.manager_id || null;
-  console.log("defaultManagerId:", defaultManagerId);
 
   const [formData, setFormData] = useState({
     id: null,
@@ -34,54 +31,10 @@ function ExpenseForm() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const translations = {
-    en: {
-      title: "Daily Expenses",
-      addManagerExpense: "Add Expense",
-      edit: "Edit",
-      delete: "Delete",
-      save: "Save",
-      close: "Close",
-      deleteConfirm: "You won't be able to revert this!",
-      dateCreated: "Date Created",
-      description: "Description",
-      amount: "Amount",
-      reason: "Reason",
-      managerId: "Manager ID",
-      modalTitleManager: "Edit Expense",
-      submit: "Save",
-      searchPlaceholder: "Search...",
-      addButton: "Expense",
-      noExpenses: "No expenses available",
-      totalAmount: "Total Expenses",
-    },
-    mr: {
-      title: "दैनिक खर्च",
-      addManagerExpense: "खर्च जोडा",
-      edit: "संपादन",
-      delete: "हटवा",
-      save: "जतन करा",
-      close: "बंद करा",
-      deleteConfirm: "आपण हे परत करू शकणार नाही!",
-      dateCreated: "तारीख तयार झाली",
-      description: "वर्णन",
-      amount: "रक्कम",
-      reason: "कारण",
-      managerId: "व्यवस्थापक आयडी",
-      modalTitleManager: "खर्च संपादन",
-      submit: "जतन करा",
-      searchPlaceholder: "शोधा...",
-      addButton: "खर्च",
-      noExpenses: "कोणतेही खर्च उपलब्ध नाहीत",
-      totalAmount: "एकूण खर्च",
-    },
-  };
-
   const labels = translations[language];
 
   const fetchExpenses = async () => {
     if (!defaultManagerId) {
-      console.warn("No manager_id found in storedData. Skipping fetch.");
       setExpenses([]);
       setTotalAmount(0);
       setLoading(false);
@@ -98,8 +51,7 @@ function ExpenseForm() {
       const response = await api.get(
         `/farm/?action=getManagerExpenses&manager=${defaultManagerId}`
       );
-      console.log("Raw API Response:", response);
-      console.log("Response Data:", response.data);
+    
 
       // Handle response structure
       let expensesData = [];
@@ -108,21 +60,17 @@ function ExpenseForm() {
         expensesData = response.data.data;
         totalAmountData = response.data.total_amount || 0;
       } else {
-        console.warn("Unexpected response structure:", response.data);
         expensesData = [];
         totalAmountData = 0;
       }
 
-      console.log("Filtered Expenses Data:", expensesData);
-      console.log("Total Amount:", totalAmountData);
+
       setExpenses(expensesData);
       setTotalAmount(totalAmountData);
 
       if (expensesData.length === 0) {
-        console.log("No expenses found for manager_id:", defaultManagerId);
       }
     } catch (error) {
-      console.error("Error fetching expenses:", error.response || error);
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -163,7 +111,6 @@ function ExpenseForm() {
           description: formData.description,
           manager_id: formData.manager_id,
         };
-        console.log("Patch Payload:", payload);
         await api.patch("/farm/", payload);
         Swal.fire({
           icon: "success",
@@ -178,7 +125,6 @@ function ExpenseForm() {
           description: formData.description,
           manager_id: formData.manager_id,
         };
-        console.log("Posting Payload:", payload);
         await api.post("/farm/", payload);
         Swal.fire({
           icon: "success",
@@ -187,9 +133,8 @@ function ExpenseForm() {
         });
       }
       resetForm();
-      await fetchExpenses(); // Refetch to update totalAmount and expenses
+      await fetchExpenses();
     } catch (error) {
-      console.error("Error saving expense:", error.response || error);
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -199,7 +144,6 @@ function ExpenseForm() {
   };
 
   const handleDelete = async (id) => {
-    console.log("Deleting expense with id:", id);
     Swal.fire({
       title: language === "en" ? "Are you sure?" : "आपण खात्री आहात का?",
       text: labels.deleteConfirm,
@@ -223,9 +167,8 @@ function ExpenseForm() {
             text: "Expense has been deleted.",
           });
           resetForm();
-          await fetchExpenses(); // Refetch to update totalAmount and expenses
+          await fetchExpenses();
         } catch (error) {
-          console.error("Error deleting expense:", error.response || error);
           Swal.fire({
             icon: "error",
             title: "Error",
@@ -296,12 +239,8 @@ function ExpenseForm() {
 
   return (
     <div className="container mb-5 p-0">
-      <div className="mb-3 d-flex align-items-center px-3 py-3 bg-success text-white rounded-3">
-        <BackButton className="backbtn fs-4 ms-2" />
-        <h2 className="fs-4 text-white m-0 d-flex align-items-center justify-content-center flex-grow-1">
-          <FaMoneyBillWave className="me-2" /> {labels.title}
-        </h2>
-      </div>
+      <Header title={translations[language].managerexpensetitle} icon={FaMoneyBillWave} />
+
       <div
         style={{
           display: "flex",
@@ -323,7 +262,7 @@ function ExpenseForm() {
         <input
           type="text"
           className="form-control shadow-sm rounded-3 border-success px-3 py-2 me-2"
-          placeholder={labels.searchPlaceholder}
+          placeholder={labels.managerexpensesearchPlaceholder}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{ width: "60%" }}

@@ -14,7 +14,7 @@ const Home = () => {
   return (
     <div
       style={{
-        position: "fixed", // Fix to viewport
+        position: "fixed", 
         height: "100%",
         width: "100%",
         left:'0',
@@ -29,7 +29,6 @@ const Home = () => {
         textAlign: "center",
       }}
     >
-      {/* Dark Overlay to Cover the Whole Page */}
       <div
         style={{
           position: "absolute",
@@ -37,12 +36,11 @@ const Home = () => {
           left: 0,
           width: "100%",
           height: "100%",
-          backgroundColor: "rgba(0, 0, 0, 0.5)", // Dark overlay
+          backgroundColor: "rgba(0, 0, 0, 0.5)", 
           zIndex: 1,
         }}
       ></div>
 
-      {/* Content (Above Overlay) */}
       <div
         style={{
           position: "relative",

@@ -9,6 +9,8 @@ import Spinner from "../Spinner/Spinner";
 import api from "../../Api/axiosInstance";
 import { FaSave, FaTimes, FaGlobe } from "react-icons/fa";
 import Swal from "sweetalert2";
+import Header from "../Components/Header";
+import { translations } from "../Components/translations/index";
 
 const Villages = () => {
   const navigate = useNavigate();
@@ -24,7 +26,6 @@ const Villages = () => {
           )
         : [];
     } catch (error) {
-      console.error("Error parsing stored villages:", error);
       return [];
     }
   };
@@ -58,60 +59,6 @@ const Villages = () => {
     villages: {},
   });
 
-  const translations = useMemo(
-    () => ({
-      en: {
-        title: "My Villages",
-        addSheti: "Add Village",
-        AllFarms: "All Farms",
-        searchPlaceholder: "Search",
-        cancel: "Cancel",
-        edit: "Edit",
-        update: "Update",
-        state: "State",
-        district: "District",
-        taluka: "Taluka",
-        gaon: "Village",
-        toast: {
-          fetchStatesError: "Failed to fetch states",
-          fetchDistrictsError: "Failed to fetch districts",
-          fetchTalukasError: "Failed to fetch talukas",
-          fetchVillagesError: "Failed to fetch villages",
-          selectTalukaVillageError: "Please select both taluka and village",
-          villageExistsError: "This village is already added",
-          villageAddedSuccess: "Village added successfully!",
-          villageAddError: "Failed to add village",
-          timeoutError: "Request timed out. Please try again." // Removed trailing comma
-        },
-      },
-      mr: {
-        title: "माझी गावे",
-        addSheti: "गावे जोडा",
-        AllFarms: "सर्व शेत",
-        searchPlaceholder: "शोधा",
-        cancel: "रद्द करा",
-        edit: "संपादन",
-        update: "अद्यतनित करा",
-        state: "राज्य",
-        district: "जिल्हा",
-        taluka: "तालुका",
-        gaon: "गाव",
-        toast: {
-          fetchStatesError: "राज्य आणण्यात अयशस्वी",
-          fetchDistrictsError: "जिल्हे आणण्यात अयशस्वी",
-          fetchTalukasError: "तालुके आणण्यात अयशस्वी",
-          fetchVillagesError: "गावे आणण्यात अयशस्वी",
-          selectTalukaVillageError: "कृपया तालुका आणि गाव दोन्ही निवडा",
-          villageExistsError: "हे गाव आधीपासूनच जोडले गेले आहे",
-          villageAddedSuccess: "गाव यशस्वीरित्या जोडले गेले!",
-          villageAddError: "गाव जोडण्यात अयशस्वी",
-          timeoutError: "विनंती वेळ संपली. कृपया पुन्हा प्रयत्न करा.",
-        },
-      },
-    }),
-    [language]
-  );
-
   const fetchWithRetry = async (
     url,
     options = {},
@@ -125,7 +72,6 @@ const Villages = () => {
       } catch (err) {
         if (i === retries - 1) throw err;
         if (err.response?.status === 504 || err.code === "ECONNABORTED") {
-          console.warn(`Retry ${i + 1}/${retries} for ${url} due to timeout`);
           await new Promise((resolve) => setTimeout(resolve, delay));
           continue;
         }
@@ -446,12 +392,7 @@ const Villages = () => {
 
   return (
     <div className="villages-container mb-5">
-      <div className="mb-3 d-flex align-items-center py-3 header-container bg-success">
-        <BackButton className="backbtn fs-4 ms-2" />
-        <h2 className="fs-2 text-white m-0 d-flex align-items-center justify-content-center flex-grow-1">
-          <FaGlobe className="me-2" /> {translations[language].title}
-        </h2>
-      </div>
+      <Header title={translations[language].villagetitle} icon={FaGlobe} />
 
       <div className="container">
         <div className="d-flex flex-nowrap ms-auto align-items-center justify-content-center gap-1 flex-md-wrap">
@@ -459,7 +400,7 @@ const Villages = () => {
             <input
               type="search"
               className="form-control rounded border-success"
-              placeholder={translations[language].searchPlaceholder}
+              placeholder={translations[language].villagesearchPlaceholder}
               aria-label="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -698,8 +639,12 @@ const Villages = () => {
                   onClick={handleSubmitSheti}
                   disabled={loading.submit || isSubmitting || !selectedVillage}
                 >
-                  <FaSave className="me-2" />{" "}
-                  {isSubmitting ? "Submitting..." : "Submit"}
+                  <FaSave className="me-2" />
+                  {
+                    isSubmitting
+                      ? translations[language].submitting // e.g., "Submitting..." or "सादर करत आहे..."
+                      : translations[language].submit // e.g., "Submit" or "सादर करा"
+                  }
                 </button>
               </div>
             </div>
