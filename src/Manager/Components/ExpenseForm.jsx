@@ -71,11 +71,11 @@ function ExpenseForm() {
       if (expensesData.length === 0) {
       }
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to load expenses for this manager.",
-      });
+      // Swal.fire({
+      //   icon: "error",
+      //   title: "Error",
+      //   text: "Failed to load expenses for this manager.",
+      // });
       setExpenses([]);
       setTotalAmount(0);
     } finally {

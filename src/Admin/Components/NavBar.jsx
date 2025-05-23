@@ -1,4 +1,3 @@
-
 import React, { useState, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Navbar, Nav, Button, NavDropdown } from "react-bootstrap";
@@ -80,6 +79,13 @@ function NavBar() {
                     onClick={closeMenu}
                   >
                     Users
+                  </Nav.Link>
+                  <Nav.Link
+                    as={NavLink}
+                    to="/admin/Villages"
+                    onClick={closeMenu}
+                  >
+                    Villages
                   </Nav.Link>
                   <Nav.Link
                     as={NavLink}

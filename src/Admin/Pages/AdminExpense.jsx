@@ -142,11 +142,11 @@ function ExpenseForm() {
         title = language === "en" ? "Info" : "माहिती";
       }
 
-      Swal.fire({
-        icon: error.response?.status === 404 ? "info" : "error",
-        title: title,
-        text: errorMessage,
-      });
+      // Swal.fire({
+      //   icon: error.response?.status === 404 ? "info" : "error",
+      //   title: title,
+      //   text: errorMessage,
+      // });
       setAdminExpenses([]);
       // Ensure taken amount is still attempted to be fetched
       try {

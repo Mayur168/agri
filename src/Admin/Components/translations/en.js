@@ -128,7 +128,7 @@ export const englishTranslations = {
       locationSuccess: "Live location captured successfully!",
       locationError: "Failed to get location. Please allow location access.",
       locationNotSupported: "Geolocation is not supported by your browser.",
-      farmAddedSuccess: "Farm added successfully!",
+      sfarmAddedSuccess: "Farm added successfully!",
       farmAddError: "Failed to add farm.",
       farmUpdatedSuccess: "Farm updated successfully!",
       farmUpdateError: "Failed to update farm.",

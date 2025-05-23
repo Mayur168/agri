@@ -208,11 +208,6 @@ const Villages = () => {
         localStorage.setItem("villages", JSON.stringify([]));
       }
     } catch (err) {
-      toast.error(
-        err.response?.status === 504 || err.code === "ECONNABORTED"
-          ? translations[language].toast.timeoutError
-          : translations[language].toast.fetchVillagesError
-      );
       setServerVillages([]);
       setVillages([]);
       localStorage.setItem("villages", JSON.stringify([]));
@@ -598,7 +593,7 @@ const Villages = () => {
                   </label>
                   <select
                     id="villageSelect"
-                    className="form-select"
+                    className="form-select scrollable-select"
                     disabled={!selectedTaluka || loading.villages}
                     value={selectedVillage ? selectedVillage.id : ""}
                     onChange={(e) => {
@@ -642,8 +637,8 @@ const Villages = () => {
                   <FaSave className="me-2" />
                   {
                     isSubmitting
-                      ? translations[language].submitting // e.g., "Submitting..." or "सादर करत आहे..."
-                      : translations[language].submit // e.g., "Submit" or "सादर करा"
+                      ? translations[language].submitting 
+                      : translations[language].submit 
                   }
                 </button>
               </div>

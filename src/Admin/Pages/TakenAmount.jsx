@@ -38,7 +38,6 @@ const TakenAmount = () => {
   const [hasMore, setHasMore] = useState(false);
   const pageSize = 10;
 
-
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     const farmerId = user?.farmer_id;
@@ -85,11 +84,12 @@ const TakenAmount = () => {
       setTotalPages(response.data.total_pages || 1);
       setHasMore(response.data.has_more || false);
     } catch (error) {
-      Swal.fire(
-        "Error",
-        error.response?.data?.message || translations[language].noTakenAmounts,
-        "error"
-      );
+      Swal.fire({
+        title: "Notice",
+        text:
+          error.response?.data?.message ||
+          translations[language].noTakenAmounts,
+      });
       setAmounts([]);
       setTotalAmount(0);
       setPendingAmount(0);
@@ -210,7 +210,10 @@ const TakenAmount = () => {
       style={{ height: "100vh", overflow: "hidden" }}
     >
       {/* Header Section */}
-      <Header title={translations[language].takenamounttitle} icon={FaRupeeSign} />
+      <Header
+        title={translations[language].takenamounttitle}
+        icon={FaRupeeSign}
+      />
 
       {/* Cards Section */}
       <div className="mt-3">

@@ -270,60 +270,66 @@ function Sheti() {
   };
 
   const handlePostFarm = async () => {
-    if (!villageId || isNaN(parseInt(villageId))) {
-      toast.error(translations[language].toast.villageNotFound);
-      return;
-    }
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error(translations[language].toast.noToken);
+  if (!villageId || isNaN(parseInt(villageId))) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: translations[language].toast.villageNotFound,
+    });
+    return;
+  }
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error(translations[language].toast.noToken);
 
-      const postPayload = {
-        action: "postFarm",
-        name: formData.name,
-        address: formData.address,
-        location_url: formData.location_url,
-        farm_size: formData.farm_size,
-        farm_village_id: parseInt(villageId),
-        manager_id: formData.manager_id ? parseInt(formData.manager_id) : null,
-        farmers: farmerId ? [parseInt(farmerId)] : [], // Updated to set farmerId in farmers array
+    const postPayload = {
+      action: "postFarm",
+      name: formData.name,
+      address: formData.address,
+      location_url: formData.location_url,
+      farm_size: formData.farm_size,
+      farm_village_id: parseInt(villageId),
+      manager_id: formData.manager_id ? parseInt(formData.manager_id) : null,
+      farmers: farmerId ? [parseInt(farmerId)] : [],
+    };
+
+    const response = await api.post("/farm/", postPayload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const newFarm = response.data.data;
+    if (newFarm) {
+      const transformedNewFarm = {
+        id: newFarm.id,
+        name: newFarm.name,
+        description: newFarm.address,
+        location_url: newFarm.location_url,
+        farm_size: newFarm.farm_size,
+        village: { id: newFarm.farm_village },
+        manager_id: newFarm.manager,
+        farmer_id: newFarm.farmer,
       };
-
-      const response = await api.post("/farm/", postPayload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+      setFarms((prev) => [...prev, transformedNewFarm]);
+      setFilteredFarms((prev) => [...prev, transformedNewFarm]);
+      Swal.fire({
+        icon: "success",
+        title: translations[language].toast.sfarmAddedSuccess,
+        showConfirmButton: false,
+        timer: 1500,
       });
-
-      const newFarm = response.data.data;
-      if (newFarm) {
-        const transformedNewFarm = {
-          id: newFarm.id,
-          name: newFarm.name,
-          description: newFarm.address,
-          location_url: newFarm.location_url,
-          farm_size: newFarm.farm_size,
-          village: { id: newFarm.farm_village },
-          manager_id: newFarm.manager,
-          farmer_id: newFarm.farmer,
-        };
-        setFarms((prev) => [...prev, transformedNewFarm]);
-        setFilteredFarms((prev) => [...prev, transformedNewFarm]);
-        Swal.fire({
-          icon: "success",
-          title: translations[language].toast.farmAddedSuccess,
-          showConfirmButton: false,
-          timer: 1500,
-        });
-      }
       setIsModalOpen(false);
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message || translations[language].toast.farmAddError
-      );
     }
-  };
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error.response?.data?.message || translations[language].toast.farmAddError,
+    });
+  }
+};
 
   const handlePatchFarm = async () => {
     if (!isSubmitting) return;

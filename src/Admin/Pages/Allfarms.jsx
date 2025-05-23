@@ -117,15 +117,15 @@ function Allfarms() {
   
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
-        setError(err.response?.data?.message || err.message || "Error fetching farms.");
-        setHasMore(false);
+        // setError(err.response?.data?.message || err.message || "Error fetching farms.");
+        // setHasMore(false);
   
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Invalid page number or no data available.",
-          confirmButtonColor: "#dc3545",
-        });
+        // Swal.fire({
+        //   icon: "error",
+        //   title: "Error",
+        //   text: "Invalid page number or no data available.",
+        //   confirmButtonColor: "#dc3545",
+        // });
       } finally {
         setLoading(false);
       }

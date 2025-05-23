@@ -130,7 +130,7 @@ export const marathiTranslations = {
       locationSuccess: "लाइव्ह स्थान यशस्वीरित्या कॅप्चर केले!",
       locationError: "स्थान मिळविण्यात अयशस्वी. कृपया स्थान परवानगी द्या.",
       locationNotSupported: "आपल्या ब्राउझरद्वारे जिओलोकेशन समर्थित नाही.",
-      farmAddedSuccess: "शेती यशस्वीरित्या जोडली गेली!",
+      sfarmAddedSuccess: "शेती यशस्वीरित्या जोडली गेली!",
       farmAddError: "शेती जोडण्यात अयशस्वी.",
       farmUpdatedSuccess: "शेती यशस्वीरित्या अद्यतनित केली गेली!",
       farmUpdateError: "शेती अद्यतनित करण्यात अयशस्वी.",

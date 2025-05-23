@@ -1510,7 +1510,7 @@ const ModalForm = ({
   handleDelete,
   language,
   getLiveLocation,
-Leaf,
+  Leaf,
   formType = "farm",
   farms = [],
   products = [],
@@ -1528,7 +1528,9 @@ Leaf,
   const confirmDelete = async (id) => {
     const result = await Swal.fire({
       title: labels[language].delete || "Are you sure?",
-      text: labels[language].deleteConfirm || "Are you sure you want to delete this?",
+      text:
+        labels[language].deleteConfirm ||
+        "Are you sure you want to delete this?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -1555,7 +1557,12 @@ Leaf,
   };
 
   return (
-    <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+    <div
+      className="modal fade show d-block"
+      tabIndex="-1"
+      role="dialog"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+    >
       <style>{`
         .form-control:focus,
         .form-select:focus {
@@ -1568,7 +1575,10 @@ Leaf,
         }
       `}</style>
 
-      <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div
+        className="modal-dialog modal-dialog-centered modal-lg"
+        role="document"
+      >
         <div className="modal-content mx-auto">
           <div className="modal-header bg-success text-white">
             <h4 className="modal-title ms-auto">
@@ -1584,7 +1594,8 @@ Leaf,
                   : labels[language].addAdminExpense || "Add Admin Expense"
                 : formType === "managerExpense"
                 ? !isEditing
-                  ? labels[language].viewManagerExpense || "View Manager Expense"
+                  ? labels[language].viewManagerExpense ||
+                    "View Manager Expense"
                   : formData.id
                   ? labels[language].modalTitleManager || "Edit Manager Expense"
                   : labels[language].addManagerExpense || "Add Manager Expense"
@@ -1616,9 +1627,21 @@ Leaf,
                 ? isEditing
                   ? labels[language].addTakenAmount || "Add Taken Amount"
                   : labels[language].viewTakenAmount || "View Taken Amount"
-                : `Add ${formType === "expense" ? labels[language].adminExpense + " Expense" : formType === "adminExpense" ? labels[language].addAdminExpense : formType === "managerExpense" ? labels[language].addManagerExpense : "Farm"}`}
+                : `Add ${
+                    formType === "expense"
+                      ? labels[language].adminExpense + " Expense"
+                      : formType === "adminExpense"
+                      ? labels[language].addAdminExpense
+                      : formType === "managerExpense"
+                      ? labels[language].addManagerExpense
+                      : "Farm"
+                  }`}
             </h4>
-            <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              onClick={onClose}
+            ></button>
           </div>
           <form onSubmit={onSubmit}>
             <div className="modal-body">
@@ -1637,7 +1660,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaTractor className="me-2 text-success" /> {labels[language].farmName}
+                          <FaTractor className="me-2 text-success" />{" "}
+                          {labels[language].farmName}
                         </label>
                       </div>
                     </div>
@@ -1650,7 +1674,9 @@ Leaf,
                           onChange={handleChange}
                           disabled={!isEditing}
                         >
-                          <option value="">{labels[language].selectManager || "Select Manager"}</option>
+                          <option value="">
+                            {labels[language].selectManager || "Select Manager"}
+                          </option>
                           {managers.map((manager) => (
                             <option key={manager.id} value={manager.id}>
                               {manager.user.first_name} {manager.user.last_name}
@@ -1658,7 +1684,8 @@ Leaf,
                           ))}
                         </select>
                         <label>
-                          <FaUserTag className="me-2 text-success" /> {labels[language].manager}
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].manager}
                         </label>
                       </div>
                     </div>
@@ -1674,7 +1701,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaRuler className="me-2 text-success" /> {labels[language].farmSize}
+                          <FaRuler className="me-2 text-success" />{" "}
+                          {labels[language].farmSize}
                         </label>
                       </div>
                     </div>
@@ -1690,7 +1718,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaMapPin className="me-2 text-success" /> {labels[language].address}
+                          <FaMapPin className="me-2 text-success" />{" "}
+                          {labels[language].address}
                         </label>
                       </div>
                     </div>
@@ -1707,7 +1736,8 @@ Leaf,
                             disabled={!isEditing}
                           />
                           <label>
-                            <FaGlobe className="me-2 text-success" /> {labels[language].locationUrl}
+                            <FaGlobe className="me-2 text-success" />{" "}
+                            {labels[language].locationUrl}
                           </label>
                         </div>
                         {isEditing && (
@@ -1716,58 +1746,109 @@ Leaf,
                             className="btn btn-outline-primary"
                             onClick={getLiveLocation}
                             disabled={!isEditing}
-                            title={labels[language].getLiveLocation || "Get Live Location"}
+                            title={
+                              labels[language].getLiveLocation ||
+                              "Get Live Location"
+                            }
                           >
                             <FaMapMarkerAlt size={20} />
                           </button>
                         )}
                       </div>
                     </div>
-                    <div className="col-12">
-                      <h5 className="mb-3 fw-bold">{labels[language].fertilizers}</h5>
-                      {fertilizers.length > 0 ? (
-                        <div className="table-responsive rounded">
-                          <table
-                            className="table table-hover mb-0"
-                            style={{ borderRadius: "10px", overflow: "hidden", backgroundColor: "#fff" }}
-                          >
-                            <thead className="bg-success text-white" style={{ position: "sticky", top: 0, zIndex: 1 }}>
-                              <tr>
-                                <th scope="col" className="text-center py-3" style={{ width: "10%", fontSize: "0.9rem" }}>
-                                  #
-                                </th>
-                                <th scope="col" className="py-3" style={{ width: "45%", fontSize: "0.9rem" }}>
-                                  <FaLeaf className="me-2" />
-                                  {labels[language].fertilizerName}
-                                </th>
-                                <th scope="col" className="py-3" style={{ width: "45%", fontSize: "0.9rem" }}>
-                                  <FaCalendarAlt className="me-2" />
-                                  {labels[language].date}
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {fertilizers.map((fertilizer, index) => (
-                                <tr
-                                  key={fertilizer.id || index}
-                                  style={{ transition: "background-color 0.2s ease" }}
-                                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f8f9fa")}
-                                  onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                                >
-                                  <td className="text-center py-3">{index + 1}</td>
-                                  <td className="py-3 fw-medium">{fertilizer.name || "Unknown Fertilizer"}</td>
-                                  <td className="py-3 text-muted">{formatDateForDisplay(fertilizer.date) || "N/A"}</td>
+                    {/* Conditionally render fertilizers section */}
+                    {formType === "farm" && (formData.id || !isEditing) && (
+                      <div className="col-12">
+                        <h5 className="mb-3 fw-bold">
+                          {labels[language].fertilizers}
+                        </h5>
+                        {fertilizers.length > 0 ? (
+                          <div className="table-responsive rounded">
+                            <table
+                              className="table table-hover mb-0"
+                              style={{
+                                borderRadius: "10px",
+                                overflow: "hidden",
+                                backgroundColor: "#fff",
+                              }}
+                            >
+                              <thead
+                                className="bg-success text-white"
+                                style={{
+                                  position: "sticky",
+                                  top: 0,
+                                  zIndex: 1,
+                                }}
+                              >
+                                <tr>
+                                  <th
+                                    scope="col"
+                                    className="text-center py-3"
+                                    style={{ width: "10%", fontSize: "0.9rem" }}
+                                  >
+                                    #
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="py-3"
+                                    style={{ width: "45%", fontSize: "0.9rem" }}
+                                  >
+                                    <FaLeaf className="me-2" />
+                                    {labels[language].fertilizerName}
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="py-3"
+                                    style={{ width: "45%", fontSize: "0.9rem" }}
+                                  >
+                                    <FaCalendarAlt className="me-2" />
+                                    {labels[language].date}
+                                  </th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : (
-                        <div className="alert alert-info text-center py-3 mb-0" role="alert" style={{ borderRadius: "8px" }}>
-                          {labels[language].noFertilizers || "No fertilizers found for this farm."}
-                        </div>
-                      )}
-                    </div>
+                              </thead>
+                              <tbody>
+                                {fertilizers.map((fertilizer, index) => (
+                                  <tr
+                                    key={fertilizer.id || index}
+                                    style={{
+                                      transition: "background-color 0.2s ease",
+                                    }}
+                                    onMouseEnter={(e) =>
+                                      (e.currentTarget.style.backgroundColor =
+                                        "#f8f9fa")
+                                    }
+                                    onMouseLeave={(e) =>
+                                      (e.currentTarget.style.backgroundColor =
+                                        "transparent")
+                                    }
+                                  >
+                                    <td className="text-center py-3">
+                                      {index + 1}
+                                    </td>
+                                    <td className="py-3 fw-medium">
+                                      {fertilizer.name || "Unknown Fertilizer"}
+                                    </td>
+                                    <td className="py-3 text-muted">
+                                      {formatDateForDisplay(fertilizer.date) ||
+                                        "N/A"}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : (
+                          <div
+                            className="alert alert-info text-center py-3 mb-0"
+                            role="alert"
+                            style={{ borderRadius: "8px" }}
+                          >
+                            {labels[language].noFertilizers ||
+                              "No fertilizers found for this farm."}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </>
                 )}
                 {formType === "manager" && (
@@ -1784,7 +1865,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaUserTag className="me-2 text-success" /> {labels[language].firstName}
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].firstName}
                         </label>
                       </div>
                     </div>
@@ -1800,7 +1882,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaUserTag className="me-2 text-success" /> {labels[language].lastName}
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].lastName}
                         </label>
                       </div>
                     </div>
@@ -1816,7 +1899,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaGlobe className="me-2 text-success" /> {labels[language].email}
+                          <FaGlobe className="me-2 text-success" />{" "}
+                          {labels[language].email}
                         </label>
                       </div>
                     </div>
@@ -1832,7 +1916,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaPhone className="me-2 text-success" /> {labels[language].phone}
+                          <FaPhone className="me-2 text-success" />{" "}
+                          {labels[language].phone}
                         </label>
                       </div>
                     </div>
@@ -1848,7 +1933,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaLock className="me-2 text-success" /> {labels[language].password}
+                          <FaLock className="me-2 text-success" />{" "}
+                          {labels[language].password}
                         </label>
                       </div>
                     </div>
@@ -1864,7 +1950,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaLock className="me-2 text-success" /> {labels[language].confirmPassword}
+                          <FaLock className="me-2 text-success" />{" "}
+                          {labels[language].confirmPassword}
                         </label>
                       </div>
                     </div>
@@ -1877,11 +1964,16 @@ Leaf,
                           onChange={handleChange}
                           disabled={!isEditing}
                         >
-                          <option value="Manager">{labels[language].manager}</option>
-                          <option value="Admin">{labels[language].admin}</option>
+                          <option value="Manager">
+                            {labels[language].manager}
+                          </option>
+                          <option value="Admin">
+                            {labels[language].admin}
+                          </option>
                         </select>
                         <label>
-                          <FaUserTag className="me-2 text-success" /> {labels[language].role}
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].role}
                         </label>
                       </div>
                     </div>
@@ -1899,7 +1991,8 @@ Leaf,
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaTractor className="me-2 text-success" /> {labels[language].farmName}
+                              <FaTractor className="me-2 text-success" />{" "}
+                              {labels[language].farmName}
                             </label>
                           </div>
                         </div>
@@ -1915,7 +2008,8 @@ Leaf,
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaMapPin className="me-2 text-success" /> {labels[language].farmLocation}
+                              <FaMapPin className="me-2 text-success" />{" "}
+                              {labels[language].farmLocation}
                             </label>
                           </div>
                         </div>
@@ -1931,7 +2025,8 @@ Leaf,
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaRuler className="me-2 text-success" /> {labels[language].managerExperience}
+                              <FaRuler className="me-2 text-success" />{" "}
+                              {labels[language].managerExperience}
                             </label>
                           </div>
                         </div>
@@ -1951,7 +2046,8 @@ Leaf,
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaTractor className="me-2 text-success" /> {labels[language].farmName}
+                              <FaTractor className="me-2 text-success" />{" "}
+                              {labels[language].farmName}
                             </label>
                           </div>
                         </div>
@@ -1967,7 +2063,8 @@ Leaf,
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaMapPin className="me-2 text-success" /> {labels[language].farmLocation}
+                              <FaMapPin className="me-2 text-success" />{" "}
+                              {labels[language].farmLocation}
                             </label>
                           </div>
                         </div>
@@ -1983,7 +2080,8 @@ Leaf,
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaRuler className="me-2 text-success" /> {labels[language].farmSize}
+                              <FaRuler className="me-2 text-success" />{" "}
+                              {labels[language].farmSize}
                             </label>
                           </div>
                         </div>
@@ -2002,7 +2100,10 @@ Leaf,
                           onChange={handleChange}
                           disabled={!isEditing}
                         >
-                          <option value="">{labels[language].selectFertilizer || "Select Fertilizer"}</option>
+                          <option value="">
+                            {labels[language].selectFertilizer ||
+                              "Select Fertilizer"}
+                          </option>
                           {fertilizers.map((fertilizer) => (
                             <option key={fertilizer.id} value={fertilizer.id}>
                               {fertilizer.name}
@@ -2010,7 +2111,8 @@ Leaf,
                           ))}
                         </select>
                         <label>
-                          <FaLeaf className="me-2 text-success" /> {labels[language].fertilizerName}
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].fertilizerName}
                         </label>
                       </div>
                     </div>
@@ -2020,11 +2122,15 @@ Leaf,
                           type="text"
                           className="form-control"
                           name="farm_name"
-                          value={farms.find((farm) => farm.id === formData.farm_id)?.name || "N/A"}
+                          value={
+                            farms.find((farm) => farm.id === formData.farm_id)
+                              ?.name || "N/A"
+                          }
                           disabled
                         />
                         <label>
-                          <FaTractor className="me-2 text-success" /> {labels[language].farmName}
+                          <FaTractor className="me-2 text-success" />{" "}
+                          {labels[language].farmName}
                         </label>
                       </div>
                     </div>
@@ -2035,30 +2141,54 @@ Leaf,
                           className="form-control"
                           name="date"
                           value={
-                            formData.date && moment(formData.date, "DD-MMM-YYYY hh:mm A", true).isValid()
-                              ? moment.tz(formData.date, "DD-MMM-YYYY hh:mm A", "Asia/Kolkata").format("YYYY-MM-DDTHH:mm")
+                            formData.date &&
+                            moment(
+                              formData.date,
+                              "DD-MMM-YYYY hh:mm A",
+                              true
+                            ).isValid()
+                              ? moment
+                                  .tz(
+                                    formData.date,
+                                    "DD-MMM-YYYY hh:mm A",
+                                    "Asia/Kolkata"
+                                  )
+                                  .format("YYYY-MM-DDTHH:mm")
                               : ""
                           }
                           onChange={(e) => {
                             const isoDate = e.target.value;
                             if (isoDate) {
-                              const istDate = moment.tz(isoDate, "Asia/Kolkata");
+                              const istDate = moment.tz(
+                                isoDate,
+                                "Asia/Kolkata"
+                              );
                               if (istDate.isValid()) {
                                 handleChange({
-                                  target: { name: "date", value: istDate.format("DD-MMM-YYYY hh:mm A") },
+                                  target: {
+                                    name: "date",
+                                    value: istDate.format(
+                                      "DD-MMM-YYYY hh:mm A"
+                                    ),
+                                  },
                                 });
                               } else {
-                                handleChange({ target: { name: "date", value: "" } });
+                                handleChange({
+                                  target: { name: "date", value: "" },
+                                });
                               }
                             } else {
-                              handleChange({ target: { name: "date", value: "" } });
+                              handleChange({
+                                target: { name: "date", value: "" },
+                              });
                             }
                           }}
                           placeholder={labels[language].date}
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaCalendarAlt className="me-2 text-success" /> {labels[language].date}
+                          <FaCalendarAlt className="me-2 text-success" />{" "}
+                          {labels[language].date}
                         </label>
                       </div>
                     </div>
@@ -2080,7 +2210,8 @@ Leaf,
                           min="0"
                         />
                         <label>
-                          <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
+                          <FaRupeeSign className="me-2 text-success" />{" "}
+                          {labels[language].amount}
                         </label>
                       </div>
                     </div>
@@ -2096,7 +2227,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaTags className="me-2 text-success" /> {labels[language].category}
+                          <FaTags className="me-2 text-success" />{" "}
+                          {labels[language].category}
                         </label>
                       </div>
                     </div>
@@ -2112,7 +2244,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaFileAlt className="me-2 text-success" /> {labels[language].description}
+                          <FaFileAlt className="me-2 text-success" />{" "}
+                          {labels[language].description}
                         </label>
                       </div>
                     </div>
@@ -2131,10 +2264,15 @@ Leaf,
                             onFocus={fetchFarms}
                             disabled={isLoadingFarms}
                           >
-                            <option value="">{isLoadingFarms ? "Loading Farms..." : labels[language].selectFarm || "Select Farm"}</option>
+                            <option value="">
+                              {isLoadingFarms
+                                ? "Loading Farms..."
+                                : labels[language].selectFarm || "Select Farm"}
+                            </option>
                             {farms.map((farm) => (
                               <option key={farm.id} value={farm.id}>
-                                {farm.name || `Farm ${farm.id}`} ({farm.address})
+                                {farm.name || `Farm ${farm.id}`} ({farm.address}
+                                )
                               </option>
                             ))}
                           </select>
@@ -2147,7 +2285,8 @@ Leaf,
                           />
                         )}
                         <label>
-                          <FaTractor className="me-2 text-success" /> {labels[language].farm}
+                          <FaTractor className="me-2 text-success" />{" "}
+                          {labels[language].farm}
                         </label>
                       </div>
                     </div>
@@ -2161,7 +2300,12 @@ Leaf,
                             onChange={handleChange}
                             disabled={isLoadingProducts}
                           >
-                            <option value="">{isLoadingProducts ? "Loading Products..." : labels[language].selectProduct || "Select Product"}</option>
+                            <option value="">
+                              {isLoadingProducts
+                                ? "Loading Products..."
+                                : labels[language].selectProduct ||
+                                  "Select Product"}
+                            </option>
                             {products.map((product) => (
                               <option key={product.id} value={product.id}>
                                 {product.name} ({product.price})
@@ -2177,7 +2321,8 @@ Leaf,
                           />
                         )}
                         <label>
-                          <FaLeaf className="me-2 text-success" /> {labels[language].product}
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].product}
                         </label>
                       </div>
                     </div>
@@ -2193,7 +2338,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaCalendarAlt className="me-2 text-success" /> {labels[language].billDate}
+                          <FaCalendarAlt className="me-2 text-success" />{" "}
+                          {labels[language].billDate}
                         </label>
                       </div>
                     </div>
@@ -2209,7 +2355,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaUserTag className="me-2 text-success" /> {labels[language].traderName}
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].traderName}
                         </label>
                       </div>
                     </div>
@@ -2225,7 +2372,8 @@ Leaf,
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaTruck className="me-2 text-success" /> {labels[language].vehicleNumber}
+                          <FaTruck className="me-2 text-success" />{" "}
+                          {labels[language].vehicleNumber}
                         </label>
                       </div>
                     </div>
@@ -2243,7 +2391,8 @@ Leaf,
                           min="0"
                         />
                         <label>
-                          <FaRupeeSign className="me-2 text-success" /> {labels[language].rate}
+                          <FaRupeeSign className="me-2 text-success" />{" "}
+                          {labels[language].rate}
                         </label>
                       </div>
                     </div>
@@ -2260,7 +2409,8 @@ Leaf,
                           min="0"
                         />
                         <label>
-                          <FaLeaf className="me-2 text-success" /> {labels[language].trees}
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].trees}
                         </label>
                       </div>
                     </div>
@@ -2278,7 +2428,8 @@ Leaf,
                           min="0"
                         />
                         <label>
-                          <FaRuler className="me-2 text-success" /> {labels[language].weight}
+                          <FaRuler className="me-2 text-success" />{" "}
+                          {labels[language].weight}
                         </label>
                       </div>
                     </div>
@@ -2295,7 +2446,8 @@ Leaf,
                           min="0"
                         />
                         <label>
-                          <FaLeaf className="me-2 text-success" /> {labels[language].leaves}
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].leaves}
                         </label>
                       </div>
                     </div>
@@ -2313,7 +2465,8 @@ Leaf,
                           min="0"
                         />
                         <label>
-                          <FaRupeeSign className="me-2 text-success" /> {labels[language].travellingAmount}
+                          <FaRupeeSign className="me-2 text-success" />{" "}
+                          {labels[language].travellingAmount}
                         </label>
                       </div>
                     </div>
@@ -2331,7 +2484,8 @@ Leaf,
                             min="0"
                           />
                           <label>
-                            <FaRupeeSign className="me-2 text-success" /> {labels[language].managerAmount}
+                            <FaRupeeSign className="me-2 text-success" />{" "}
+                            {labels[language].managerAmount}
                           </label>
                         </div>
                       </div>
@@ -2350,7 +2504,8 @@ Leaf,
                             min="0"
                           />
                           <label>
-                            <FaRupeeSign className="me-2 text-success" /> {labels[language].totalAmount}
+                            <FaRupeeSign className="me-2 text-success" />{" "}
+                            {labels[language].totalAmount}
                           </label>
                         </div>
                       </div>
@@ -2375,7 +2530,8 @@ Leaf,
                               min="0"
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
                             </label>
                           </div>
                         </div>
@@ -2391,7 +2547,8 @@ Leaf,
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaFileAlt className="me-2 text-success" /> {labels[language].reason}
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].reason}
                             </label>
                           </div>
                         </div>
@@ -2407,7 +2564,8 @@ Leaf,
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaFileAlt className="me-2 text-success" /> {labels[language].description}
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].description}
                             </label>
                           </div>
                         </div>
@@ -2420,11 +2578,14 @@ Leaf,
                               type="text"
                               className="form-control"
                               name="amount"
-                              value={formData.amount ? `₹${formData.amount}` : "N/A"}
+                              value={
+                                formData.amount ? `₹${formData.amount}` : "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
                             </label>
                           </div>
                         </div>
@@ -2438,7 +2599,8 @@ Leaf,
                               disabled
                             />
                             <label>
-                              <FaFileAlt className="me-2 text-success" /> {labels[language].reason}
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].reason}
                             </label>
                           </div>
                         </div>
@@ -2452,7 +2614,8 @@ Leaf,
                               disabled
                             />
                             <label>
-                              <FaFileAlt className="me-2 text-success" /> {labels[language].description}
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].description}
                             </label>
                           </div>
                         </div>
@@ -2466,7 +2629,8 @@ Leaf,
                               disabled
                             />
                             <label>
-                              <FaCalendarAlt className="me-2 text-success" /> {labels[language].dateCreated}
+                              <FaCalendarAlt className="me-2 text-success" />{" "}
+                              {labels[language].dateCreated}
                             </label>
                           </div>
                         </div>
@@ -2492,7 +2656,8 @@ Leaf,
                               min="0"
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
                             </label>
                           </div>
                         </div>
@@ -2508,7 +2673,8 @@ Leaf,
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaTags className="me-2 text-success" /> {labels[language].reason}
+                              <FaTags className="me-2 text-success" />{" "}
+                              {labels[language].reason}
                             </label>
                           </div>
                         </div>
@@ -2524,7 +2690,8 @@ Leaf,
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaFileAlt className="me-2 text-success" /> {labels[language].description}
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].description}
                             </label>
                           </div>
                         </div>
@@ -2537,11 +2704,14 @@ Leaf,
                               type="text"
                               className="form-control"
                               name="amount"
-                              value={formData.amount ? `₹${formData.amount}` : "N/A"}
+                              value={
+                                formData.amount ? `₹${formData.amount}` : "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
                             </label>
                           </div>
                         </div>
@@ -2555,7 +2725,8 @@ Leaf,
                               disabled
                             />
                             <label>
-                              <FaTags className="me-2 text-success" /> {labels[language].reason}
+                              <FaTags className="me-2 text-success" />{" "}
+                              {labels[language].reason}
                             </label>
                           </div>
                         </div>
@@ -2569,7 +2740,8 @@ Leaf,
                               disabled
                             />
                             <label>
-                              <FaFileAlt className="me-2 text-success" /> {labels[language].description}
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].description}
                             </label>
                           </div>
                         </div>
@@ -2583,7 +2755,8 @@ Leaf,
                               disabled
                             />
                             <label>
-                              <FaCalendarAlt className="me-2 text-success" /> {labels[language].dateCreated}
+                              <FaCalendarAlt className="me-2 text-success" />{" "}
+                              {labels[language].dateCreated}
                             </label>
                           </div>
                         </div>
@@ -2601,11 +2774,17 @@ Leaf,
                               type="text"
                               className="form-control"
                               name="farmer"
-                              value={farmers.find((f) => f.id === formData.farmer)?.user?.first_name || formData.farmer || "N/A"}
+                              value={
+                                farmers.find((f) => f.id === formData.farmer)
+                                  ?.user?.first_name ||
+                                formData.farmer ||
+                                "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaUser className="me-2 text-success" /> {labels[language].farmer}
+                              <FaUser className="me-2 text-success" />{" "}
+                              {labels[language].farmer}
                             </label>
                           </div>
                         </div>
@@ -2622,7 +2801,8 @@ Leaf,
                               min="0"
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].takenAmount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].takenAmount}
                             </label>
                           </div>
                         </div>
@@ -2639,7 +2819,8 @@ Leaf,
                               min="0"
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].pendingAmount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].pendingAmount}
                             </label>
                           </div>
                         </div>
@@ -2652,11 +2833,17 @@ Leaf,
                               type="text"
                               className="form-control"
                               name="farmer"
-                              value={farmers.find((f) => f.id === formData.farmer)?.user?.first_name || formData.farmer || "N/A"}
+                              value={
+                                farmers.find((f) => f.id === formData.farmer)
+                                  ?.user?.first_name ||
+                                formData.farmer ||
+                                "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaUser className="me-2 text-success" /> {labels[language].farmer}
+                              <FaUser className="me-2 text-success" />{" "}
+                              {labels[language].farmer}
                             </label>
                           </div>
                         </div>
@@ -2666,11 +2853,16 @@ Leaf,
                               type="text"
                               className="form-control"
                               name="taken_amount"
-                              value={formData.taken_amount ? `₹${formData.taken_amount}` : "N/A"}
+                              value={
+                                formData.taken_amount
+                                  ? `₹${formData.taken_amount}`
+                                  : "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].takenAmount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].takenAmount}
                             </label>
                           </div>
                         </div>
@@ -2680,11 +2872,16 @@ Leaf,
                               type="text"
                               className="form-control"
                               name="pending_amount"
-                              value={formData.pending_amount ? `₹${formData.pending_amount}` : "N/A"}
+                              value={
+                                formData.pending_amount
+                                  ? `₹${formData.pending_amount}`
+                                  : "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].pendingAmount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].pendingAmount}
                             </label>
                           </div>
                         </div>
@@ -2697,7 +2894,10 @@ Leaf,
             <div className="modal-footer d-flex justify-content-end gap-2">
               {isEditing ? (
                 <>
-                  <button type="submit" className="btn btn-success btn-sm d-flex align-items-center">
+                  <button
+                    type="submit"
+                    className="btn btn-success btn-sm d-flex align-items-center"
+                  >
                     <FaSave className="me-2" /> {labels[language].submit}
                   </button>
                   {formData.id && (
