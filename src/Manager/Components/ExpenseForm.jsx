@@ -2,13 +2,11 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { FaPlus, FaMoneyBillWave, FaEdit, FaTrash } from "react-icons/fa";
 import ModalForm from "../../Admin/Components/ModelForm";
-import BackButton from "../../Admin/Components/BackButton";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useLanguage } from "../../contexts/LanguageContext";
 import api from "../../Api/axiosInstance";
 import Spinner from "../../Admin/Spinner/Spinner";
 import Header from "../../Admin/Components/Header";
-import { translations } from "../../Admin/Components/translations";
 
 function ExpenseForm() {
   const { language } = useLanguage();
@@ -31,6 +29,49 @@ function ExpenseForm() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const translations = {
+    en: {
+      title: "Daily Expenses",
+      addManagerExpense: "Add Expense",
+      edit: "Edit",
+      delete: "Delete",
+      save: "Save",
+      close: "Close",
+      deleteConfirm: "You won't be able to revert this!",
+      dateCreated: "Date",
+      description: "Description",
+      amount: "Amount",
+      reason: "Reason",
+      managerId: "Manager ID",
+      modalTitleManager: "Edit Expense",
+      submit: "Save",
+      searchPlaceholder: "Search...",
+      addButton: "Expense",
+      noExpenses: "No expenses available",
+      totalAmount: "Total Expenses",
+    },
+    mr: {
+      title: "दैनिक खर्च",
+      addManagerExpense: "खर्च जोडा",
+      edit: "संपादन",
+      delete: "हटवा",
+      save: "जतन करा",
+      close: "बंद करा",
+      deleteConfirm: "आपण हे परत करू शकणार नाही!",
+      dateCreated: "तारीख",
+      description: "वर्णन",
+      amount: "रक्कम",
+      reason: "कारण",
+      managerId: "व्यवस्थापक आयडी",
+      modalTitleManager: "खर्च संपादन",
+      submit: "जतन करा",
+      searchPlaceholder: "शोधा...",
+      addButton: "खर्च",
+      noExpenses: "कोणतेही खर्च उपलब्ध नाहीत",
+      totalAmount: "एकूण खर्च",
+    },
+  };
+
   const labels = translations[language];
 
   const fetchExpenses = async () => {
@@ -51,7 +92,6 @@ function ExpenseForm() {
       const response = await api.get(
         `/farm/?action=getManagerExpenses&manager=${defaultManagerId}`
       );
-    
 
       // Handle response structure
       let expensesData = [];
@@ -63,7 +103,6 @@ function ExpenseForm() {
         expensesData = [];
         totalAmountData = 0;
       }
-
 
       setExpenses(expensesData);
       setTotalAmount(totalAmountData);
@@ -239,7 +278,10 @@ function ExpenseForm() {
 
   return (
     <div className="container mb-5 p-0">
-      <Header title={translations[language].managerexpensetitle} icon={FaMoneyBillWave} />
+      <Header
+        title={translations[language].title}
+        icon={FaMoneyBillWave}
+      />
 
       <div
         style={{
@@ -262,7 +304,7 @@ function ExpenseForm() {
         <input
           type="text"
           className="form-control shadow-sm rounded-3 border-success px-3 py-2 me-2"
-          placeholder={labels.managerexpensesearchPlaceholder}
+          placeholder={labels.searchPlaceholder}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           style={{ width: "60%" }}

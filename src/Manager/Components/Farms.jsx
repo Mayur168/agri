@@ -3,11 +3,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import Spinner from "../../Admin/Spinner/Spinner";
 import { useLanguage } from "../../contexts/LanguageContext";
-import BackButton from "../../Admin/Components/BackButton";
 import ModalForm from "../../Admin/Components/ModelForm";
 import api from "../../Api/axiosInstance";
 import Header from "../../Admin/Components/Header";
-import { translations } from "../../Admin/Components/translations";
 
 import {
   FaTractor,
@@ -76,6 +74,48 @@ function Allfarms() {
     return formattedDate;
   };
 
+  
+  const translations = {
+    en: {
+      title: "All Farms",
+      noFarms: "No farms available.",
+      farmName: "Farm Name",
+      searchPlaceholder: "Search by farm name...",
+      unauthorized: "Unauthorized: No token found",
+      previous: "Previous",
+      next: "Next",
+      fertilizers: "Fertilizers",
+      addFertilizer: "Add Fertilizer",
+      fertilizerName: "Fertilizer Name",
+      date: "Date & Time",
+      submit: "Save",
+      noFertilizers: "No fertilizers available for this farm.",
+      noFertilizersPresent: "Fertilizers are not present.",
+      edit: "Edit",
+      Edit_Fertilizer: "Edit Fertilizer",
+      delete: "Delete",
+    },
+    mr: {
+      title: "सर्व शेती",
+      noFarms: "कोणतीही शेती उपलब्ध नाही.",
+      farmName: "शेताचे नाव",
+      searchPlaceholder: "शेताच्या नावाने शोधा...",
+      unauthorized: "अनधिकृत: टोकन सापडले नाही",
+      previous: "मागील",
+      next: "पुढील",
+      fertilizers: "खते",
+      addFertilizer: "खत जोडा",
+      fertilizerName: "खताचे नाव",
+      date: "दिनांक आणि वेळ",
+      submit: "जतन करा",
+      noFertilizers: "या शेतासाठी कोणतेही खते उपलब्ध नाहीत।",
+      noFertilizersPresent: "खते उपस्थित नाहीत।",
+      edit: "संपादन करा",
+      Edit_Fertilizer: "अद्यतन करा",
+      delete: "हटवा",
+    },
+  };
+
   const managerId = user?.manager_id;
   const managerName =
     `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "N/A";
@@ -126,8 +166,7 @@ function Allfarms() {
         }));
 
         setFarms(normalizedFarms);
-        setFilteredFarms(normalizedFarms); // Initialize filteredFarms with all farms
-
+        setFilteredFarms(normalizedFarms); 
         setHasMore(farmData.length === farmsPerPage);
         setTotalPages((prev) =>
           farmData.length === farmsPerPage ? Math.max(prev, page + 1) : page
@@ -139,19 +178,19 @@ function Allfarms() {
           err.response?.data?.message || err.message || "Error fetching farms."
         );
         setHasMore(false);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text:
-            "Failed to fetch farms: " +
-            (err.response?.data?.message || err.message),
-          confirmButtonColor: "#d33",
-        });
+        // Swal.fire({
+        //   icon: "error",
+        //   title: "Error",
+        //   text:
+        //     "Failed to fetch farms: " +
+        //     (err.response?.data?.message || err.message),
+        //   confirmButtonColor: "#d33",
+        // });
       } finally {
         setLoading(false);
       }
     },
-    [language, farmsPerPage, managerId] // Removed searchQuery from dependencies
+    [language, farmsPerPage, managerId] 
   );
 
   const fetchFertilizers = async (farmId) => {
@@ -180,12 +219,12 @@ function Allfarms() {
 
       setFertilizers(validRecords);
     } catch (error) {
-      Swal.fire({
-        icon: "info",
-        title: translations[language].noFertilizersPresent,
-        confirmButtonColor: "#3085d6",
-        showConfirmButton: true,
-      });
+      // Swal.fire({
+      //   icon: "info",
+      //   title: translations[language].noFertilizersPresent,
+      //   confirmButtonColor: "#3085d6",
+      //   showConfirmButton: true,
+      // });
       setFertilizers([]);
     } finally {
       setLoading(false);
@@ -484,14 +523,14 @@ function Allfarms() {
   return (
     <div className="container mt-2 p-0 border-none">
       <div className="card border-none mb-4">
-        <Header title={translations[language].managerfarmtitle} icon={FaWarehouse} />
+        <Header title={translations[language].title} icon={FaWarehouse} />
 
         <div className="card-body ">
           <div className="input-group mb-3">
             <input
               type="search"
               className="form-control"
-              placeholder={translations[language].farm_farmsearchPlaceholder}
+              placeholder={translations[language].searchPlaceholder}
               value={searchQuery}
               onChange={handleSearch}
             />

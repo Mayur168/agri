@@ -8,11 +8,11 @@ const PrivateRoute = ({ element, requiredRole }) => {
   const { authenticated, user } = useContext(AuthContext);
 
   if (!authenticated) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   if (requiredRole && user?.role !== requiredRole) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   return element;

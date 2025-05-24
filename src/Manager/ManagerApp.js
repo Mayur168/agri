@@ -19,7 +19,7 @@ const ManagerLayout = ({ children }) => {
   console.log("Manager - Current Path:", location.pathname);
 
   if (!authenticated || user?.role !== "manager") {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   return (

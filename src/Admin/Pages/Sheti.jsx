@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -11,8 +10,6 @@ import BackButton from "../Components/BackButton";
 import ModalForm from "../Components/ModelForm";
 import api from "../../Api/axiosInstance";
 import Spinner from "../../Admin/Spinner/Spinner";
-import { translations } from "../Components/translations/index";
-
 
 function Sheti() {
   const { villageId } = useParams();
@@ -38,6 +35,81 @@ function Sheti() {
   const [isLoadingManagers, setIsLoadingManagers] = useState(false);
   const [farmerId, setFarmerId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const translations = {
+    en: {
+      addFarm: "Add Farm",
+      viewFarm: "View Farm",
+      editFarm: "Edit Farm",
+      modalTitle: "Farm Details",
+      view: "View",
+      edit: "Edit",
+      farmName: "Farm Name",
+      address: "Address",
+      locationUrl: "Location URL",
+      farmSize: "Farm Size (acres)",
+      manager: "Manager",
+      submit: "Submit",
+      close: "Close",
+      delete: "Delete",
+      cancel: "Cancel",
+      deleteConfirm: "Are you sure you want to delete this farm?",
+      villageNotFound: "Village ID not found",
+      fertilizers: "Fertilizers",
+      fertilizerName: "Fertilizer Name",
+      date: "Date",
+      toast: {
+        noToken: "No token found! Please log in.",
+        locationSuccess: "Live location captured successfully!",
+        locationError: "Failed to get location. Please allow location access.",
+        locationNotSupported: "Geolocation is not supported by your browser.",
+        farmAddedSuccess: "Farm added successfully!",
+        farmAddError: "Failed to add farm.",
+        farmUpdatedSuccess: "Farm updated successfully!",
+        farmUpdateError: "Failed to update farm.",
+        farmDeletedSuccess: "Farm deleted successfully!",
+        farmDeleteError: "Failed to delete farm.",
+        fetchManagersError: "Failed to fetch managers",
+        fetchFertilizersError: "Failed to fetch fertilizers",
+      },
+    },
+    mr: {
+      addFarm: "शेती जोडा",
+      viewFarm: "शेत पहा",
+      editFarm: "शेती संपादित करा",
+      modalTitle: "शेती तपशील",
+      view: "पहा",
+      edit: "संपादन करा",
+      farmName: "शेताचे नाव",
+      address: "पत्ता",
+      locationUrl: "स्थान URL",
+      farmSize: "शेतीचा आकार (एकर)",
+      manager: "व्यवस्थापक",
+      submit: "सुरक्षित करा",
+      close: "बंद करा",
+      delete: "मिटवा",
+      cancel: "रद्द करा",
+      deleteConfirm: "आपण खात्रीने ही शेती हटवू इच्छिता का?",
+      villageNotFound: "गावाचा आयडी सापडला नाही",
+      fertilizers: "खते",
+      fertilizerName: "खताचे नाव",
+      date: "दिनांक",
+      toast: {
+        noToken: "टोकन सापडले नाही! कृपया लॉग इन करा.",
+        locationSuccess: "लाइव्ह स्थान यशस्वीरित्या कॅप्चर केले!",
+        locationError: "स्थान मिळविण्यात अयशस्वी. कृपया स्थान परवानगी द्या.",
+        locationNotSupported: "आपल्या ब्राउझरद्वारे जिओलोकेशन समर्थित नाही.",
+        farmAddedSuccess: "शेती यशस्वीरित्या जोडली गेली!",
+        farmAddError: "शेती जोडण्यात अयशस्वी.",
+        farmUpdatedSuccess: "शेती यशस्वीरित्या अद्यतनित केली गेली!",
+        farmUpdateError: "शेती अद्यतनित करण्यात अयशस्वी.",
+        farmDeletedSuccess: "शेती यशस्वीरित्या हटविली गेली!",
+        farmDeleteError: "शेती हटविण्यात अयशस्वी.",
+        fetchManagersError: "व्यवस्थापक आणण्यात अयशस्वी",
+        fetchFertilizersError: "खते आणण्यात अयशस्वी",
+      },
+    },
+  };
 
   const fetchManagers = useCallback(async () => {
     setIsLoadingManagers(true);
@@ -270,66 +342,67 @@ function Sheti() {
   };
 
   const handlePostFarm = async () => {
-  if (!villageId || isNaN(parseInt(villageId))) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: translations[language].toast.villageNotFound,
-    });
-    return;
-  }
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) throw new Error(translations[language].toast.noToken);
-
-    const postPayload = {
-      action: "postFarm",
-      name: formData.name,
-      address: formData.address,
-      location_url: formData.location_url,
-      farm_size: formData.farm_size,
-      farm_village_id: parseInt(villageId),
-      manager_id: formData.manager_id ? parseInt(formData.manager_id) : null,
-      farmers: farmerId ? [parseInt(farmerId)] : [],
-    };
-
-    const response = await api.post("/farm/", postPayload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const newFarm = response.data.data;
-    if (newFarm) {
-      const transformedNewFarm = {
-        id: newFarm.id,
-        name: newFarm.name,
-        description: newFarm.address,
-        location_url: newFarm.location_url,
-        farm_size: newFarm.farm_size,
-        village: { id: newFarm.farm_village },
-        manager_id: newFarm.manager,
-        farmer_id: newFarm.farmer,
-      };
-      setFarms((prev) => [...prev, transformedNewFarm]);
-      setFilteredFarms((prev) => [...prev, transformedNewFarm]);
+    if (!villageId || isNaN(parseInt(villageId))) {
       Swal.fire({
-        icon: "success",
-        title: translations[language].toast.sfarmAddedSuccess,
-        showConfirmButton: false,
-        timer: 1500,
+        icon: "error",
+        title: "Error",
+        text: translations[language].toast.villageNotFound,
       });
-      setIsModalOpen(false);
+      return;
     }
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error.response?.data?.message || translations[language].toast.farmAddError,
-    });
-  }
-};
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error(translations[language].toast.noToken);
+
+      const postPayload = {
+        action: "postFarm",
+        name: formData.name,
+        address: formData.address,
+        location_url: formData.location_url,
+        farm_size: formData.farm_size,
+        farm_village_id: parseInt(villageId),
+        manager_id: formData.manager_id ? parseInt(formData.manager_id) : null,
+        farmers: farmerId ? [parseInt(farmerId)] : [],
+      };
+
+      const response = await api.post("/farm/", postPayload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const newFarm = response.data.data;
+      if (newFarm) {
+        const transformedNewFarm = {
+          id: newFarm.id,
+          name: newFarm.name,
+          description: newFarm.address,
+          location_url: newFarm.location_url,
+          farm_size: newFarm.farm_size,
+          village: { id: newFarm.farm_village },
+          manager_id: newFarm.manager,
+          farmer_id: newFarm.farmer,
+        };
+        setFarms((prev) => [...prev, transformedNewFarm]);
+        setFilteredFarms((prev) => [...prev, transformedNewFarm]);
+        Swal.fire({
+          icon: "success",
+          title: translations[language].toast.farmAddedSuccess,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        setIsModalOpen(false);
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error.response?.data?.message || translations[language].toast.farmAddError,
+      });
+    }
+  };
 
   const handlePatchFarm = async () => {
     if (!isSubmitting) return;
@@ -443,7 +516,11 @@ function Sheti() {
           <input
             type="search"
             className="form-control rounded"
-            placeholder={language === "en" ? "Search by village name..." : "गावाच्या नावावरून शोधा..."}
+            placeholder={
+              language === "en"
+                ? "Search by village name..."
+                : "गावाच्या नावावरून शोधा..."
+            }
             aria-label="Search"
             value={searchQuery}
             onChange={handleSearch}

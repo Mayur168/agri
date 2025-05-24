@@ -18,7 +18,7 @@ function MainApp() {
     if (!authenticated) return '/login';
     if (user?.role === 'admin') return '/Admin';
     if (user?.role === 'manager') return '/Manager';
-    return '/Home'; // Default route
+    return '/login'; // Default route
   };
 
   return (
@@ -50,7 +50,7 @@ function MainApp() {
       />
 
       {/* Default Route */}
-      <Route path="/Home" element={<div>Welcome to the App</div>} />
+      <Route path="/login" element={<div></div>} />
       <Route path="*" element={<Navigate to={getDefaultRedirect()} />} />
     </Routes>
   );

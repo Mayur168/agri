@@ -2,19 +2,14 @@ import React, { useState, useEffect } from "react";
 import ModalForm from "../../Admin/Components/ModelForm";
 import Swal from "sweetalert2";
 import {
-  FaEye,
   FaPlus,
   FaRupeeSign,
-  FaUser,
-  FaCalendarAlt,
 } from "react-icons/fa";
 import api from "../../Api/axiosInstance";
 import Spinner from "../Spinner/Spinner";
-import BackButton from "../Components/BackButton";
 import { useLanguage } from "../../contexts/LanguageContext";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "../Components/Header";
-import { translations } from "../Components/translations/index";
 
 const TakenAmount = () => {
   const { language } = useLanguage();
@@ -37,6 +32,43 @@ const TakenAmount = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const pageSize = 10;
+
+  const translations = {
+    en: {
+      title: "Farmer Amount",
+      addTakenAmount: "Add Amount",
+      searchPlaceholder: "Search by date or amount...",
+      noTakenAmounts: "No amounts found.",
+      farmer: "Farmer",
+      takenAmount: "Taken Amount",
+      pendingAmount: "Pending Amount",
+      dateCreated: "Date Created",
+      actions: "Actions",
+      submit: "Save",
+      cancel: "Close",
+      view: "View",
+      previous: "Previous",
+      next: "Next",
+      totalAmount: "Total Taken Amount",
+    },
+    mr: {
+      title: "शेतकरी रक्कम",
+      addTakenAmount: "रक्कम जोडा",
+      searchPlaceholder: "तारीख किंवा रक्कमेनुसार शोधा..",
+      noTakenAmounts: "कोणताही रक्कम सापडली नाही.",
+      farmer: "शेतकरी",
+      takenAmount: "घेतलेली रक्कम",
+      pendingAmount: "उरलेली रक्कम",
+      dateCreated: "निर्मिती तारीख",
+      actions: "क्रिया",
+      submit: "जतन करा",
+      cancel: "बंद करा",
+      view: "पहा",
+      previous: "मागील",
+      next: "पुढे",
+      totalAmount: "एकूण घेतलेली रक्कम",
+    },
+  };
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -84,12 +116,12 @@ const TakenAmount = () => {
       setTotalPages(response.data.total_pages || 1);
       setHasMore(response.data.has_more || false);
     } catch (error) {
-      Swal.fire({
-        title: "Notice",
-        text:
-          error.response?.data?.message ||
-          translations[language].noTakenAmounts,
-      });
+      // Swal.fire({
+      //   title: "Notice",
+      //   text:
+      //     error.response?.data?.message ||
+      //     translations[language].noTakenAmounts,
+      // });
       setAmounts([]);
       setTotalAmount(0);
       setPendingAmount(0);
@@ -211,7 +243,7 @@ const TakenAmount = () => {
     >
       {/* Header Section */}
       <Header
-        title={translations[language].takenamounttitle}
+        title={translations[language].title}
         icon={FaRupeeSign}
       />
 
@@ -282,7 +314,7 @@ const TakenAmount = () => {
         <input
           type="search"
           className="form-control rounded"
-          placeholder={translations[language].takenamountsearchPlaceholder}
+          placeholder={translations[language].searchPlaceholder}
           value={searchQuery}
           onChange={handleSearch}
         />
@@ -336,7 +368,7 @@ const TakenAmount = () => {
             </div>
           </div>
         ) : (
-          <p className="text-muted">{translations[language].noTakenAmounts}</p>
+          <p className="text-muted text-center">{translations[language].noTakenAmounts}</p>
         )}
       </div>
 

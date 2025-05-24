@@ -27,7 +27,7 @@ const AdminLayout = ({ children }) => {
   console.log("Admin - Current Path:", location.pathname);
 
   if (!authenticated || user?.role !== "admin") {
-    return <Navigate to="/login" />;
+    return <Navigate to="/" />;
   }
 
   return (

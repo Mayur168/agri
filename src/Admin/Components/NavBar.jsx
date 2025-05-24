@@ -70,7 +70,7 @@ function NavBar() {
             <Nav className="ms-auto" style={{ textAlign: "-webkit-center" }}>
               {authenticated ? (
                 <>
-                  <Nav.Link as={NavLink} to="/admin" onClick={closeMenu}>
+                  <Nav.Link as={NavLink} to="/admin/" onClick={closeMenu}>
                     Home
                   </Nav.Link>
                   <Nav.Link

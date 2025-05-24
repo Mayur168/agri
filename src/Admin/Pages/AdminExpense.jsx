@@ -13,8 +13,6 @@ import { useLanguage } from "../../contexts/LanguageContext";
 import api from "../../Api/axiosInstance";
 import Spinner from "../Spinner/Spinner";
 import Header from "../Components/Header";
-import { translations } from "../Components/translations/index";
-
 
 function ExpenseForm() {
   const { language } = useLanguage();
@@ -57,6 +55,79 @@ function ExpenseForm() {
     farmer_amount_id: null,
   });
   const [managerTotalAmount, setManagerTotalAmount] = useState(0);
+
+  const translations = {
+    en: {
+      title: "Expenses",
+      edit: "Edit",
+      delete: "Delete",
+      cancel: "Cancel",
+      deleteConfirm: "You won't be able to revert this!",
+      amount: "Amount",
+      reason: "Reason",
+      description: "Description",
+      farmerId: "Farmer ID",
+      managerId: "Manager ID",
+      dateCreated: "Date",
+      modalTitleAdmin: "Edit Admin Expense",
+      modalTitleManager: "Edit Manager Expense",
+      addAdminExpense: "Add Admin Expense",
+      addManagerExpense: "Add Manager Expense",
+      submit: "Save",
+      searchPlaceholder: "Search...",
+      managerExpense: "Manager",
+      adminExpense: "Admin",
+      noExpenses: "No expenses available",
+      managerListTitle: "Select Manager",
+      noManagers: "No managers available",
+      expenseTitle: "View Expense",
+      view: "View",
+      add: "Add",
+      viewAdminExpense: "View Admin Expense",
+      viewManagerExpense: "View Manager Expense",
+      actions: "Actions",
+      takenAmount: "Taken Amount",
+      pendingAmount: "Pending Amount",
+      totalExpense: "Total Expense",
+      noFarmerAmount:
+        "No taken amount found. Expenses will be recorded but not linked to a taken amount.",
+    },
+    mr: {
+      title: "खर्च",
+      edit: "संपादन",
+      delete: "हटवा",
+      cancel: "रद्द करा",
+      deleteConfirm: "आपण हे परत करू शकणार नाही!",
+      amount: "रक्कम",
+      reason: "कारण",
+      description: "वर्णन",
+      farmerId: "शेतकरी आयडी",
+      managerId: "व्यवस्थापक आयडी",
+      dateCreated: "तारीख",
+      modalTitleAdmin: "प्रशासक खर्च संपादन",
+      modalTitleManager: "व्यवस्थापक खर्च संपादन",
+      addAdminExpense: "प्रशासक खर्च जोडा",
+      addManagerExpense: "व्यवस्थापक खर्च जोडा",
+      submit: "जतन करा",
+      searchPlaceholder: "शोधा...",
+      managerExpense: "व्यवस्थापक",
+      adminExpense: "प्रशासक",
+      noExpenses: "कोणतेही खर्च उपलब्ध नाहीत",
+      managerListTitle: "व्यवस्थापक निवडा",
+      noManagers: "कोणतेही व्यवस्थापक उपलब्ध नाहीत",
+      expenseTitle: "खर्च पहा",
+      view: "पहा",
+      add: "जोडा",
+      viewAdminExpense: "प्रशासक खर्च पहा",
+      viewManagerExpense: "व्यवस्थापक खर्च पहा",
+      actions: "कृती",
+      takenAmount: "घेतलेली रक्कम",
+      pendingAmount: "उरलेली रक्कम",
+      totalExpense: "एकूण खर्च",
+      noFarmerAmount:
+        "कोणतीही घेतलेली रक्कम सापडली नाही. खर्च नोंदवले जातील परंतु घेतलेल्या रकमेशी जोडले जाणार नाहीत.",
+    },
+  };
 
   const labels = translations[language];
 
@@ -205,36 +276,82 @@ function ExpenseForm() {
             }))
           : [];
 
-      if (expensesData.length === 0) {
-        Swal.fire({
-          icon: "info",
-          title: language === "en" ? "Info" : "माहिती",
-          text: labels.noExpenses,
-        });
-      }
-
       setManagerExpenses(expensesData);
       setManagerTotalAmount(response.data.total_amount || 0);
     } catch (error) {
       let errorMessage = error.message || labels.noExpenses;
       let title = language === "en" ? "Error" : "त्रुटी";
+      let icon = "error";
 
       if (error.response?.status === 404) {
-        errorMessage = labels.noExpenses;
-        title = language === "en" ? "Info" : "माहिती";
+        // Treat 404 as no expenses, set empty state without alert
+        setManagerExpenses([]);
+        setManagerTotalAmount(0);
+      } else {
+        // Show alert only for other errors
+        Swal.fire({
+          icon: icon,
+          title: title,
+          text: errorMessage,
+        });
+        setManagerExpenses([]);
+        setManagerTotalAmount(0);
       }
-
-      Swal.fire({
-        icon: error.response?.status === 404 ? "info" : "error",
-        title: title,
-        text: errorMessage,
-      });
-      setManagerExpenses([]);
-      setManagerTotalAmount(0);
     } finally {
       setLoading(false);
     }
   };
+
+  // const fetchManagerExpenses = async (managerId) => {
+  //   setLoading(true);
+  //   try {
+  //     const apiUrl = `/farm/?action=getManagerExpenses&manager=${managerId}`;
+  //     const response = await api.get(apiUrl);
+
+  //     let expensesData =
+  //       response.data && Array.isArray(response.data.data)
+  //         ? response.data.data.map((expense) => ({
+  //             ...expense,
+  //             date_created: expense.date_created
+  //               ? new Date(expense.date_created).toLocaleDateString("en-US", {
+  //                   year: "numeric",
+  //                   month: "long",
+  //                   day: "numeric",
+  //                 })
+  //               : "N/A",
+  //           }))
+  //         : [];
+
+  //     if (expensesData.length === 0) {
+  //       Swal.fire({
+  //         icon: "info",
+  //         title: language === "en" ? "Info" : "माहिती",
+  //         text: labels.noExpenses,
+  //       });
+  //     }
+
+  //     setManagerExpenses(expensesData);
+  //     setManagerTotalAmount(response.data.total_amount || 0);
+  //   } catch (error) {
+  //     let errorMessage = error.message || labels.noExpenses;
+  //     let title = language === "en" ? "Error" : "त्रुटी";
+
+  //     if (error.response?.status === 404) {
+  //       errorMessage = labels.noExpenses;
+  //       title = language === "en" ? "Info" : "माहिती";
+  //     }
+
+  //     Swal.fire({
+  //       icon: error.response?.status === 404 ? "info" : "error",
+  //       title: title,
+  //       text: errorMessage,
+  //     });
+  //     setManagerExpenses([]);
+  //     setManagerTotalAmount(0);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const fetchManagers = async () => {
     setLoading(true);
@@ -252,7 +369,7 @@ function ExpenseForm() {
           : [];
       setManagers(managersData);
     } catch (error) {
-      Swal.fire("Error", "Failed to fetch manager list", "error");
+      // Swal.fire("Error", "Failed to fetch manager list", "error");
       setManagers([]);
     } finally {
       setLoading(false);
@@ -1141,6 +1258,7 @@ function ExpenseForm() {
                                   </tr>
                                 )
                               ) : null}
+                              ;
                             </tbody>
                           </table>
                         </div>
