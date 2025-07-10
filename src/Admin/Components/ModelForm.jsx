@@ -12,6 +12,7 @@ import {
   FaTractor,
   FaRuler,
   FaRupeeSign,
+  FaPercent ,
   FaLeaf,
   FaCalendarAlt,
   FaFileAlt,
@@ -517,271 +518,271 @@ const ModalForm = ({
                   </>
                 )}
                 {formType === "farm" && (
-  <>
-    <div className="col-md-6">
-      <div className="form-floating">
-        <input
-          type="text"
-          className="form-control"
-          name="name"
-          value={formData.name || ""}
-          onChange={handleChange}
-          placeholder={labels[language].farmName}
-          disabled={!isEditing}
-        />
-        <label>
-          <FaTractor className="me-2 text-success" /> {labels[language].farmName}
-        </label>
-      </div>
-    </div>
-    <div className="col-md-6">
-      <div className="form-floating">
-        <select
-          className="form-select"
-          name="manager_id"
-          value={formData.manager_id || ""}
-          onChange={handleChange}
-          disabled={!isEditing || isLoadingManagers}
-        >
-          <option value="">{labels[language].selectManager || "Select Manager"}</option>
-          {managers.map((manager) => (
-            <option key={manager.id} value={manager.id}>
-              {manager.user.first_name} {manager.user.last_name}
-            </option>
-          ))}
-        </select>
-        <label>
-          <FaUserTag className="me-2 text-success" /> {labels[language].manager}
-        </label>
-      </div>
-    </div>
-    <div className="col-md-6">
-      <div className="form-floating">
-        <input
-          type="text"
-          className="form-control"
-          name="farm_size"
-          value={formData.farm_size || ""}
-          onChange={handleChange}
-          placeholder={labels[language].farmSize}
-          disabled={!isEditing}
-        />
-        <label>
-          <FaRuler className="me-2 text-success" /> {labels[language].farmSize}
-        </label>
-      </div>
-    </div>
-    <div className="col-md-6">
-      <div className="form-floating">
-        <input
-          type="text"
-          className="form-control"
-          name="address"
-          value={formData.address || ""}
-          onChange={handleChange}
-          placeholder={labels[language].address}
-          disabled={!isEditing}
-        />
-        <label>
-          <FaMapPin className="me-2 text-success" /> {labels[language].address}
-        </label>
-      </div>
-    </div>
-    <div className="col-md-6">
-      <div className="input-group">
-        <div className="form-floating flex-grow-1">
-          <input
-            type="text"
-            className="form-control"
-            name="location_url"
-            value={formData.location_url || ""}
-            onChange={handleChange}
-            placeholder={labels[language].locationUrl}
-            disabled={!isEditing}
-          />
-          <label>
-            <FaGlobe className="me-2 text-success" /> {labels[language].locationUrl}
-          </label>
-        </div>
-        {isEditing && (
-          <button
-            type="button"
-            className="btn btn-outline-primary"
-            onClick={getLiveLocation}
-            disabled={!isEditing || loading}
-            title={labels[language].getLiveLocation || ""}
-          >
-            <FaMapMarkerAlt size={20} />
-          </button>
-        )}
-      </div>
-    </div>
-    {/* Add Fertilizer Form */}
-    {isEditing && formData.id && (
-      <div className="col-12 mt-4">
-        <h5 className="mb-3 fw-bold">{labels[language].addFertilizer || "Add Fertilizer"}</h5>
-        <div className="row g-3">
-          <div className="col-md-6">
-            <div className="form-floating">
-              <select
-                className="form-select"
-                name="fertilizer_id"
-                value={fertilizerForm.fertilizer_id || ""}
-                onChange={(e) =>
-                  setFertilizerForm({ ...fertilizerForm, fertilizer_id: e.target.value })
-                }
-                disabled={!isEditing || loading}
-              >
-                <option value="">{labels[language].selectFertilizer || "Select Fertilizer"}</option>
-                {masterFertilizers.map((fertilizer) => (
-                  <option key={fertilizer.id} value={fertilizer.id}>
-                    {fertilizer.name}
-                  </option>
-                ))}
-              </select>
-              <label>
-                <FaLeaf className="me-2 text-success" /> {labels[language].fertilizerName}
-              </label>
-            </div>
-          </div>
-          <div className="col-md-6">
-            <div className="form-floating">
-              <input
-                type="datetime-local"
-                className="form-control"
-                name="datetime-local"
-                value={
-                  fertilizerForm.date &&
-                  moment(fertilizerForm.date, "DD-MMM-YYYY hh:mm A", true).isValid()
-                    ? moment
-                        .tz(fertilizerForm.date, "DD-MMM-YYYY hh:mm A", "Asia/Kolkata")
-                        .format("YYYY-MM-DDTHH:mm")
-                    : ""
-                }
-                onChange={(e) => {
-                  const isoDate = e.target.value;
-                  if (isoDate) {
-                    const istDate = moment.tz(isoDate, "Asia/Kolkata");
-                    if (istDate.isValid()) {
-                      setFertilizerForm({
-                        ...fertilizerForm,
-                        date: istDate.format("DD-MMM-YYYY hh:mm A"),
-                      });
-                    } else {
-                      setFertilizerForm({ ...fertilizerForm, date: "" });
-                    }
-                  } else {
-                    setFertilizerForm({ ...fertilizerForm, date: "" });
-                  }
-                }}
-                placeholder={labels[language].date}
-                disabled={!isEditing || loading}
-              />
-              <label>
-                <FaCalendarAlt className="me-2 text-success" /> {labels[language].date}
-              </label>
-            </div>
-          </div>
-          <div className="col-12">
-            <button
-              type="button"
-              className="btn btn-success"
-              onClick={() =>
-                fertilizerForm.id
-                  ? handleUpdateFertilizer(fertilizerForm)
-                  : handleAddFertilizer(fertilizerForm)
-              }
-              disabled={
-                !fertilizerForm.fertilizer_id || !fertilizerForm.date || loading
-              }
-            >
-              <FaPlus className="me-2" />
-              {fertilizerForm.id
-                ? labels[language].edit || "Update Fertilizer"
-                : labels[language].addFertilizer || "Add Fertilizer"}
-            </button>
-          </div>
-        </div>
-      </div>
-    )}
-    {/* Fertilizers Table */}
-    {(formData.id || !isEditing) && (
-      <div className="col-12 mt-4">
-        <h5 className="mb-3 fw-bold">{labels[language].fertilizers}</h5>
-        {fertilizers.length > 0 ? (
-          <div className="table-responsive rounded">
-            <table
-              className="table table-hover mb-0"
-              style={{ borderRadius: "10px", overflow: "hidden", backgroundColor: "#fff" }}
-            >
-              <thead className="bg-success text-white" style={{ position: "sticky", top: 0, zIndex: 1 }}>
-                <tr>
-                  <th scope="col" className="text-center py-3" style={{ width: "10%", fontSize: "0.9rem" }}>
-                    #
-                  </th>
-                  <th scope="col" className="py-3" style={{ width: "35%", fontSize: "0.9rem" }}>
-                    <FaLeaf className="me-2" />
-                    {labels[language].fertilizerName}
-                  </th>
-                  <th scope="col" className="py-3" style={{ width: "35%", fontSize: "0.9rem" }}>
-                    <FaCalendarAlt className="me-2" />
-                    {labels[language].date}
-                  </th>
-                  {/* {isEditing && (
-                    <th scope="col" className="py-3" style={{ width: "20%", fontSize: "0.9rem" }}>
-                      <FaCog className="me-2" />
-                      {labels[language].actions || "Actions"}
-                    </th>
-                  )} */}
-                </tr>
-              </thead>
-              <tbody>
-                {fertilizers.map((fertilizer, index) => (
-                  <tr
-                    key={fertilizer.id || index}
-                    style={{ transition: "background-color 0.2s ease" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f8f9fa")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                  >
-                    <td className="text-center py-3">{index + 1}</td>
-                    <td className="py-3 fw-medium">{fertilizer.name || "Unknown Fertilizer"}</td>
-                    <td className="py-3 text-muted">{formatDateForDisplay(fertilizer.date) || "N/A"}</td>
-                    {/* {isEditing && (
-                      <td className="py-3">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => handleEditFertilizer(fertilizer)}
-                          title={labels[language].edit || "Edit"}
-                          disabled={loading}
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDeleteFertilizer(fertilizer.id)}
-                          title={labels[language].delete || "Delete"}
-                          disabled={loading}
-                        >
-                          <FaTrash />
-                        </button>
-                      </td>
-                    )} */}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div className="alert alert-info text-center" role="alert" style={{ borderRadius: "8px" }}>
-            {labels[language].noFertilizers || "No fertilizers found for this farm."}
-          </div>
-        )}
-      </div>
-    )}
-  </>
-)}
+                    <>
+                      <div className="col-md-6">
+                        <div className="form-floating">
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="name"
+                            value={formData.name || ""}
+                            onChange={handleChange}
+                            placeholder={labels[language].farmName}
+                            disabled={!isEditing}
+                          />
+                          <label>
+                            <FaTractor className="me-2 text-success" /> {labels[language].farmName}
+                          </label>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="form-floating">
+                          <select
+                            className="form-select"
+                            name="manager_id"
+                            value={formData.manager_id || ""}
+                            onChange={handleChange}
+                            disabled={!isEditing || isLoadingManagers}
+                          >
+                            <option value="">{labels[language].selectManager || "Select Manager"}</option>
+                            {managers.map((manager) => (
+                              <option key={manager.id} value={manager.id}>
+                                {manager.user.first_name} {manager.user.last_name}
+                              </option>
+                            ))}
+                          </select>
+                          <label>
+                            <FaUserTag className="me-2 text-success" /> {labels[language].manager}
+                          </label>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="form-floating">
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="farm_size"
+                            value={formData.farm_size || ""}
+                            onChange={handleChange}
+                            placeholder={labels[language].farmSize}
+                            disabled={!isEditing}
+                          />
+                          <label>
+                            <FaRuler className="me-2 text-success" /> {labels[language].farmSize}
+                          </label>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="form-floating">
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="address"
+                            value={formData.address || ""}
+                            onChange={handleChange}
+                            placeholder={labels[language].address}
+                            disabled={!isEditing}
+                          />
+                          <label>
+                            <FaMapPin className="me-2 text-success" /> {labels[language].address}
+                          </label>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="input-group">
+                          <div className="form-floating flex-grow-1">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="location_url"
+                              value={formData.location_url || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].locationUrl}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaGlobe className="me-2 text-success" /> {labels[language].locationUrl}
+                            </label>
+                          </div>
+                          {isEditing && (
+                            <button
+                              type="button"
+                              className="btn btn-outline-primary"
+                              onClick={getLiveLocation}
+                              disabled={!isEditing || loading}
+                              title={labels[language].getLiveLocation || ""}
+                            >
+                              <FaMapMarkerAlt size={20} />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      {/* Add Fertilizer Form */}
+                      {isEditing && formData.id && (
+                        <div className="col-12 mt-4">
+                          <h5 className="mb-3 fw-bold">{labels[language].addFertilizer || "Add Fertilizer"}</h5>
+                          <div className="row g-3">
+                            <div className="col-md-6">
+                              <div className="form-floating">
+                                <select
+                                  className="form-select"
+                                  name="fertilizer_id"
+                                  value={fertilizerForm.fertilizer_id || ""}
+                                  onChange={(e) =>
+                                    setFertilizerForm({ ...fertilizerForm, fertilizer_id: e.target.value })
+                                  }
+                                  disabled={!isEditing || loading}
+                                >
+                                  <option value="">{labels[language].selectFertilizer || "Select Fertilizer"}</option>
+                                  {masterFertilizers.map((fertilizer) => (
+                                    <option key={fertilizer.id} value={fertilizer.id}>
+                                      {fertilizer.name}
+                                    </option>
+                                  ))}
+                                </select>
+                                <label>
+                                  <FaLeaf className="me-2 text-success" /> {labels[language].fertilizerName}
+                                </label>
+                              </div>
+                            </div>
+                            <div className="col-md-6">
+                              <div className="form-floating">
+                                <input
+                                  type="datetime-local"
+                                  className="form-control"
+                                  name="datetime-local"
+                                  value={
+                                    fertilizerForm.date &&
+                                    moment(fertilizerForm.date, "DD-MMM-YYYY hh:mm A", true).isValid()
+                                      ? moment
+                                          .tz(fertilizerForm.date, "DD-MMM-YYYY hh:mm A", "Asia/Kolkata")
+                                          .format("YYYY-MM-DDTHH:mm")
+                                      : ""
+                                  }
+                                  onChange={(e) => {
+                                    const isoDate = e.target.value;
+                                    if (isoDate) {
+                                      const istDate = moment.tz(isoDate, "Asia/Kolkata");
+                                      if (istDate.isValid()) {
+                                        setFertilizerForm({
+                                          ...fertilizerForm,
+                                          date: istDate.format("DD-MMM-YYYY hh:mm A"),
+                                        });
+                                      } else {
+                                        setFertilizerForm({ ...fertilizerForm, date: "" });
+                                      }
+                                    } else {
+                                      setFertilizerForm({ ...fertilizerForm, date: "" });
+                                    }
+                                  }}
+                                  placeholder={labels[language].date}
+                                  disabled={!isEditing || loading}
+                                />
+                                <label>
+                                  <FaCalendarAlt className="me-2 text-success" /> {labels[language].date}
+                                </label>
+                              </div>
+                            </div>
+                            <div className="col-12">
+                              <button
+                                type="button"
+                                className="btn btn-success"
+                                onClick={() =>
+                                  fertilizerForm.id
+                                    ? handleUpdateFertilizer(fertilizerForm)
+                                    : handleAddFertilizer(fertilizerForm)
+                                }
+                                disabled={
+                                  !fertilizerForm.fertilizer_id || !fertilizerForm.date || loading
+                                }
+                              >
+                                <FaPlus className="me-2" />
+                                {fertilizerForm.id
+                                  ? labels[language].edit || "Update Fertilizer"
+                                  : labels[language].addFertilizer || "Add Fertilizer"}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      {/* Fertilizers Table */}
+                      {(formData.id || !isEditing) && (
+                        <div className="col-12 mt-4">
+                          <h5 className="mb-3 fw-bold">{labels[language].fertilizers}</h5>
+                          {fertilizers.length > 0 ? (
+                            <div className="table-responsive rounded">
+                              <table
+                                className="table table-hover mb-0"
+                                style={{ borderRadius: "10px", overflow: "hidden", backgroundColor: "#fff" }}
+                              >
+                                <thead className="bg-success text-white" style={{ position: "sticky", top: 0, zIndex: 1 }}>
+                                  <tr>
+                                    <th scope="col" className="text-center py-3" style={{ width: "10%", fontSize: "0.9rem" }}>
+                                      #
+                                    </th>
+                                    <th scope="col" className="py-3" style={{ width: "35%", fontSize: "0.9rem" }}>
+                                      <FaLeaf className="me-2" />
+                                      {labels[language].fertilizerName}
+                                    </th>
+                                    <th scope="col" className="py-3" style={{ width: "35%", fontSize: "0.9rem" }}>
+                                      <FaCalendarAlt className="me-2" />
+                                      {labels[language].date}
+                                    </th>
+                                    {/* {isEditing && (
+                                      <th scope="col" className="py-3" style={{ width: "20%", fontSize: "0.9rem" }}>
+                                        <FaCog className="me-2" />
+                                        {labels[language].actions || "Actions"}
+                                      </th>
+                                    )} */}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {fertilizers.map((fertilizer, index) => (
+                                    <tr
+                                      key={fertilizer.id || index}
+                                      style={{ transition: "background-color 0.2s ease" }}
+                                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f8f9fa")}
+                                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                                    >
+                                      <td className="text-center py-3">{index + 1}</td>
+                                      <td className="py-3 fw-medium">{fertilizer.name || "Unknown Fertilizer"}</td>
+                                      <td className="py-3 text-muted">{formatDateForDisplay(fertilizer.date) || "N/A"}</td>
+                                      {/* {isEditing && (
+                                        <td className="py-3">
+                                          <button
+                                            type="button"
+                                            className="btn btn-sm btn-outline-primary me-2"
+                                            onClick={() => handleEditFertilizer(fertilizer)}
+                                            title={labels[language].edit || "Edit"}
+                                            disabled={loading}
+                                          >
+                                            <FaEdit />
+                                          </button>
+                                          <button
+                                            type="button"
+                                            className="btn btn-sm btn-outline-danger"
+                                            onClick={() => handleDeleteFertilizer(fertilizer.id)}
+                                            title={labels[language].delete || "Delete"}
+                                            disabled={loading}
+                                          >
+                                            <FaTrash />
+                                          </button>
+                                        </td>
+                                      )} */}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          ) : (
+                            <div className="alert alert-info text-center" role="alert" style={{ borderRadius: "8px" }}>
+                              {labels[language].noFertilizers || "No fertilizers found for this farm."}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
                 {formType === "manager" && (
                   <>
                     <div className="col-md-6">
@@ -1259,7 +1260,7 @@ const ModalForm = ({
                         </label>
                         {(formData.rate || isEditing) && (
                           <span className="text-muted small">
-                            {labels[language].inKg}: {(parseFloat(formData.rate) * 100).toFixed(2) || 0} kg
+                            {labels[language].inKg}: {(parseFloat(formData.rate) / 100).toFixed(2) || 0} per kg
                           </span>
                         )}
                       </div>
@@ -1321,7 +1322,9 @@ const ModalForm = ({
                         </label>
                         {(formData.leaves || isEditing) && (
                           <span className="text-muted small">
-                            {labels[language].inKg}: {(parseInt(formData.leaves) * 100) || 0} kg
+                            {/* {labels[language].inKg}: {(parseInt(formData.leaves) * 100) || 0} kg */}
+                           {labels[language].inKg}: {(parseFloat(formData.leaves) * 100).toFixed(2) || 0} kg
+
                           </span>
                         )}
                       </div>
@@ -1343,7 +1346,9 @@ const ModalForm = ({
                         </label>
                         {(formData.fruit_stalk || isEditing) && (
                           <span className="text-muted small">
-                            {labels[language].inKg}: {(parseInt(formData.fruit_stalk) * 100) || 0} kg
+                            {labels[language].inKg}: {(parseFloat(formData.fruit_stalk) * 100).toFixed(2) || 0} kg
+
+                            {/* {labels[language].inKg}: {(parseInt(formData.fruit_stalk) * 100) || 0} kg */}
                           </span>
                         )}
                       </div>
@@ -1362,7 +1367,7 @@ const ModalForm = ({
                           min="0"
                         />
                         <label>
-                          <FaRupeeSign className="me-2 text-success" /> {labels[language].discount || "Discount"}
+                          <span className="me-2 text-success" ></span> {labels[language].discount || "Discount"}
                         </label>
                       </div>
                     </div>
