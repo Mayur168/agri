@@ -1258,7 +1258,7 @@ function ExpenseForm() {
                                   </tr>
                                 )
                               ) : null}
-                              ;
+                              
                             </tbody>
                           </table>
                         </div>

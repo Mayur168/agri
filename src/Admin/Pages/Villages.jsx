@@ -872,7 +872,7 @@ import Swal from "sweetalert2";
 import Header from "../Components/Header";
 import Spinner from "../Spinner/Spinner";
 
-const Villages = () => {
+ const Villages = () => {
   const navigate = useNavigate();
   const { language } = useLanguage();
 

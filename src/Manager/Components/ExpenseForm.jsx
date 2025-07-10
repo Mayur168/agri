@@ -32,7 +32,7 @@ function ExpenseForm() {
   const translations = {
     en: {
       title: "Daily Expenses",
-      addManagerExpense: "Add Expense",
+      // addManagerExpense: "Add Expense",
       edit: "Edit",
       delete: "Delete",
       save: "Save",
@@ -52,7 +52,7 @@ function ExpenseForm() {
     },
     mr: {
       title: "दैनिक खर्च",
-      addManagerExpense: "खर्च जोडा",
+      // addManagerExpense: "खर्च जोडा",
       edit: "संपादन",
       delete: "हटवा",
       save: "जतन करा",
@@ -126,97 +126,97 @@ function ExpenseForm() {
     fetchExpenses();
   }, [defaultManagerId]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // const handleChange = (e) => {
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  // };
 
-  const handleSave = async () => {
-    try {
-      if (!formData.manager_id) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "Manager ID is required to save an expense.",
-        });
-        return;
-      }
+  // const handleSave = async () => {
+  //   try {
+  //     if (!formData.manager_id) {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Error",
+  //         text: "Manager ID is required to save an expense.",
+  //       });
+  //       return;
+  //     }
 
-      if (formData.id) {
-        const payload = {
-          action: "patchManagerExpense",
-          id: formData.id,
-          amount: parseFloat(formData.amount),
-          reason: formData.reason,
-          description: formData.description,
-          manager_id: formData.manager_id,
-        };
-        await api.patch("/farm/", payload);
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Expense updated!",
-        });
-      } else {
-        const payload = {
-          action: "postManagerExpenses",
-          amount: parseFloat(formData.amount),
-          reason: formData.reason,
-          description: formData.description,
-          manager_id: formData.manager_id,
-        };
-        await api.post("/farm/", payload);
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Expense added!",
-        });
-      }
-      resetForm();
-      await fetchExpenses();
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Failed to save expense.",
-      });
-    }
-  };
+  //     if (formData.id) {
+  //       const payload = {
+  //         action: "patchManagerExpense",
+  //         id: formData.id,
+  //         amount: parseFloat(formData.amount),
+  //         reason: formData.reason,
+  //         description: formData.description,
+  //         manager_id: formData.manager_id,
+  //       };
+  //       await api.patch("/farm/", payload);
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Success",
+  //         text: "Expense updated!",
+  //       });
+  //     } else {
+  //       const payload = {
+  //         action: "postManagerExpenses",
+  //         amount: parseFloat(formData.amount),
+  //         reason: formData.reason,
+  //         description: formData.description,
+  //         manager_id: formData.manager_id,
+  //       };
+  //       await api.post("/farm/", payload);
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Success",
+  //         text: "Expense added!",
+  //       });
+  //     }
+  //     resetForm();
+  //     await fetchExpenses();
+  //   } catch (error) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Error",
+  //       text: "Failed to save expense.",
+  //     });
+  //   }
+  // };
 
-  const handleDelete = async (id) => {
-    Swal.fire({
-      title: language === "en" ? "Are you sure?" : "आपण खात्री आहात का?",
-      text: labels.deleteConfirm,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: language === "en" ? "Yes, delete it!" : "होय, हटवा!",
-      cancelButtonText: language === "en" ? "Cancel" : "रद्द करा",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const payload = {
-            action: "delManagerExpenses",
-            id: id,
-          };
-          await api.delete("/farm/", { data: payload });
-          Swal.fire({
-            icon: "success",
-            title: "Deleted!",
-            text: "Expense has been deleted.",
-          });
-          resetForm();
-          await fetchExpenses();
-        } catch (error) {
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Failed to delete expense.",
-          });
-        }
-      }
-    });
-  };
+  // const handleDelete = async (id) => {
+  //   Swal.fire({
+  //     title: language === "en" ? "Are you sure?" : "आपण खात्री आहात का?",
+  //     text: labels.deleteConfirm,
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#3085d6",
+  //     cancelButtonColor: "#d33",
+  //     confirmButtonText: language === "en" ? "Yes, delete it!" : "होय, हटवा!",
+  //     cancelButtonText: language === "en" ? "Cancel" : "रद्द करा",
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       try {
+  //         const payload = {
+  //           action: "delManagerExpenses",
+  //           id: id,
+  //         };
+  //         await api.delete("/farm/", { data: payload });
+  //         Swal.fire({
+  //           icon: "success",
+  //           title: "Deleted!",
+  //           text: "Expense has been deleted.",
+  //         });
+  //         resetForm();
+  //         await fetchExpenses();
+  //       } catch (error) {
+  //         Swal.fire({
+  //           icon: "error",
+  //           title: "Error",
+  //           text: "Failed to delete expense.",
+  //         });
+  //       }
+  //     }
+  //   });
+  // };
 
   const resetForm = () => {
     setFormData({
@@ -307,16 +307,16 @@ function ExpenseForm() {
           placeholder={labels.searchPlaceholder}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ width: "60%" }}
+          style={{ width: "100%" }}
         />
-        <button
+        {/* <button
           className="btn btn-success fw-bold d-flex align-items-center justify-content-center px-3 py-2 shadow-sm"
           onClick={handleAdd}
           style={{ width: "40%" }}
           disabled={!defaultManagerId}
         >
           <FaPlus className="me-1" /> {labels.addButton}
-        </button>
+        </button> */}
       </div>
 
       <div className="table-responsive">
@@ -331,8 +331,8 @@ function ExpenseForm() {
                 <th>{labels.dateCreated}</th>
                 <th>{labels.amount}</th>
                 <th>{labels.reason}</th>
-                <th>{labels.description}</th>
-                <th>{language === "en" ? "Actions" : "क्रिया"}</th>
+                {/* <th>{labels.description}</th> */}
+                {/* <th>{language === "en" ? "Actions" : "क्रिया"}</th> */}
               </tr>
             </thead>
             <tbody>
@@ -345,25 +345,25 @@ function ExpenseForm() {
                     </td>
                     <td>{item.amount || "N/A"}</td>
                     <td>{item.reason || "N/A"}</td>
-                    <td>{item.description || "N/A"}</td>
-                    <td>
-                      <div className="d-flex gap-2">
-                        <button
+                    {/* <td>{item.description || "N/A"}</td> */}
+                    {/* <td> */}
+                      {/* <div className="d-flex gap-2"> */}
+                        {/* <button
                           className="btn btn-primary btn-sm d-flex align-items-center"
                           onClick={() => handleEdit(item)}
                           title={labels.edit}
                         >
                           <FaEdit />
-                        </button>
-                        <button
+                        </button> */}
+                        {/* <button
                           className="btn btn-danger btn-sm d-flex align-items-center"
                           onClick={() => handleDelete(item.id)}
                           title={labels.delete}
                         >
                           <FaTrash />
-                        </button>
-                      </div>
-                    </td>
+                        </button> */}
+                      {/* </div> */}
+                    {/* </td> */}
                   </tr>
                 ))
               ) : (
@@ -384,9 +384,9 @@ function ExpenseForm() {
         isEditing={isEditing}
         formData={formData}
         labels={translations}
-        handleChange={handleChange}
-        handleSave={handleSave}
-        handleDelete={handleDelete}
+        // handleChange={handleChange}
+        // handleSave={handleSave}
+        // handleDelete={handleDelete}
         language={language}
         formType="managerExpense"
       />

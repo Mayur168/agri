@@ -73,7 +73,7 @@ function NavBar() {
                   <Nav.Link as={NavLink} to="/admin/" onClick={closeMenu}>
                     Home
                   </Nav.Link>
-                  <Nav.Link
+                  {/* <Nav.Link
                     as={NavLink}
                     to="/admin/manager-list"
                     onClick={closeMenu}
@@ -109,7 +109,7 @@ function NavBar() {
                     >
                       Taken Amount
                     </NavDropdown.Item>
-                  </NavDropdown>
+                  </NavDropdown> */}
                   {user && (
                     <Nav.Link
                       as={NavLink}

@@ -85,15 +85,15 @@ function Allfarms() {
       previous: "Previous",
       next: "Next",
       fertilizers: "Fertilizers",
-      addFertilizer: "Add Fertilizer",
+      // addFertilizer: "Add Fertilizer",
       fertilizerName: "Fertilizer Name",
       date: "Date & Time",
       submit: "Save",
       noFertilizers: "No fertilizers available for this farm.",
       noFertilizersPresent: "Fertilizers are not present.",
-      edit: "Edit",
-      Edit_Fertilizer: "Edit Fertilizer",
-      delete: "Delete",
+      // edit: "Edit",
+      // Edit_Fertilizer: "Edit Fertilizer",
+      // delete: "Delete",
     },
     mr: {
       title: "सर्व शेती",
@@ -104,15 +104,15 @@ function Allfarms() {
       previous: "मागील",
       next: "पुढील",
       fertilizers: "खते",
-      addFertilizer: "खत जोडा",
+      // addFertilizer: "खत जोडा",
       fertilizerName: "खताचे नाव",
       date: "दिनांक आणि वेळ",
       submit: "जतन करा",
       noFertilizers: "या शेतासाठी कोणतेही खते उपलब्ध नाहीत।",
       noFertilizersPresent: "खते उपस्थित नाहीत।",
-      edit: "संपादन करा",
-      Edit_Fertilizer: "अद्यतन करा",
-      delete: "हटवा",
+      // edit: "संपादन करा",
+      // Edit_Fertilizer: "अद्यतन करा",
+      // delete: "हटवा",
     },
   };
 
@@ -254,188 +254,188 @@ function Allfarms() {
     }
   }, []);
 
-  const handlePostFertilizer = async () => {
-    if (!fertilizerFormData.fertilizer_id || !fertilizerFormData.date) {
-      Swal.fire({
-        icon: "warning",
-        title: "Validation Error",
-        text: "Please fill all required fields (Fertilizer and Application Date)",
-        confirmButtonColor: "#3085d6",
-      });
-      return;
-    }
+  // const handlePostFertilizer = async () => {
+  //   if (!fertilizerFormData.fertilizer_id || !fertilizerFormData.date) {
+  //     Swal.fire({
+  //       icon: "warning",
+  //       title: "Validation Error",
+  //       text: "Please fill all required fields (Fertilizer and Application Date)",
+  //       confirmButtonColor: "#3085d6",
+  //     });
+  //     return;
+  //   }
 
-    setLoading(true);
-    try {
-      const payload = {
-        fertilizer_id: Number(fertilizerFormData.fertilizer_id),
-        date: convertToUTC(fertilizerFormData.date),
-        farm_id: selectedFarm?.id,
-        action: "postFarmFertilizer",
-      };
+  //   setLoading(true);
+  //   try {
+  //     const payload = {
+  //       fertilizer_id: Number(fertilizerFormData.fertilizer_id),
+  //       date: convertToUTC(fertilizerFormData.date),
+  //       farm_id: selectedFarm?.id,
+  //       action: "postFarmFertilizer",
+  //     };
 
-      const response = await api.post(`/farm/`, payload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      });
+  //     const response = await api.post(`/farm/`, payload, {
+  //       headers: {
+  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
 
-      const newFertilizer = {
-        id: response.data.data.id,
-        fertilizer_id: response.data.data.fertilizer,
-        fertilizer_name:
-          masterFertilizers.find((f) => f.id === response.data.data.fertilizer)
-            ?.name || "Unknown",
-        farm_id: response.data.data.farm,
-        date: formatDateForDisplay(response.data.data.date),
-      };
+  //     const newFertilizer = {
+  //       id: response.data.data.id,
+  //       fertilizer_id: response.data.data.fertilizer,
+  //       fertilizer_name:
+  //         masterFertilizers.find((f) => f.id === response.data.data.fertilizer)
+  //           ?.name || "Unknown",
+  //       farm_id: response.data.data.farm,
+  //       date: formatDateForDisplay(response.data.data.date),
+  //     };
 
-      setFertilizers((prevFertilizers) => {
-        const updatedFertilizers = [...prevFertilizers, newFertilizer];
-        return updatedFertilizers;
-      });
+  //     setFertilizers((prevFertilizers) => {
+  //       const updatedFertilizers = [...prevFertilizers, newFertilizer];
+  //       return updatedFertilizers;
+  //     });
 
-      resetFertilizerForm();
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Fertilizer added successfully",
-        confirmButtonColor: "#28a745",
-      });
-      await fetchFertilizers(selectedFarm.id);
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text:
-          "Failed to add fertilizer: " +
-          (error.response?.data?.message || error.message),
-        confirmButtonColor: "#d33",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     resetFertilizerForm();
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Success",
+  //       text: "Fertilizer added successfully",
+  //       confirmButtonColor: "#28a745",
+  //     });
+  //     await fetchFertilizers(selectedFarm.id);
+  //   } catch (error) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Error",
+  //       text:
+  //         "Failed to add fertilizer: " +
+  //         (error.response?.data?.message || error.message),
+  //       confirmButtonColor: "#d33",
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  const handleDeleteFertilizer = async (id) => {
-    const result = await Swal.fire({
-      title: translations[language].deleteConfirm || "Are you sure?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    });
+  // const handleDeleteFertilizer = async (id) => {
+  //   const result = await Swal.fire({
+  //     title: translations[language].deleteConfirm || "Are you sure?",
+  //     icon: "warning",
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#d33",
+  //     cancelButtonColor: "#3085d6",
+  //     confirmButtonText: "Yes, delete it!",
+  //   });
 
-    if (!result.isConfirmed) return;
+  //   if (!result.isConfirmed) return;
 
-    const token = localStorage.getItem("token");
-    setLoading(true);
-    try {
-      const payload = {
-        id: id,
-        action: "delFarmFertilizer",
-      };
+  //   const token = localStorage.getItem("token");
+  //   setLoading(true);
+  //   try {
+  //     const payload = {
+  //       id: id,
+  //       action: "delFarmFertilizer",
+  //     };
 
-      await api.delete(`/farm/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        data: payload,
-      });
+  //     await api.delete(`/farm/`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //       data: payload,
+  //     });
 
-      setFertilizers((prev) => prev.filter((fert) => fert.id !== id));
-      Swal.fire({
-        icon: "success",
-        title: "Deleted",
-        text: "Fertilizer deleted successfully",
-        confirmButtonColor: "#28a745",
-      });
-      await fetchFertilizers(selectedFarm.id);
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text:
-          "Failed to delete fertilizer: " +
-          (error.response?.data?.message || error.message),
-        confirmButtonColor: "#d33",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setFertilizers((prev) => prev.filter((fert) => fert.id !== id));
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Deleted",
+  //       text: "Fertilizer deleted successfully",
+  //       confirmButtonColor: "#28a745",
+  //     });
+  //     await fetchFertilizers(selectedFarm.id);
+  //   } catch (error) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Error",
+  //       text:
+  //         "Failed to delete fertilizer: " +
+  //         (error.response?.data?.message || error.message),
+  //       confirmButtonColor: "#d33",
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
-  const handleEditFertilizer = async () => {
-    if (!fertilizerFormData.fertilizer_id || !fertilizerFormData.date) {
-      Swal.fire({
-        icon: "warning",
-        title: "Validation Error",
-        text: "Please fill all required fields (Fertilizer and Application Date)",
-        confirmButtonColor: "#3085d6",
-      });
-      return;
-    }
+  // const handleEditFertilizer = async () => {
+  //   if (!fertilizerFormData.fertilizer_id || !fertilizerFormData.date) {
+  //     Swal.fire({
+  //       icon: "warning",
+  //       title: "Validation Error",
+  //       text: "Please fill all required fields (Fertilizer and Application Date)",
+  //       confirmButtonColor: "#3085d6",
+  //     });
+  //     return;
+  //   }
 
-    setLoading(true);
-    try {
-      const payload = {
-        id: fertilizerFormData.id,
-        action: "patchFarmFertilizer",
-        fertilizer_id: Number(fertilizerFormData.fertilizer_id),
-        date: convertToUTC(fertilizerFormData.date),
-        farm_id: selectedFarm?.id,
-      };
+  //   setLoading(true);
+  //   try {
+  //     const payload = {
+  //       id: fertilizerFormData.id,
+  //       action: "patchFarmFertilizer",
+  //       fertilizer_id: Number(fertilizerFormData.fertilizer_id),
+  //       date: convertToUTC(fertilizerFormData.date),
+  //       farm_id: selectedFarm?.id,
+  //     };
 
-      const response = await api.patch(`/farm/`, payload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      });
+  //     const response = await api.patch(`/farm/`, payload, {
+  //       headers: {
+  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
 
-      const updatedFertilizer = {
-        id: fertilizerFormData.id,
-        fertilizer_id: Number(fertilizerFormData.fertilizer_id),
-        fertilizer_name:
-          masterFertilizers.find(
-            (f) => f.id === Number(fertilizerFormData.fertilizer_id)
-          )?.name || "Unknown",
-        farm_id: selectedFarm?.id,
-        date: formatDateForDisplay(response.data.data.date),
-      };
+  //     const updatedFertilizer = {
+  //       id: fertilizerFormData.id,
+  //       fertilizer_id: Number(fertilizerFormData.fertilizer_id),
+  //       fertilizer_name:
+  //         masterFertilizers.find(
+  //           (f) => f.id === Number(fertilizerFormData.fertilizer_id)
+  //         )?.name || "Unknown",
+  //       farm_id: selectedFarm?.id,
+  //       date: formatDateForDisplay(response.data.data.date),
+  //     };
 
-      setFertilizers((prevFertilizers) => {
-        const updatedFertilizers = prevFertilizers.map((fert) =>
-          fert.id === updatedFertilizer.id
-            ? { ...fert, ...updatedFertilizer }
-            : fert
-        );
-        return [...updatedFertilizers];
-      });
+  //     setFertilizers((prevFertilizers) => {
+  //       const updatedFertilizers = prevFertilizers.map((fert) =>
+  //         fert.id === updatedFertilizer.id
+  //           ? { ...fert, ...updatedFertilizer }
+  //           : fert
+  //       );
+  //       return [...updatedFertilizers];
+  //     });
 
-      resetFertilizerForm();
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Fertilizer updated successfully",
-        confirmButtonColor: "#28a745",
-      });
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text:
-          "Failed to update fertilizer: " +
-          (error.response?.data?.message || error.message),
-        confirmButtonColor: "#d33",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     resetFertilizerForm();
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Success",
+  //       text: "Fertilizer updated successfully",
+  //       confirmButtonColor: "#28a745",
+  //     });
+  //   } catch (error) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Error",
+  //       text:
+  //         "Failed to update fertilizer: " +
+  //         (error.response?.data?.message || error.message),
+  //       confirmButtonColor: "#d33",
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
@@ -456,52 +456,52 @@ function Allfarms() {
     }
   };
 
-  const handleAddFertilizerOpen = (farm) => {
-    setSelectedFarm(farm);
-    setFertilizerFormData({
-      id: null,
-      fertilizer_id: "",
-      farm_id: farm.id,
-      date: "",
-    });
-    setIsEditing(true);
-    setIsFertilizerModalOpen(true);
-  };
+  // const handleAddFertilizerOpen = (farm) => {
+  //   setSelectedFarm(farm);
+  //   setFertilizerFormData({
+  //     id: null,
+  //     fertilizer_id: "",
+  //     farm_id: farm.id,
+  //     date: "",
+  //   });
+  //   setIsEditing(true);
+  //   setIsFertilizerModalOpen(true);
+  // };
 
-  const handleEditFertilizerOpen = (fertilizer) => {
-    setFertilizerFormData({
-      id: fertilizer.id,
-      fertilizer_id: fertilizer.fertilizer_id,
-      farm_id: fertilizer.farm_id,
-      date: fertilizer.date,
-    });
-    setIsEditing(true);
-    setIsFertilizerModalOpen(true);
-  };
+  // const handleEditFertilizerOpen = (fertilizer) => {
+  //   setFertilizerFormData({
+  //     id: fertilizer.id,
+  //     fertilizer_id: fertilizer.fertilizer_id,
+  //     farm_id: fertilizer.farm_id,
+  //     date: fertilizer.date,
+  //   });
+  //   setIsEditing(true);
+  //   setIsFertilizerModalOpen(true);
+  // };
 
-  const handleFertilizerChange = (e) => {
-    const { name, value } = e.target;
-    setFertilizerFormData({ ...fertilizerFormData, [name]: value });
-  };
+  // const handleFertilizerChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFertilizerFormData({ ...fertilizerFormData, [name]: value });
+  // };
 
-  const handleSaveFertilizer = async () => {
-    if (fertilizerFormData.id) {
-      await handleEditFertilizer();
-    } else {
-      await handlePostFertilizer();
-    }
-  };
+  // const handleSaveFertilizer = async () => {
+  //   if (fertilizerFormData.id) {
+  //     await handleEditFertilizer();
+  //   } else {
+  //     await handlePostFertilizer();
+  //   }
+  // };
 
-  const resetFertilizerForm = () => {
-    setFertilizerFormData({
-      id: null,
-      fertilizer_id: "",
-      farm_id: selectedFarm?.id,
-      date: "",
-    });
-    setIsFertilizerModalOpen(false);
-    setIsEditing(false);
-  };
+  // const resetFertilizerForm = () => {
+  //   setFertilizerFormData({
+  //     id: null,
+  //     fertilizer_id: "",
+  //     farm_id: selectedFarm?.id,
+  //     date: "",
+  //   });
+  //   setIsFertilizerModalOpen(false);
+  //   setIsEditing(false);
+  // };
 
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -584,9 +584,9 @@ function Allfarms() {
                                 {translations[language].fertilizerName}
                               </th>
                               <th scope="col">{translations[language].date}</th>
-                              <th scope="col" className="text-center">
+                              {/* <th scope="col" className="text-center">
                                 Actions
-                              </th>
+                              </th> */}
                             </tr>
                           </thead>
                           <tbody>
@@ -600,7 +600,7 @@ function Allfarms() {
                                   {formatDateForDisplay(fert.date) || "N/A"}
                                 </td>
                                 <td className="text-center">
-                                  <div className="d-flex gap-2 justify-content-center">
+                                  {/* <div className="d-flex gap-2 justify-content-center">
                                     <button
                                       className="btn btn-primary btn-sm d-flex align-items-center"
                                       onClick={() =>
@@ -619,7 +619,7 @@ function Allfarms() {
                                     >
                                       <FaTrash />
                                     </button>
-                                  </div>
+                                  </div> */}
                                 </td>
                               </tr>
                             ))}
@@ -631,13 +631,13 @@ function Allfarms() {
                         {translations[language].noFertilizers}
                       </p>
                     )}
-                    <button
+                    {/* <button
                       className="btn btn-success btn-sm mt-2 d-flex align-items-center"
                       onClick={() => handleAddFertilizerOpen(farm)}
                     >
                       <FaPlus className="me-1" />{" "}
                       {translations[language].addFertilizer}
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               )}
@@ -690,15 +690,15 @@ function Allfarms() {
 
       <ModalForm
         isOpen={isFertilizerModalOpen}
-        onClose={resetFertilizerForm}
-        isEditing={isEditing}
+        // onClose={resetFertilizerForm}
+        // isEditing={isEditing}
         formData={fertilizerFormData}
         labels={translations}
         language={language}
         formType="fertilizer"
-        handleChange={handleFertilizerChange}
-        handleSave={handleSaveFertilizer}
-        handleDelete={handleDeleteFertilizer}
+        // handleChange={handleFertilizerChange}
+        // handleSave={handleSaveFertilizer}
+        // handleDelete={handleDeleteFertilizer}
         fertilizers={masterFertilizers}
         farms={farms}
       />
