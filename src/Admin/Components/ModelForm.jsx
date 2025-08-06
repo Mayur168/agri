@@ -1,4 +1,4 @@
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import {
   FaMapMarkerAlt,
   FaSave,
@@ -12,7 +12,7 @@ import {
   FaTractor,
   FaRuler,
   FaRupeeSign,
-  FaPercent ,
+  FaPercent,
   FaLeaf,
   FaCalendarAlt,
   FaFileAlt,
@@ -22,9 +22,9 @@ import {
   FaPlus,
   FaCog,
   FaEdit,
-} from 'react-icons/fa';
-import moment from 'moment-timezone';
-import { useState } from 'react';
+} from "react-icons/fa";
+import moment from "moment-timezone";
+import { useState } from "react";
 
 const ModalForm = ({
   isOpen,
@@ -37,7 +37,7 @@ const ModalForm = ({
   handleDelete,
   language,
   getLiveLocation,
-  formType = 'farm',
+  formType = "farm",
   farms = [],
   products = [],
   fetchFarms,
@@ -55,22 +55,24 @@ const ModalForm = ({
   farmers = [],
 }) => {
   const [fertilizerForm, setFertilizerForm] = useState({
-    fertilizer_id: '',
-    date: '',
+    fertilizer_id: "",
+    date: "",
   });
 
   if (!isOpen) return null;
 
   const confirmDelete = async (id) => {
     const result = await Swal.fire({
-      title: labels[language].delete || 'Are you sure?',
-      text: labels[language].deleteConfirm || 'Are you sure you want to delete this?',
-      icon: 'warning',
+      title: labels[language].delete || "Are you sure?",
+      text:
+        labels[language].deleteConfirm ||
+        "Are you sure you want to delete this?",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: labels[language].delete || 'Yes, delete it!',
-      cancelButtonText: labels[language].cancel || 'No, cancel',
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: labels[language].delete || "Yes, delete it!",
+      cancelButtonText: labels[language].cancel || "No, cancel",
     });
 
     if (result.isConfirmed) {
@@ -84,10 +86,10 @@ const ModalForm = ({
   };
 
   const formatDateForDisplay = (date) => {
-    if (!date || !moment(date, 'DD-MMM-YYYY hh:mm A', true).isValid()) {
-      return '';
+    if (!date || !moment(date, "DD-MMM-YYYY hh:mm A", true).isValid()) {
+      return "";
     }
-    return moment(date, 'DD-MMM-YYYY hh:mm A').format('DD-MMM-YYYY hh:mm A');
+    return moment(date, "DD-MMM-YYYY hh:mm A").format("DD-MMM-YYYY hh:mm A");
   };
 
   const onAddFertilizer = () => {
@@ -96,37 +98,46 @@ const ModalForm = ({
         id: Date.now(), // Temporary ID, replace with actual logic
         fertilizer_id: fertilizerForm.fertilizer_id,
         date: fertilizerForm.date,
-        name: fertilizers.find((f) => f.id === fertilizerForm.fertilizer_id)?.name || 'Unknown',
+        name:
+          fertilizers.find((f) => f.id === fertilizerForm.fertilizer_id)
+            ?.name || "Unknown",
       };
       handleChange({
         target: {
-          name: 'fertilizers',
+          name: "fertilizers",
           value: [...(formData.fertilizers || []), newFertilizer],
         },
       });
-      setFertilizerForm({ fertilizer_id: '', date: '' });
+      setFertilizerForm({ fertilizer_id: "", date: "" });
     }
   };
 
   const handleEditFertilizer = (fertilizer) => {
     setFertilizerForm({
       fertilizer_id: fertilizer.fertilizer_id || fertilizer.id,
-      date: fertilizer.date || '',
+      date: fertilizer.date || "",
     });
   };
 
   const handleDeleteFertilizer = (fertilizerId) => {
-    const updatedFertilizers = (formData.fertilizers || []).filter((f) => f.id !== fertilizerId);
+    const updatedFertilizers = (formData.fertilizers || []).filter(
+      (f) => f.id !== fertilizerId
+    );
     handleChange({
       target: {
-        name: 'fertilizers',
+        name: "fertilizers",
         value: updatedFertilizers,
       },
     });
   };
 
   return (
-    <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+    <div
+      className="modal fade show d-block"
+      tabIndex="-1"
+      role="dialog"
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+    >
       <style>{`
         .form-control:focus,
         .form-select:focus {
@@ -139,7 +150,10 @@ const ModalForm = ({
         }
       `}</style>
 
-      <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div
+        className="modal-dialog modal-dialog-centered modal-lg"
+        role="document"
+      >
         <div className="modal-content mx-auto">
           <div className="modal-header bg-success text-white">
             <h4 className="modal-title ms-auto">
@@ -155,7 +169,8 @@ const ModalForm = ({
                   : labels[language].addAdminExpense || "Add Admin Expense"
                 : formType === "managerExpense"
                 ? !isEditing
-                  ? labels[language].viewManagerExpense || "View Manager Expense"
+                  ? labels[language].viewManagerExpense ||
+                    "View Manager Expense"
                   : formData.id
                   ? labels[language].modalTitleManager || "Edit Manager Expense"
                   : labels[language].addManagerExpense || "Add Manager Expense"
@@ -187,14 +202,26 @@ const ModalForm = ({
                 ? isEditing
                   ? labels[language].addTakenAmount || "Add Taken Amount"
                   : labels[language].viewTakenAmount || "View Taken Amount"
-                : `Add ${formType === "expense" ? labels[language].adminExpense + " Expense" : formType === "adminExpense" ? labels[language].addAdminExpense : formType === "managerExpense" ? labels[language].addManagerExpense : "Farm"}`}
+                : `Add ${
+                    formType === "expense"
+                      ? labels[language].adminExpense + " Expense"
+                      : formType === "adminExpense"
+                      ? labels[language].addAdminExpense
+                      : formType === "managerExpense"
+                      ? labels[language].addManagerExpense
+                      : "Farm"
+                  }`}
             </h4>
-            <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              onClick={onClose}
+            ></button>
           </div>
           <form onSubmit={onSubmit}>
             <div className="modal-body">
               <div className="row g-3">
-               {/* {formType === "farm" && (
+                {/* {formType === "farm" && (
                   <>
                     <div className="col-md-6">
                       <div className="form-floating">
@@ -294,8 +321,8 @@ const ModalForm = ({
                         )}
                       </div>
                     </div> */}
-                    {/* Add Fertilizer Form */}
-                    {/* {isEditing && (
+                {/* Add Fertilizer Form */}
+                {/* {isEditing && (
                       <div className="col-12 mt-4">
                         <h5 className="mb-3 fw-bold">{labels[language].addFertilizer || "Add Fertilizer"}</h5>
                         <div className="row g-3">
@@ -368,8 +395,8 @@ const ModalForm = ({
                         </div>
                       </div>
                     )} */}
-                    {/* Fertilizers Table */}
-                    {/* {(formData.id || !isEditing) && (
+                {/* Fertilizers Table */}
+                {/* {(formData.id || !isEditing) && (
                       <div className="col-12 mt-4">
                         <h5 className="mb-3 fw-bold">{labels[language].fertilizers}</h5>
                         {fertilizers.length > 0 ? (
@@ -455,7 +482,10 @@ const ModalForm = ({
                           onChange={handleChange}
                           disabled={!isEditing}
                         >
-                          <option value="">{labels[language].selectFertilizer || "Select Fertilizer"}</option>
+                          <option value="">
+                            {labels[language].selectFertilizer ||
+                              "Select Fertilizer"}
+                          </option>
                           {fertilizers.map((fertilizer) => (
                             <option key={fertilizer.id} value={fertilizer.id}>
                               {fertilizer.name}
@@ -463,7 +493,8 @@ const ModalForm = ({
                           ))}
                         </select>
                         <label>
-                          <FaLeaf className="me-2 text-success" /> {labels[language].fertilizerName}
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].fertilizerName}
                         </label>
                       </div>
                     </div>
@@ -473,11 +504,15 @@ const ModalForm = ({
                           type="text"
                           className="form-control"
                           name="farm_name"
-                          value={farms.find((farm) => farm.id === formData.farm_id)?.name || "N/A"}
+                          value={
+                            farms.find((farm) => farm.id === formData.farm_id)
+                              ?.name || "N/A"
+                          }
                           disabled
                         />
                         <label>
-                          <FaTractor className="me-2 text-success" /> {labels[language].farmName}
+                          <FaTractor className="me-2 text-success" />{" "}
+                          {labels[language].farmName}
                         </label>
                       </div>
                     </div>
@@ -488,266 +523,372 @@ const ModalForm = ({
                           className="form-control"
                           name="date"
                           value={
-                            formData.date && moment(formData.date, "DD-MMM-YYYY hh:mm A", true).isValid()
-                              ? moment.tz(formData.date, "DD-MMM-YYYY hh:mm A", "Asia/Kolkata").format("YYYY-MM-DDTHH:mm")
+                            formData.date &&
+                            moment(
+                              formData.date,
+                              "DD-MMM-YYYY hh:mm A",
+                              true
+                            ).isValid()
+                              ? moment
+                                  .tz(
+                                    formData.date,
+                                    "DD-MMM-YYYY hh:mm A",
+                                    "Asia/Kolkata"
+                                  )
+                                  .format("YYYY-MM-DDTHH:mm")
                               : ""
                           }
                           onChange={(e) => {
                             const isoDate = e.target.value;
                             if (isoDate) {
-                              const istDate = moment.tz(isoDate, "Asia/Kolkata");
+                              const istDate = moment.tz(
+                                isoDate,
+                                "Asia/Kolkata"
+                              );
                               if (istDate.isValid()) {
                                 handleChange({
-                                  target: { name: "date", value: istDate.format("DD-MMM-YYYY hh:mm A") },
+                                  target: {
+                                    name: "date",
+                                    value: istDate.format(
+                                      "DD-MMM-YYYY hh:mm A"
+                                    ),
+                                  },
                                 });
                               } else {
-                                handleChange({ target: { name: "date", value: "" } });
+                                handleChange({
+                                  target: { name: "date", value: "" },
+                                });
                               }
                             } else {
-                              handleChange({ target: { name: "date", value: "" } });
+                              handleChange({
+                                target: { name: "date", value: "" },
+                              });
                             }
                           }}
                           placeholder={labels[language].date}
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaCalendarAlt className="me-2 text-success" /> {labels[language].date}
+                          <FaCalendarAlt className="me-2 text-success" />{" "}
+                          {labels[language].date}
                         </label>
                       </div>
                     </div>
                   </>
                 )}
                 {formType === "farm" && (
-                    <>
-                      <div className="col-md-6">
-                        <div className="form-floating">
+                  <>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="name"
+                          value={formData.name || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].farmName}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaTractor className="me-2 text-success" />{" "}
+                          {labels[language].farmName}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <select
+                          className="form-select"
+                          name="manager_id"
+                          value={formData.manager_id || ""}
+                          onChange={handleChange}
+                          disabled={!isEditing || isLoadingManagers}
+                        >
+                          <option value="">
+                            {labels[language].selectManager || "Select Manager"}
+                          </option>
+                          {managers.map((manager) => (
+                            <option key={manager.id} value={manager.id}>
+                              {manager.user.first_name} {manager.user.last_name}
+                            </option>
+                          ))}
+                        </select>
+                        <label>
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].manager}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="farm_size"
+                          value={formData.farm_size || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].farmSize}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaRuler className="me-2 text-success" />{" "}
+                          {labels[language].farmSize}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="form-floating">
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="address"
+                          value={formData.address || ""}
+                          onChange={handleChange}
+                          placeholder={labels[language].address}
+                          disabled={!isEditing}
+                        />
+                        <label>
+                          <FaMapPin className="me-2 text-success" />{" "}
+                          {labels[language].address}
+                        </label>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="input-group">
+                        <div className="form-floating flex-grow-1">
                           <input
                             type="text"
                             className="form-control"
-                            name="name"
-                            value={formData.name || ""}
+                            name="location_url"
+                            value={formData.location_url || ""}
                             onChange={handleChange}
-                            placeholder={labels[language].farmName}
+                            placeholder={labels[language].locationUrl}
                             disabled={!isEditing}
                           />
                           <label>
-                            <FaTractor className="me-2 text-success" /> {labels[language].farmName}
+                            <FaGlobe className="me-2 text-success" />{" "}
+                            {labels[language].locationUrl}
                           </label>
                         </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="form-floating">
-                          <select
-                            className="form-select"
-                            name="manager_id"
-                            value={formData.manager_id || ""}
-                            onChange={handleChange}
-                            disabled={!isEditing || isLoadingManagers}
+                        {isEditing && (
+                          <button
+                            type="button"
+                            className="btn btn-outline-primary"
+                            onClick={getLiveLocation}
+                            disabled={!isEditing || loading}
+                            title={labels[language].getLiveLocation || ""}
                           >
-                            <option value="">{labels[language].selectManager || "Select Manager"}</option>
-                            {managers.map((manager) => (
-                              <option key={manager.id} value={manager.id}>
-                                {manager.user.first_name} {manager.user.last_name}
-                              </option>
-                            ))}
-                          </select>
-                          <label>
-                            <FaUserTag className="me-2 text-success" /> {labels[language].manager}
-                          </label>
-                        </div>
+                            <FaMapMarkerAlt size={20} />
+                          </button>
+                        )}
                       </div>
-                      <div className="col-md-6">
-                        <div className="form-floating">
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="farm_size"
-                            value={formData.farm_size || ""}
-                            onChange={handleChange}
-                            placeholder={labels[language].farmSize}
-                            disabled={!isEditing}
-                          />
-                          <label>
-                            <FaRuler className="me-2 text-success" /> {labels[language].farmSize}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="form-floating">
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="address"
-                            value={formData.address || ""}
-                            onChange={handleChange}
-                            placeholder={labels[language].address}
-                            disabled={!isEditing}
-                          />
-                          <label>
-                            <FaMapPin className="me-2 text-success" /> {labels[language].address}
-                          </label>
-                        </div>
-                      </div>
-                      <div className="col-md-6">
-                        <div className="input-group">
-                          <div className="form-floating flex-grow-1">
-                            <input
-                              type="text"
-                              className="form-control"
-                              name="location_url"
-                              value={formData.location_url || ""}
-                              onChange={handleChange}
-                              placeholder={labels[language].locationUrl}
-                              disabled={!isEditing}
-                            />
-                            <label>
-                              <FaGlobe className="me-2 text-success" /> {labels[language].locationUrl}
-                            </label>
+                    </div>
+                    {/* Add Fertilizer Form */}
+                    {isEditing && formData.id && (
+                      <div className="col-12 mt-4">
+                        <h5 className="mb-3 fw-bold">
+                          {labels[language].addFertilizer || "Add Fertilizer"}
+                        </h5>
+                        <div className="row g-3">
+                          <div className="col-md-6">
+                            <div className="form-floating">
+                              <select
+                                className="form-select"
+                                name="fertilizer_id"
+                                value={fertilizerForm.fertilizer_id || ""}
+                                onChange={(e) =>
+                                  setFertilizerForm({
+                                    ...fertilizerForm,
+                                    fertilizer_id: e.target.value,
+                                  })
+                                }
+                                disabled={!isEditing || loading}
+                              >
+                                <option value="">
+                                  {labels[language].selectFertilizer ||
+                                    "Select Fertilizer"}
+                                </option>
+                                {masterFertilizers.map((fertilizer) => (
+                                  <option
+                                    key={fertilizer.id}
+                                    value={fertilizer.id}
+                                  >
+                                    {fertilizer.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <label>
+                                <FaLeaf className="me-2 text-success" />{" "}
+                                {labels[language].fertilizerName}
+                              </label>
+                            </div>
                           </div>
-                          {isEditing && (
+                          <div className="col-md-6">
+                            <div className="form-floating">
+                              <input
+                                type="datetime-local"
+                                className="form-control"
+                                name="datetime-local"
+                                value={
+                                  fertilizerForm.date &&
+                                  moment(
+                                    fertilizerForm.date,
+                                    "DD-MMM-YYYY hh:mm A",
+                                    true
+                                  ).isValid()
+                                    ? moment
+                                        .tz(
+                                          fertilizerForm.date,
+                                          "DD-MMM-YYYY hh:mm A",
+                                          "Asia/Kolkata"
+                                        )
+                                        .format("YYYY-MM-DDTHH:mm")
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  const isoDate = e.target.value;
+                                  if (isoDate) {
+                                    const istDate = moment.tz(
+                                      isoDate,
+                                      "Asia/Kolkata"
+                                    );
+                                    if (istDate.isValid()) {
+                                      setFertilizerForm({
+                                        ...fertilizerForm,
+                                        date: istDate.format(
+                                          "DD-MMM-YYYY hh:mm A"
+                                        ),
+                                      });
+                                    } else {
+                                      setFertilizerForm({
+                                        ...fertilizerForm,
+                                        date: "",
+                                      });
+                                    }
+                                  } else {
+                                    setFertilizerForm({
+                                      ...fertilizerForm,
+                                      date: "",
+                                    });
+                                  }
+                                }}
+                                placeholder={labels[language].date}
+                                disabled={!isEditing || loading}
+                              />
+                              <label>
+                                <FaCalendarAlt className="me-2 text-success" />{" "}
+                                {labels[language].date}
+                              </label>
+                            </div>
+                          </div>
+                          <div className="col-12">
                             <button
                               type="button"
-                              className="btn btn-outline-primary"
-                              onClick={getLiveLocation}
-                              disabled={!isEditing || loading}
-                              title={labels[language].getLiveLocation || ""}
+                              className="btn btn-success"
+                              onClick={() =>
+                                fertilizerForm.id
+                                  ? handleUpdateFertilizer(fertilizerForm)
+                                  : handleAddFertilizer(fertilizerForm)
+                              }
+                              disabled={
+                                !fertilizerForm.fertilizer_id ||
+                                !fertilizerForm.date ||
+                                loading
+                              }
                             >
-                              <FaMapMarkerAlt size={20} />
+                              <FaPlus className="me-2" />
+                              {fertilizerForm.id
+                                ? labels[language].edit || "Update Fertilizer"
+                                : labels[language].addFertilizer ||
+                                  "Add Fertilizer"}
                             </button>
-                          )}
-                        </div>
-                      </div>
-                      {/* Add Fertilizer Form */}
-                      {isEditing && formData.id && (
-                        <div className="col-12 mt-4">
-                          <h5 className="mb-3 fw-bold">{labels[language].addFertilizer || "Add Fertilizer"}</h5>
-                          <div className="row g-3">
-                            <div className="col-md-6">
-                              <div className="form-floating">
-                                <select
-                                  className="form-select"
-                                  name="fertilizer_id"
-                                  value={fertilizerForm.fertilizer_id || ""}
-                                  onChange={(e) =>
-                                    setFertilizerForm({ ...fertilizerForm, fertilizer_id: e.target.value })
-                                  }
-                                  disabled={!isEditing || loading}
-                                >
-                                  <option value="">{labels[language].selectFertilizer || "Select Fertilizer"}</option>
-                                  {masterFertilizers.map((fertilizer) => (
-                                    <option key={fertilizer.id} value={fertilizer.id}>
-                                      {fertilizer.name}
-                                    </option>
-                                  ))}
-                                </select>
-                                <label>
-                                  <FaLeaf className="me-2 text-success" /> {labels[language].fertilizerName}
-                                </label>
-                              </div>
-                            </div>
-                            <div className="col-md-6">
-                              <div className="form-floating">
-                                <input
-                                  type="datetime-local"
-                                  className="form-control"
-                                  name="datetime-local"
-                                  value={
-                                    fertilizerForm.date &&
-                                    moment(fertilizerForm.date, "DD-MMM-YYYY hh:mm A", true).isValid()
-                                      ? moment
-                                          .tz(fertilizerForm.date, "DD-MMM-YYYY hh:mm A", "Asia/Kolkata")
-                                          .format("YYYY-MM-DDTHH:mm")
-                                      : ""
-                                  }
-                                  onChange={(e) => {
-                                    const isoDate = e.target.value;
-                                    if (isoDate) {
-                                      const istDate = moment.tz(isoDate, "Asia/Kolkata");
-                                      if (istDate.isValid()) {
-                                        setFertilizerForm({
-                                          ...fertilizerForm,
-                                          date: istDate.format("DD-MMM-YYYY hh:mm A"),
-                                        });
-                                      } else {
-                                        setFertilizerForm({ ...fertilizerForm, date: "" });
-                                      }
-                                    } else {
-                                      setFertilizerForm({ ...fertilizerForm, date: "" });
-                                    }
-                                  }}
-                                  placeholder={labels[language].date}
-                                  disabled={!isEditing || loading}
-                                />
-                                <label>
-                                  <FaCalendarAlt className="me-2 text-success" /> {labels[language].date}
-                                </label>
-                              </div>
-                            </div>
-                            <div className="col-12">
-                              <button
-                                type="button"
-                                className="btn btn-success"
-                                onClick={() =>
-                                  fertilizerForm.id
-                                    ? handleUpdateFertilizer(fertilizerForm)
-                                    : handleAddFertilizer(fertilizerForm)
-                                }
-                                disabled={
-                                  !fertilizerForm.fertilizer_id || !fertilizerForm.date || loading
-                                }
-                              >
-                                <FaPlus className="me-2" />
-                                {fertilizerForm.id
-                                  ? labels[language].edit || "Update Fertilizer"
-                                  : labels[language].addFertilizer || "Add Fertilizer"}
-                              </button>
-                            </div>
                           </div>
                         </div>
-                      )}
-                      {/* Fertilizers Table */}
-                      {(formData.id || !isEditing) && (
-                        <div className="col-12 mt-4">
-                          <h5 className="mb-3 fw-bold">{labels[language].fertilizers}</h5>
-                          {fertilizers.length > 0 ? (
-                            <div className="table-responsive rounded">
-                              <table
-                                className="table table-hover mb-0"
-                                style={{ borderRadius: "10px", overflow: "hidden", backgroundColor: "#fff" }}
+                      </div>
+                    )}
+                    {/* Fertilizers Table */}
+                    {(formData.id || !isEditing) && (
+                      <div className="col-12 mt-4">
+                        <h5 className="mb-3 fw-bold">
+                          {labels[language].fertilizers}
+                        </h5>
+                        {fertilizers.length > 0 ? (
+                          <div className="table-responsive rounded">
+                            <table
+                              className="table table-hover mb-0"
+                              style={{
+                                borderRadius: "10px",
+                                overflow: "hidden",
+                                backgroundColor: "#fff",
+                              }}
+                            >
+                              <thead
+                                className="bg-success text-white"
+                                style={{
+                                  position: "sticky",
+                                  top: 0,
+                                  zIndex: 1,
+                                }}
                               >
-                                <thead className="bg-success text-white" style={{ position: "sticky", top: 0, zIndex: 1 }}>
-                                  <tr>
-                                    <th scope="col" className="text-center py-3" style={{ width: "10%", fontSize: "0.9rem" }}>
-                                      #
-                                    </th>
-                                    <th scope="col" className="py-3" style={{ width: "35%", fontSize: "0.9rem" }}>
-                                      <FaLeaf className="me-2" />
-                                      {labels[language].fertilizerName}
-                                    </th>
-                                    <th scope="col" className="py-3" style={{ width: "35%", fontSize: "0.9rem" }}>
-                                      <FaCalendarAlt className="me-2" />
-                                      {labels[language].date}
-                                    </th>
-                                    {/* {isEditing && (
+                                <tr>
+                                  <th
+                                    scope="col"
+                                    className="text-center py-3"
+                                    style={{ width: "10%", fontSize: "0.9rem" }}
+                                  >
+                                    #
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="py-3"
+                                    style={{ width: "35%", fontSize: "0.9rem" }}
+                                  >
+                                    <FaLeaf className="me-2" />
+                                    {labels[language].fertilizerName}
+                                  </th>
+                                  <th
+                                    scope="col"
+                                    className="py-3"
+                                    style={{ width: "35%", fontSize: "0.9rem" }}
+                                  >
+                                    <FaCalendarAlt className="me-2" />
+                                    {labels[language].date}
+                                  </th>
+                                  {/* {isEditing && (
                                       <th scope="col" className="py-3" style={{ width: "20%", fontSize: "0.9rem" }}>
                                         <FaCog className="me-2" />
                                         {labels[language].actions || "Actions"}
                                       </th>
                                     )} */}
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {fertilizers.map((fertilizer, index) => (
-                                    <tr
-                                      key={fertilizer.id || index}
-                                      style={{ transition: "background-color 0.2s ease" }}
-                                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f8f9fa")}
-                                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                                    >
-                                      <td className="text-center py-3">{index + 1}</td>
-                                      <td className="py-3 fw-medium">{fertilizer.name || "Unknown Fertilizer"}</td>
-                                      <td className="py-3 text-muted">{formatDateForDisplay(fertilizer.date) || "N/A"}</td>
-                                      {/* {isEditing && (
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {fertilizers.map((fertilizer, index) => (
+                                  <tr
+                                    key={fertilizer.id || index}
+                                    style={{
+                                      transition: "background-color 0.2s ease",
+                                    }}
+                                    onMouseEnter={(e) =>
+                                      (e.currentTarget.style.backgroundColor =
+                                        "#f8f9fa")
+                                    }
+                                    onMouseLeave={(e) =>
+                                      (e.currentTarget.style.backgroundColor =
+                                        "transparent")
+                                    }
+                                  >
+                                    <td className="text-center py-3">
+                                      {index + 1}
+                                    </td>
+                                    <td className="py-3 fw-medium">
+                                      {fertilizer.name || "Unknown Fertilizer"}
+                                    </td>
+                                    <td className="py-3 text-muted">
+                                      {formatDateForDisplay(fertilizer.date) ||
+                                        "N/A"}
+                                    </td>
+                                    {/* {isEditing && (
                                         <td className="py-3">
                                           <button
                                             type="button"
@@ -769,20 +910,25 @@ const ModalForm = ({
                                           </button>
                                         </td>
                                       )} */}
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          ) : (
-                            <div className="alert alert-info text-center" role="alert" style={{ borderRadius: "8px" }}>
-                              {labels[language].noFertilizers || "No fertilizers found for this farm."}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </>
-                  )}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : (
+                          <div
+                            className="alert alert-info text-center"
+                            role="alert"
+                            style={{ borderRadius: "8px" }}
+                          >
+                            {labels[language].noFertilizers ||
+                              "No fertilizers found for this farm."}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
                 {formType === "manager" && (
                   <>
                     <div className="col-md-6">
@@ -797,7 +943,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaUserTag className="me-2 text-success" /> {labels[language].firstName}
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].firstName}
                         </label>
                       </div>
                     </div>
@@ -813,7 +960,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaUserTag className="me-2 text-success" /> {labels[language].lastName}
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].lastName}
                         </label>
                       </div>
                     </div>
@@ -829,7 +977,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaGlobe className="me-2 text-success" /> {labels[language].email}
+                          <FaGlobe className="me-2 text-success" />{" "}
+                          {labels[language].email}
                         </label>
                       </div>
                     </div>
@@ -845,7 +994,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaPhone className="me-2 text-success" /> {labels[language].phone}
+                          <FaPhone className="me-2 text-success" />{" "}
+                          {labels[language].phone}
                         </label>
                       </div>
                     </div>
@@ -861,7 +1011,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaLock className="me-2 text-success" /> {labels[language].password}
+                          <FaLock className="me-2 text-success" />{" "}
+                          {labels[language].password}
                         </label>
                       </div>
                     </div>
@@ -877,7 +1028,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaLock className="me-2 text-success" /> {labels[language].confirmPassword}
+                          <FaLock className="me-2 text-success" />{" "}
+                          {labels[language].confirmPassword}
                         </label>
                       </div>
                     </div>
@@ -890,11 +1042,16 @@ const ModalForm = ({
                           onChange={handleChange}
                           disabled={!isEditing}
                         >
-                          <option value="Manager">{labels[language].manager}</option>
-                          <option value="Admin">{labels[language].admin}</option>
+                          <option value="Manager">
+                            {labels[language].manager}
+                          </option>
+                          <option value="Admin">
+                            {labels[language].admin}
+                          </option>
                         </select>
                         <label>
-                          <FaUserTag className="me-2 text-success" /> {labels[language].role}
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].role}
                         </label>
                       </div>
                     </div>
@@ -912,7 +1069,8 @@ const ModalForm = ({
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaTractor className="me-2 text-success" /> {labels[language].farmName}
+                              <FaTractor className="me-2 text-success" />{" "}
+                              {labels[language].farmName}
                             </label>
                           </div>
                         </div>
@@ -928,7 +1086,8 @@ const ModalForm = ({
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaMapPin className="me-2 text-success" /> {labels[language].farmLocation}
+                              <FaMapPin className="me-2 text-success" />{" "}
+                              {labels[language].farmLocation}
                             </label>
                           </div>
                         </div>
@@ -944,7 +1103,8 @@ const ModalForm = ({
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaRuler className="me-2 text-success" /> {labels[language].managerExperience}
+                              <FaRuler className="me-2 text-success" />{" "}
+                              {labels[language].managerExperience}
                             </label>
                           </div>
                         </div>
@@ -964,7 +1124,8 @@ const ModalForm = ({
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaTractor className="me-2 text-success" /> {labels[language].farmName}
+                              <FaTractor className="me-2 text-success" />{" "}
+                              {labels[language].farmName}
                             </label>
                           </div>
                         </div>
@@ -980,7 +1141,8 @@ const ModalForm = ({
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaMapPin className="me-2 text-success" /> {labels[language].farmLocation}
+                              <FaMapPin className="me-2 text-success" />{" "}
+                              {labels[language].farmLocation}
                             </label>
                           </div>
                         </div>
@@ -996,7 +1158,8 @@ const ModalForm = ({
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaRuler className="me-2 text-success" /> {labels[language].farmSize}
+                              <FaRuler className="me-2 text-success" />{" "}
+                              {labels[language].farmSize}
                             </label>
                           </div>
                         </div>
@@ -1093,7 +1256,8 @@ const ModalForm = ({
                           min="0"
                         />
                         <label>
-                          <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
+                          <FaRupeeSign className="me-2 text-success" />{" "}
+                          {labels[language].amount}
                         </label>
                       </div>
                     </div>
@@ -1109,7 +1273,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaTags className="me-2 text-success" /> {labels[language].category}
+                          <FaTags className="me-2 text-success" />{" "}
+                          {labels[language].category}
                         </label>
                       </div>
                     </div>
@@ -1125,7 +1290,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaFileAlt className="me-2 text-success" /> {labels[language].description}
+                          <FaFileAlt className="me-2 text-success" />{" "}
+                          {labels[language].description}
                         </label>
                       </div>
                     </div>
@@ -1144,10 +1310,15 @@ const ModalForm = ({
                             onFocus={fetchFarms}
                             disabled={isLoadingFarms}
                           >
-                            <option value="">{isLoadingFarms ? "Loading Farms..." : labels[language].selectFarm || "Select Farm"}</option>
+                            <option value="">
+                              {isLoadingFarms
+                                ? "Loading Farms..."
+                                : labels[language].selectFarm || "Select Farm"}
+                            </option>
                             {farms.map((farm) => (
                               <option key={farm.id} value={farm.id}>
-                                {farm.name || `Farm ${farm.id}`} ({farm.address})
+                                {farm.name || `Farm ${farm.id}`} ({farm.address}
+                                )
                               </option>
                             ))}
                           </select>
@@ -1160,7 +1331,8 @@ const ModalForm = ({
                           />
                         )}
                         <label>
-                          <FaTractor className="me-2 text-success" /> {labels[language].farm}
+                          <FaTractor className="me-2 text-success" />{" "}
+                          {labels[language].farm}
                         </label>
                       </div>
                     </div>
@@ -1174,7 +1346,12 @@ const ModalForm = ({
                             onChange={handleChange}
                             disabled={isLoadingProducts}
                           >
-                            <option value="">{isLoadingProducts ? "Loading Products..." : labels[language].selectProduct || "Select Product"}</option>
+                            <option value="">
+                              {isLoadingProducts
+                                ? "Loading Products..."
+                                : labels[language].selectProduct ||
+                                  "Select Product"}
+                            </option>
                             {products.map((product) => (
                               <option key={product.id} value={product.id}>
                                 {product.name} ({product.price})
@@ -1190,7 +1367,8 @@ const ModalForm = ({
                           />
                         )}
                         <label>
-                          <FaLeaf className="me-2 text-success" /> {labels[language].product}
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].product}
                         </label>
                       </div>
                     </div>
@@ -1206,7 +1384,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaCalendarAlt className="me-2 text-success" /> {labels[language].billDate}
+                          <FaCalendarAlt className="me-2 text-success" />{" "}
+                          {labels[language].billDate}
                         </label>
                       </div>
                     </div>
@@ -1222,7 +1401,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaUserTag className="me-2 text-success" /> {labels[language].traderName}
+                          <FaUserTag className="me-2 text-success" />{" "}
+                          {labels[language].traderName}
                         </label>
                       </div>
                     </div>
@@ -1238,7 +1418,8 @@ const ModalForm = ({
                           disabled={!isEditing}
                         />
                         <label>
-                          <FaTruck className="me-2 text-success" /> {labels[language].vehicleNumber}
+                          <FaTruck className="me-2 text-success" />{" "}
+                          {labels[language].vehicleNumber}
                         </label>
                       </div>
                     </div>
@@ -1256,11 +1437,14 @@ const ModalForm = ({
                           min="0"
                         />
                         <label>
-                          <FaRupeeSign className="me-2 text-success" /> {labels[language].rate}
+                          <FaRupeeSign className="me-2 text-success" />{" "}
+                          {labels[language].rate}
                         </label>
                         {(formData.rate || isEditing) && (
                           <span className="text-muted small">
-                            {labels[language].inKg}: {(parseFloat(formData.rate) / 100).toFixed(2) || 0} per kg
+                            {labels[language].inKg}:{" "}
+                            {(parseFloat(formData.rate) / 100).toFixed(2) || 0}{" "}
+                            per kg
                           </span>
                         )}
                       </div>
@@ -1278,7 +1462,8 @@ const ModalForm = ({
                           min="0"
                         />
                         <label>
-                          <FaLeaf className="me-2 text-success" /> {labels[language].trees}
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].trees}
                         </label>
                       </div>
                     </div>
@@ -1292,15 +1477,19 @@ const ModalForm = ({
                           onChange={handleChange}
                           placeholder={labels[language].weight}
                           disabled={!isEditing}
-                          step="0.1"
+                          step="any"
                           min="0"
                         />
                         <label>
-                          <FaRuler className="me-2 text-success" /> {labels[language].weight}
+                          <FaRuler className="me-2 text-success" />{" "}
+                          {labels[language].weight}
                         </label>
                         {(formData.weight || isEditing) && (
                           <span className="text-muted small">
-                            {labels[language].inKg}: {(parseFloat(formData.weight) * 100).toFixed(2) || 0} kg
+                            {labels[language].inKg}:{" "}
+                            {(parseFloat(formData.weight) * 100).toFixed(2) ||
+                              0}{" "}
+                            kg
                           </span>
                         )}
                       </div>
@@ -1318,13 +1507,16 @@ const ModalForm = ({
                           min="0"
                         />
                         <label>
-                          <FaLeaf className="me-2 text-success" /> {labels[language].leaves}
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].leaves}
                         </label>
                         {(formData.leaves || isEditing) && (
                           <span className="text-muted small">
                             {/* {labels[language].inKg}: {(parseInt(formData.leaves) * 100) || 0} kg */}
-                           {labels[language].inKg}: {(parseFloat(formData.leaves) * 100).toFixed(2) || 0} kg
-
+                            {labels[language].inKg}:{" "}
+                            {(parseFloat(formData.leaves) * 100).toFixed(2) ||
+                              0}{" "}
+                            kg
                           </span>
                         )}
                       </div>
@@ -1337,17 +1529,24 @@ const ModalForm = ({
                           name="fruit_stalk"
                           value={formData.fruit_stalk || ""}
                           onChange={handleChange}
-                          placeholder={labels[language].fruitStalk || "Fruit Stalk"}
+                          placeholder={
+                            labels[language].fruitStalk || "Fruit Stalk"
+                          }
                           disabled={!isEditing}
+                          step="any"
                           min="0"
                         />
                         <label>
-                          <FaLeaf className="me-2 text-success" /> {labels[language].fruitStalk || "Fruit Stalk"}
+                          <FaLeaf className="me-2 text-success" />{" "}
+                          {labels[language].fruitStalk || "Fruit Stalk"}
                         </label>
                         {(formData.fruit_stalk || isEditing) && (
                           <span className="text-muted small">
-                            {labels[language].inKg}: {(parseFloat(formData.fruit_stalk) * 100).toFixed(2) || 0} kg
-
+                            {labels[language].inKg}:{" "}
+                            {(parseFloat(formData.fruit_stalk) * 100).toFixed(
+                              2
+                            ) || 0}{" "}
+                            kg
                             {/* {labels[language].inKg}: {(parseInt(formData.fruit_stalk) * 100) || 0} kg */}
                           </span>
                         )}
@@ -1367,7 +1566,8 @@ const ModalForm = ({
                           min="0"
                         />
                         <label>
-                          <span className="me-2 text-success" ></span> {labels[language].discount || "Discount"}
+                          <span className="me-2 text-success"></span>{" "}
+                          {labels[language].discount || "Discount"}
                         </label>
                       </div>
                     </div>
@@ -1385,7 +1585,8 @@ const ModalForm = ({
                           min="0"
                         />
                         <label>
-                          <FaRupeeSign className="me-2 text-success" /> {labels[language].travellingAmount}
+                          <FaRupeeSign className="me-2 text-success" />{" "}
+                          {labels[language].travellingAmount}
                         </label>
                       </div>
                     </div>
@@ -1403,7 +1604,8 @@ const ModalForm = ({
                             min="0"
                           />
                           <label>
-                            <FaRupeeSign className="me-2 text-success" /> {labels[language].managerAmount}
+                            <FaRupeeSign className="me-2 text-success" />{" "}
+                            {labels[language].managerAmount}
                           </label>
                         </div>
                       </div>
@@ -1422,7 +1624,8 @@ const ModalForm = ({
                             min="0"
                           />
                           <label>
-                            <FaRupeeSign className="me-2 text-success" /> {labels[language].totalAmount}
+                            <FaRupeeSign className="me-2 text-success" />{" "}
+                            {labels[language].totalAmount}
                           </label>
                         </div>
                       </div>
@@ -1687,7 +1890,8 @@ const ModalForm = ({
                               min="0"
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
                             </label>
                           </div>
                         </div>
@@ -1703,7 +1907,8 @@ const ModalForm = ({
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaFileAlt className="me-2 text-success" /> {labels[language].reason}
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].reason}
                             </label>
                           </div>
                         </div>
@@ -1732,11 +1937,14 @@ const ModalForm = ({
                               type="text"
                               className="form-control"
                               name="amount"
-                              value={formData.amount ? `₹${formData.amount}` : "N/A"}
+                              value={
+                                formData.amount ? `₹${formData.amount}` : "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
                             </label>
                           </div>
                         </div>
@@ -1750,7 +1958,8 @@ const ModalForm = ({
                               disabled
                             />
                             <label>
-                              <FaFileAlt className="me-2 text-success" /> {labels[language].reason}
+                              <FaFileAlt className="me-2 text-success" />{" "}
+                              {labels[language].reason}
                             </label>
                           </div>
                         </div>
@@ -1778,7 +1987,8 @@ const ModalForm = ({
                               disabled
                             />
                             <label>
-                              <FaCalendarAlt className="me-2 text-success" /> {labels[language].dateCreated}
+                              <FaCalendarAlt className="me-2 text-success" />{" "}
+                              {labels[language].dateCreated}
                             </label>
                           </div>
                         </div>
@@ -1804,7 +2014,8 @@ const ModalForm = ({
                               min="0"
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
                             </label>
                           </div>
                         </div>
@@ -1820,26 +2031,28 @@ const ModalForm = ({
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaTags className="me-2 text-success" /> {labels[language].reason}
+                              <FaTags className="me-2 text-success" />{" "}
+                              {labels[language].reason}
                             </label>
                           </div>
                         </div>
-                        {/* <div className="col-md-12">
+                        <div className="col-md-6">
                           <div className="form-floating">
                             <input
-                              type="text"
+                              type="date"
                               className="form-control"
-                              name="description"
-                              value={formData.description || ""}
+                              name="date"
+                              value={formData.date || ""}
                               onChange={handleChange}
-                              placeholder={labels[language].description}
+                              placeholder={labels[language].date}
                               disabled={!isEditing}
                             />
                             <label>
-                              <FaFileAlt className="me-2 text-success" /> {labels[language].description}
+                              <FaCalendarAlt className="me-2 text-success" />{" "}
+                              {labels[language].date}
                             </label>
                           </div>
-                        </div> */}
+                        </div>
                       </>
                     ) : (
                       <>
@@ -1849,11 +2062,14 @@ const ModalForm = ({
                               type="text"
                               className="form-control"
                               name="amount"
-                              value={formData.amount ? `₹${formData.amount}` : "N/A"}
+                              value={
+                                formData.amount ? `₹${formData.amount}` : "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
                             </label>
                           </div>
                         </div>
@@ -1867,24 +2083,105 @@ const ModalForm = ({
                               disabled
                             />
                             <label>
-                              <FaTags className="me-2 text-success" /> {labels[language].reason}
+                              <FaTags className="me-2 text-success" />{" "}
+                              {labels[language].reason}
                             </label>
                           </div>
                         </div>
-                        {/* <div className="col-md-12">
+                        <div className="col-md-6">
                           <div className="form-floating">
                             <input
                               type="text"
                               className="form-control"
-                              name="description"
-                              value={formData.description || "N/A"}
+                              name="date"
+                              value={formData.date || "N/A"}
                               disabled
                             />
                             <label>
-                              <FaFileAlt className="me-2 text-success" /> {labels[language].description}
+                              <FaCalendarAlt className="me-2 text-success" />{" "}
+                              {labels[language].date}
                             </label>
                           </div>
-                        </div> */}
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
+                {/* {formType === "managerExpense" && (
+                  <>
+                    {isEditing ? (
+                      <>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="number"
+                              className="form-control"
+                              name="amount"
+                              value={formData.amount || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].amount}
+                              disabled={!isEditing}
+                              step="0.01"
+                              min="0"
+                            />
+                            <label>
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="reason"
+                              value={formData.reason || ""}
+                              onChange={handleChange}
+                              placeholder={labels[language].reason}
+                              disabled={!isEditing}
+                            />
+                            <label>
+                              <FaTags className="me-2 text-success" />{" "}
+                              {labels[language].reason}
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="amount"
+                              value={
+                                formData.amount ? `₹${formData.amount}` : "N/A"
+                              }
+                              disabled
+                            />
+                            <label>
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].amount}
+                            </label>
+                          </div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="form-floating">
+                            <input
+                              type="text"
+                              className="form-control"
+                              name="reason"
+                              value={formData.reason || "N/A"}
+                              disabled
+                            />
+                            <label>
+                              <FaTags className="me-2 text-success" />{" "}
+                              {labels[language].reason}
+                            </label>
+                          </div>
+                        </div>
                         <div className="col-md-6">
                           <div className="form-floating">
                             <input
@@ -1895,14 +2192,15 @@ const ModalForm = ({
                               disabled
                             />
                             <label>
-                              <FaCalendarAlt className="me-2 text-success" /> {labels[language].dateCreated}
+                              <FaCalendarAlt className="me-2 text-success" />{" "}
+                              {labels[language].dateCreated}
                             </label>
                           </div>
                         </div>
                       </>
                     )}
                   </>
-                )}
+                )} */}
                 {formType === "takenAmount" && (
                   <>
                     {isEditing ? (
@@ -1913,11 +2211,17 @@ const ModalForm = ({
                               type="text"
                               className="form-control"
                               name="farmer"
-                              value={farmers.find((f) => f.id === formData.farmer)?.user?.first_name || formData.farmer || "N/A"}
+                              value={
+                                farmers.find((f) => f.id === formData.farmer)
+                                  ?.user?.first_name ||
+                                formData.farmer ||
+                                "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaUser className="me-2 text-success" /> {labels[language].farmer}
+                              <FaUser className="me-2 text-success" />{" "}
+                              {labels[language].farmer}
                             </label>
                           </div>
                         </div>
@@ -1934,7 +2238,8 @@ const ModalForm = ({
                               min="0"
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].takenAmount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].takenAmount}
                             </label>
                           </div>
                         </div>
@@ -1951,7 +2256,8 @@ const ModalForm = ({
                               min="0"
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].pendingAmount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].pendingAmount}
                             </label>
                           </div>
                         </div>
@@ -1964,11 +2270,17 @@ const ModalForm = ({
                               type="text"
                               className="form-control"
                               name="farmer"
-                              value={farmers.find((f) => f.id === formData.farmer)?.user?.first_name || formData.farmer || "N/A"}
+                              value={
+                                farmers.find((f) => f.id === formData.farmer)
+                                  ?.user?.first_name ||
+                                formData.farmer ||
+                                "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaUser className="me-2 text-success" /> {labels[language].farmer}
+                              <FaUser className="me-2 text-success" />{" "}
+                              {labels[language].farmer}
                             </label>
                           </div>
                         </div>
@@ -1978,11 +2290,16 @@ const ModalForm = ({
                               type="text"
                               className="form-control"
                               name="taken_amount"
-                              value={formData.taken_amount ? `₹${formData.taken_amount}` : "N/A"}
+                              value={
+                                formData.taken_amount
+                                  ? `₹${formData.taken_amount}`
+                                  : "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].takenAmount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].takenAmount}
                             </label>
                           </div>
                         </div>
@@ -1992,11 +2309,16 @@ const ModalForm = ({
                               type="text"
                               className="form-control"
                               name="pending_amount"
-                              value={formData.pending_amount ? `₹${formData.pending_amount}` : "N/A"}
+                              value={
+                                formData.pending_amount
+                                  ? `₹${formData.pending_amount}`
+                                  : "N/A"
+                              }
                               disabled
                             />
                             <label>
-                              <FaRupeeSign className="me-2 text-success" /> {labels[language].pendingAmount}
+                              <FaRupeeSign className="me-2 text-success" />{" "}
+                              {labels[language].pendingAmount}
                             </label>
                           </div>
                         </div>
@@ -2009,7 +2331,10 @@ const ModalForm = ({
             <div className="modal-footer d-flex justify-content-end gap-2">
               {isEditing ? (
                 <>
-                  <button type="submit" className="btn btn-success btn-sm d-flex align-items-center">
+                  <button
+                    type="submit"
+                    className="btn btn-success btn-sm d-flex align-items-center"
+                  >
                     <FaSave className="me-2" /> {labels[language].submit}
                   </button>
                   {formData.id && (
@@ -2051,1273 +2376,3 @@ const ModalForm = ({
 };
 
 export default ModalForm;
-
-
-
-
-// import Swal from "sweetalert2";
-// import {
-//   FaMapMarkerAlt,
-//   FaSave,
-//   FaTrash,
-//   FaTimes,
-//   FaGlobe,
-//   FaMapPin,
-//   FaPhone,
-//   FaLock,
-//   FaUserTag,
-//   FaTractor,
-//   FaRuler,
-//   FaRupeeSign,
-//   FaLeaf,
-//   FaCalendarAlt,
-//   FaFileAlt,
-//   FaTags,
-//   FaTruck,
-//   FaUser,
-// } from "react-icons/fa";
-// import moment from "moment-timezone";
-
-// const ModalForm = ({
-//   isOpen,
-//   onClose,
-//   isEditing,
-//   formData,
-//   labels,
-//   handleChange,
-//   handleSave,
-//   handleDelete,
-//   language,
-//   getLiveLocation,
-// Leaf,
-//   formType = "farm",
-//   farms = [],
-//   products = [],
-//   fetchFarms,
-//   isLoadingFarms,
-//   isLoadingProducts,
-//   managers = [],
-//   fertilizers = [],
-//   onEdit,
-//   viewMode,
-//   farmers = [],
-// }) => {
-//   if (!isOpen) return null;
-
-//   const confirmDelete = async (id) => {
-//     const result = await Swal.fire({
-//       title: labels[language].delete || "Are you sure?",
-//       text: labels[language].deleteConfirm || "Are you sure you want to delete this?",
-//       icon: "warning",
-//       showCancelButton: true,
-//       confirmButtonColor: "#3085d6",
-//       cancelButtonColor: "#d33",
-//       confirmButtonText: labels[language].delete || "Yes, delete it!",
-//       cancelButtonText: labels[language].cancel || "No, cancel",
-//     });
-
-//     if (result.isConfirmed) {
-//       handleDelete(id);
-//     }
-//   };
-
-//   const onSubmit = (e) => {
-//     e.preventDefault();
-//     handleSave(e);
-//   };
-
-//   const formatDateForDisplay = (date) => {
-//     if (!date || !moment(date, "DD-MMM-YYYY hh:mm A", true).isValid()) {
-//       return "";
-//     }
-//     return moment(date, "DD-MMM-YYYY hh:mm A").format("DD-MMM-YYYY hh:mm A");
-//   };
-
-//   return (
-//     <div className="modal fade show d-block" tabIndex="-1" role="dialog" style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
-//       <style>{`
-//         .form-control:focus,
-//         .form-select:focus {
-//           border-color: #28a745 !important;
-//           box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
-//         }
-//         .form-floating > .form-control:focus ~ label,
-//         .form-floating > .form-select:focus ~ label {
-//           color: #28a745 !important;
-//         }
-//       `}</style>
-
-//       <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
-//         <div className="modal-content mx-auto">
-//           <div className="modal-header bg-success text-white">
-//             <h4 className="modal-title ms-auto">
-//               {formType === "fertilizer"
-//                 ? formData.id && isEditing
-//                   ? labels[language].Edit_Fertilizer || "Edit_Fertilizer"
-//                   : labels[language].addFertilizer || "Add Fertilizer"
-//                 : formType === "adminExpense"
-//                 ? !isEditing
-//                   ? labels[language].viewAdminExpense || "View Admin Expense"
-//                   : formData.id
-//                   ? labels[language].modalTitleAdmin || "Edit Admin Expense"
-//                   : labels[language].addAdminExpense || "Add Admin Expense"
-//                 : formType === "managerExpense"
-//                 ? !isEditing
-//                   ? labels[language].viewManagerExpense || "View Manager Expense"
-//                   : formData.id
-//                   ? labels[language].modalTitleManager || "Edit Manager Expense"
-//                   : labels[language].addManagerExpense || "Add Manager Expense"
-//                 : formType === "manager"
-//                 ? formData.id
-//                   ? !isEditing
-//                     ? viewMode === "admins"
-//                       ? labels[language].viewAdmin
-//                       : labels[language].viewManager
-//                     : viewMode === "admins"
-//                     ? labels[language].editAdminTitle
-//                     : labels[language].editManagerTitle
-//                   : formData.role === "Admin"
-//                   ? labels[language].addAdmin
-//                   : labels[language].modalTitle
-//                 : formType === "billing"
-//                 ? formData.id && isEditing
-//                   ? labels[language].editBillingTitle
-//                   : formData.id && !isEditing
-//                   ? labels[language].viewBilling || "View Billing"
-//                   : labels[language].addBilling
-//                 : formType === "farm"
-//                 ? formData.id && !isEditing
-//                   ? labels[language].viewFarm || "View Farm"
-//                   : formData.id && isEditing
-//                   ? labels[language].editFarm || "Edit Farm"
-//                   : labels[language].addFarm || "Add Farm"
-//                 : formType === "takenAmount"
-//                 ? isEditing
-//                   ? labels[language].addTakenAmount || "Add Taken Amount"
-//                   : labels[language].viewTakenAmount || "View Taken Amount"
-//                 : `Add ${formType === "expense" ? labels[language].adminExpense + " Expense" : formType === "adminExpense" ? labels[language].addAdminExpense : formType === "managerExpense" ? labels[language].addManagerExpense : "Farm"}`}
-//             </h4>
-//             <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
-//           </div>
-//           <form onSubmit={onSubmit}>
-//             <div className="modal-body">
-//               <div className="row g-3">
-//                {formType === "farm" && (
-//                   <>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="name"
-//                           value={formData.name || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].farmName}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaTractor className="me-2 text-success" /> {labels[language].farmName}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <select
-//                           className="form-select"
-//                           name="manager_id"
-//                           value={formData.manager_id || ""}
-//                           onChange={handleChange}
-//                           disabled={!isEditing}
-//                         >
-//                           <option value="">{labels[language].selectManager || "Select Manager"}</option>
-//                           {managers.map((manager) => (
-//                             <option key={manager.id} value={manager.id}>
-//                               {manager.user.first_name} {manager.user.last_name}
-//                             </option>
-//                           ))}
-//                         </select>
-//                         <label>
-//                           <FaUserTag className="me-2 text-success" /> {labels[language].manager}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="farm_size"
-//                           value={formData.farm_size || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].farmSize}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaRuler className="me-2 text-success" /> {labels[language].farmSize}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="address"
-//                           value={formData.address || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].address}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaMapPin className="me-2 text-success" /> {labels[language].address}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="input-group">
-//                         <div className="form-floating flex-grow-1">
-//                           <input
-//                             type="text"
-//                             className="form-control"
-//                             name="location_url"
-//                             value={formData.location_url || ""}
-//                             onChange={handleChange}
-//                             placeholder={labels[language].locationUrl}
-//                             disabled={!isEditing}
-//                           />
-//                           <label>
-//                             <FaGlobe className="me-2 text-success" /> {labels[language].locationUrl}
-//                           </label>
-//                         </div>
-//                         {isEditing && (
-//                           <button
-//                             type="button"
-//                             className="btn btn-outline-primary"
-//                             onClick={getLiveLocation}
-//                             disabled={!isEditing}
-//                             title={labels[language].getLiveLocation || "Get Live Location"}
-//                           >
-//                             <FaMapMarkerAlt size={20} />
-//                           </button>
-//                         )}
-//                       </div>
-//                     </div>
-//                     {/* Conditionally render fertilizers section */}
-//                     {formType === "farm" && (formData.id || !isEditing) && (
-//                       <div className="col-12">
-//                         <h5 className="mb-3 fw-bold">{labels[language].fertilizers}</h5>
-//                         {fertilizers.length > 0 ? (
-//                           <div className="table-responsive rounded">
-//                             <table
-//                               className="table table-hover mb-0"
-//                               style={{ borderRadius: "10px", overflow: "hidden", backgroundColor: "#fff" }}
-//                             >
-//                               <thead className="bg-success text-white" style={{ position: "sticky", top: 0, zIndex: 1 }}>
-//                                 <tr>
-//                                   <th scope="col" className="text-center py-3" style={{ width: "10%", fontSize: "0.9rem" }}>
-//                                     #
-//                                   </th>
-//                                   <th scope="col" className="py-3" style={{ width: "45%", fontSize: "0.9rem" }}>
-//                                     <FaLeaf className="me-2" />
-//                                     {labels[language].fertilizerName}
-//                                   </th>
-//                                   <th scope="col" className="py-3" style={{ width: "45%", fontSize: "0.9rem" }}>
-//                                     <FaCalendarAlt className="me-2" />
-//                                     {labels[language].date}
-//                                   </th>
-//                                 </tr>
-//                               </thead>
-//                               <tbody>
-//                                 {fertilizers.map((fertilizer, index) => (
-//                                   <tr
-//                                     key={fertilizer.id || index}
-//                                     style={{ transition: "background-color 0.2s ease" }}
-//                                     onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f8f9fa")}
-//                                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-//                                   >
-//                                     <td className="text-center py-3">{index + 1}</td>
-//                                     <td className="py-3 fw-medium">{fertilizer.name || "Unknown Fertilizer"}</td>
-//                                     <td className="py-3 text-muted">{formatDateForDisplay(fertilizer.date) || "N/A"}</td>
-//                                   </tr>
-//                                 ))}
-//                               </tbody>
-//                             </table>
-//                           </div>
-//                         ) : (
-//                           <div className="alert alert-info text-center py-3 mb-0" role="alert" style={{ borderRadius: "8px" }}>
-//                             {labels[language].noFertilizers || "No fertilizers found for this farm."}
-//                           </div>
-//                         )}
-//                       </div>
-//                     )}
-//                   </>
-//                 )}
-//                 {formType === "manager" && (
-//                   <>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="first_name"
-//                           value={formData.first_name || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].firstName}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaUserTag className="me-2 text-success" /> {labels[language].firstName}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="last_name"
-//                           value={formData.last_name || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].lastName}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaUserTag className="me-2 text-success" /> {labels[language].lastName}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     {/* <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="email"
-//                           className="form-control"
-//                           name="email"
-//                           value={formData.email || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].email}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaGlobe className="me-2 text-success" /> {labels[language].email}
-//                         </label>
-//                       </div>
-//                     </div> */}
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="tel"
-//                           className="form-control"
-//                           name="phone"
-//                           value={formData.phone || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].phone}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaPhone className="me-2 text-success" /> {labels[language].phone}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="password"
-//                           value={formData.password || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].password}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaLock className="me-2 text-success" /> {labels[language].password}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="confirm_password"
-//                           value={formData.confirm_password || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].confirmPassword}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaLock className="me-2 text-success" /> {labels[language].confirmPassword}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <select
-//                           className="form-select"
-//                           name="role"
-//                           value={formData.role || ""}
-//                           onChange={handleChange}
-//                           disabled={!isEditing}
-//                         >
-//                           <option value="Manager">{labels[language].manager}</option>
-//                           <option value="Admin">{labels[language].admin}</option>
-//                         </select>
-//                         <label>
-//                           <FaUserTag className="me-2 text-success" /> {labels[language].role}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     {formData.role === "Manager" && (
-//                       <>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="farm_name"
-//                               value={formData.farm_name || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].farmName}
-//                               disabled={!isEditing}
-//                             />
-//                             <label>
-//                               <FaTractor className="me-2 text-success" /> {labels[language].farmName}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="farm_location"
-//                               value={formData.farm_location || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].farmLocation}
-//                               disabled={!isEditing}
-//                             />
-//                             <label>
-//                               <FaMapPin className="me-2 text-success" /> {labels[language].farmLocation}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="number"
-//                               className="form-control"
-//                               name="manager_experience"
-//                               value={formData.manager_experience || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].managerExperience}
-//                               disabled={!isEditing}
-//                             />
-//                             <label>
-//                               <FaRuler className="me-2 text-success" /> {labels[language].managerExperience}
-//                             </label>
-//                           </div>
-//                         </div>
-//                       </>
-//                     )}
-//                     {formData.role === "Admin" && (
-//                       <>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="farm_name"
-//                               value={formData.farm_name || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].farmName}
-//                               disabled={!isEditing}
-//                             />
-//                             <label>
-//                               <FaTractor className="me-2 text-success" /> {labels[language].farmName}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="farm_location"
-//                               value={formData.farm_location || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].farmLocation}
-//                               disabled={!isEditing}
-//                             />
-//                             <label>
-//                               <FaMapPin className="me-2 text-success" /> {labels[language].farmLocation}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="number"
-//                               className="form-control"
-//                               name="farm_size"
-//                               value={formData.farm_size || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].farmSize}
-//                               disabled={!isEditing}
-//                             />
-//                             <label>
-//                               <FaRuler className="me-2 text-success" /> {labels[language].farmSize}
-//                             </label>
-//                           </div>
-//                         </div>
-//                       </>
-//                     )}
-//                   </>
-//                 )}
-//                 {formType === "fertilizer" && (
-//                   <>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <select
-//                           className="form-select"
-//                           name="fertilizer_id"
-//                           value={formData.fertilizer_id || ""}
-//                           onChange={handleChange}
-//                           disabled={!isEditing}
-//                         >
-//                           <option value="">{labels[language].selectFertilizer || "Select Fertilizer"}</option>
-//                           {fertilizers.map((fertilizer) => (
-//                             <option key={fertilizer.id} value={fertilizer.id}>
-//                               {fertilizer.name}
-//                             </option>
-//                           ))}
-//                         </select>
-//                         <label>
-//                           <FaLeaf className="me-2 text-success" /> {labels[language].fertilizerName}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="farm_name"
-//                           value={farms.find((farm) => farm.id === formData.farm_id)?.name || "N/A"}
-//                           disabled
-//                         />
-//                         <label>
-//                           <FaTractor className="me-2 text-success" /> {labels[language].farmName}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="datetime-local"
-//                           className="form-control"
-//                           name="date"
-//                           value={
-//                             formData.date && moment(formData.date, "DD-MMM-YYYY hh:mm A", true).isValid()
-//                               ? moment.tz(formData.date, "DD-MMM-YYYY hh:mm A", "Asia/Kolkata").format("YYYY-MM-DDTHH:mm")
-//                               : ""
-//                           }
-//                           onChange={(e) => {
-//                             const isoDate = e.target.value;
-//                             if (isoDate) {
-//                               const istDate = moment.tz(isoDate, "Asia/Kolkata");
-//                               if (istDate.isValid()) {
-//                                 handleChange({
-//                                   target: { name: "date", value: istDate.format("DD-MMM-YYYY hh:mm A") },
-//                                 });
-//                               } else {
-//                                 handleChange({ target: { name: "date", value: "" } });
-//                               }
-//                             } else {
-//                               handleChange({ target: { name: "date", value: "" } });
-//                             }
-//                           }}
-//                           placeholder={labels[language].date}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaCalendarAlt className="me-2 text-success" /> {labels[language].date}
-//                         </label>
-//                       </div>
-//                     </div>
-//                   </>
-//                 )}
-//                 {formType === "expense" && (
-//                   <>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="number"
-//                           className="form-control"
-//                           name="amount"
-//                           value={formData.amount || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].amount}
-//                           disabled={!isEditing}
-//                           step="0.01"
-//                           min="0"
-//                         />
-//                         <label>
-//                           <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="reason"
-//                           value={formData.reason || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].category}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaTags className="me-2 text-success" /> {labels[language].category}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-12">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="description"
-//                           value={formData.description || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].description}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaFileAlt className="me-2 text-success" /> {labels[language].description}
-//                         </label>
-//                       </div>
-//                     </div>
-//                   </>
-//                 )}
-//                 {formType === "billing" && (
-//                   <>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         {isEditing ? (
-//                           <select
-//                             className="form-select"
-//                             name="farm_id"
-//                             value={formData.farm_id || ""}
-//                             onChange={handleChange}
-//                             onFocus={fetchFarms}
-//                             disabled={isLoadingFarms}
-//                           >
-//                             <option value="">{isLoadingFarms ? "Loading Farms..." : labels[language].selectFarm || "Select Farm"}</option>
-//                             {farms.map((farm) => (
-//                               <option key={farm.id} value={farm.id}>
-//                                 {farm.name || `Farm ${farm.id}`} ({farm.address})
-//                               </option>
-//                             ))}
-//                           </select>
-//                         ) : (
-//                           <input
-//                             type="text"
-//                             className="form-control"
-//                             value={formData.farm_name || "N/A"}
-//                             disabled
-//                           />
-//                         )}
-//                         <label>
-//                           <FaTractor className="me-2 text-success" /> {labels[language].farm}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         {isEditing ? (
-//                           <select
-//                             className="form-select"
-//                             name="product_id"
-//                             value={formData.product_id || ""}
-//                             onChange={handleChange}
-//                             disabled={isLoadingProducts}
-//                           >
-//                             <option value="">{isLoadingProducts ? "Loading Products..." : labels[language].selectProduct || "Select Product"}</option>
-//                             {products.map((product) => (
-//                               <option key={product.id} value={product.id}>
-//                                 {product.name} ({product.price})
-//                               </option>
-//                             ))}
-//                           </select>
-//                         ) : (
-//                           <input
-//                             type="text"
-//                             className="form-control"
-//                             value={formData.product_name || "N/A"}
-//                             disabled
-//                           />
-//                         )}
-//                         <label>
-//                           <FaLeaf className="me-2 text-success" /> {labels[language].product}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="date"
-//                           className="form-control"
-//                           name="bill_date"
-//                           value={formData.bill_date || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].billDate}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaCalendarAlt className="me-2 text-success" /> {labels[language].billDate}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="trader_name"
-//                           value={formData.trader_name || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].traderName}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaUserTag className="me-2 text-success" /> {labels[language].traderName}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="text"
-//                           className="form-control"
-//                           name="vehicle_number"
-//                           value={formData.vehicle_number || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].vehicleNumber}
-//                           disabled={!isEditing}
-//                         />
-//                         <label>
-//                           <FaTruck className="me-2 text-success" /> {labels[language].vehicleNumber}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="number"
-//                           className="form-control"
-//                           name="rate"
-//                           value={formData.rate || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].rate}
-//                           disabled={!isEditing}
-//                           step="0.01"
-//                           min="0"
-//                         />
-//                         <label>
-//                           <FaRupeeSign className="me-2 text-success" /> {labels[language].rate}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="number"
-//                           className="form-control"
-//                           name="trees"
-//                           value={formData.trees || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].trees}
-//                           disabled={!isEditing}
-//                           min="0"
-//                         />
-//                         <label>
-//                           <FaLeaf className="me-2 text-success" /> {labels[language].trees}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="number"
-//                           className="form-control"
-//                           name="weight"
-//                           value={formData.weight || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].weight}
-//                           disabled={!isEditing}
-//                           step="0.1"
-//                           min="0"
-//                         />
-//                         <label>
-//                           <FaRuler className="me-2 text-success" /> {labels[language].weight}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="number"
-//                           className="form-control"
-//                           name="leaves"
-//                           value={formData.leaves || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].leaves}
-//                           disabled={!isEditing}
-//                           min="0"
-//                         />
-//                         <label>
-//                           <FaLeaf className="me-2 text-success" /> {labels[language].leaves}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     <div className="col-md-6">
-//                       <div className="form-floating">
-//                         <input
-//                           type="number"
-//                           className="form-control"
-//                           name="travelling_amount"
-//                           value={formData.travelling_amount || ""}
-//                           onChange={handleChange}
-//                           placeholder={labels[language].travellingAmount}
-//                           disabled={!isEditing}
-//                           step="0.01"
-//                           min="0"
-//                         />
-//                         <label>
-//                           <FaRupeeSign className="me-2 text-success" /> {labels[language].travellingAmount}
-//                         </label>
-//                       </div>
-//                     </div>
-//                     {formData.id && !isEditing && (
-//                       <div className="col-md-6">
-//                         <div className="form-floating">
-//                           <input
-//                             type="number"
-//                             className="form-control"
-//                             name="manager_amount"
-//                             value={formData.manager_amount || ""}
-//                             placeholder={labels[language].managerAmount}
-//                             disabled={true}
-//                             step="0.01"
-//                             min="0"
-//                           />
-//                           <label>
-//                             <FaRupeeSign className="me-2 text-success" /> {labels[language].managerAmount}
-//                           </label>
-//                         </div>
-//                       </div>
-//                     )}
-//                     {formData.id && !isEditing && (
-//                       <div className="col-md-6">
-//                         <div className="form-floating">
-//                           <input
-//                             type="number"
-//                             className="form-control"
-//                             name="total_amount"
-//                             value={formData.total_amount || ""}
-//                             placeholder={labels[language].totalAmount}
-//                             disabled={true}
-//                             step="0.01"
-//                             min="0"
-//                           />
-//                           <label>
-//                             <FaRupeeSign className="me-2 text-success" /> {labels[language].totalAmount}
-//                           </label>
-//                         </div>
-//                       </div>
-//                     )}
-//                   </>
-//                 )}
-//                 {formType === "adminExpense" && (
-//                   <>
-//                     {isEditing ? (
-//                       <>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="number"
-//                               className="form-control"
-//                               name="amount"
-//                               value={formData.amount || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].amount}
-//                               disabled={!isEditing}
-//                               step="0.01"
-//                               min="0"
-//                             />
-//                             <label>
-//                               <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="reason"
-//                               value={formData.reason || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].reason}
-//                               disabled={!isEditing}
-//                             />
-//                             <label>
-//                               <FaFileAlt className="me-2 text-success" /> {labels[language].reason}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="description"
-//                               value={formData.description || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].description}
-//                               disabled={!isEditing}
-//                             />
-//                             <label>
-//                               <FaFileAlt className="me-2 text-success" /> {labels[language].description}
-//                             </label>
-//                           </div>
-//                         </div>
-//                       </>
-//                     ) : (
-//                       <>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="amount"
-//                               value={formData.amount ? `₹${formData.amount}` : "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="reason"
-//                               value={formData.reason || "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaFileAlt className="me-2 text-success" /> {labels[language].reason}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="description"
-//                               value={formData.description || "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaFileAlt className="me-2 text-success" /> {labels[language].description}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="date_created"
-//                               value={formData.date_created || "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaCalendarAlt className="me-2 text-success" /> {labels[language].dateCreated}
-//                             </label>
-//                           </div>
-//                         </div>
-//                       </>
-//                     )}
-//                   </>
-//                 )}
-//                 {formType === "managerExpense" && (
-//                   <>
-//                     {isEditing ? (
-//                       <>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="number"
-//                               className="form-control"
-//                               name="amount"
-//                               value={formData.amount || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].amount}
-//                               disabled={!isEditing}
-//                               step="0.01"
-//                               min="0"
-//                             />
-//                             <label>
-//                               <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="reason"
-//                               value={formData.reason || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].reason}
-//                               disabled={!isEditing}
-//                             />
-//                             <label>
-//                               <FaTags className="me-2 text-success" /> {labels[language].reason}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-12">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="description"
-//                               value={formData.description || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].description}
-//                               disabled={!isEditing}
-//                             />
-//                             <label>
-//                               <FaFileAlt className="me-2 text-success" /> {labels[language].description}
-//                             </label>
-//                           </div>
-//                         </div>
-//                       </>
-//                     ) : (
-//                       <>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="amount"
-//                               value={formData.amount ? `₹${formData.amount}` : "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaRupeeSign className="me-2 text-success" /> {labels[language].amount}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="reason"
-//                               value={formData.reason || "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaTags className="me-2 text-success" /> {labels[language].reason}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-12">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="description"
-//                               value={formData.description || "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaFileAlt className="me-2 text-success" /> {labels[language].description}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="date_created"
-//                               value={formData.date_created || "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaCalendarAlt className="me-2 text-success" /> {labels[language].dateCreated}
-//                             </label>
-//                           </div>
-//                         </div>
-//                       </>
-//                     )}
-//                   </>
-//                 )}
-//                 {formType === "takenAmount" && (
-//                   <>
-//                     {isEditing ? (
-//                       <>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="farmer"
-//                               value={farmers.find((f) => f.id === formData.farmer)?.user?.first_name || formData.farmer || "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaUser className="me-2 text-success" /> {labels[language].farmer}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="number"
-//                               className="form-control"
-//                               name="taken_amount"
-//                               value={formData.taken_amount || ""}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].takenAmount}
-//                               step="0.01"
-//                               min="0"
-//                             />
-//                             <label>
-//                               <FaRupeeSign className="me-2 text-success" /> {labels[language].takenAmount}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="number"
-//                               className="form-control"
-//                               name="pending_amount"
-//                               value={"0"}
-//                               onChange={handleChange}
-//                               placeholder={labels[language].pendingAmount}
-//                               step="0.01"
-//                               min="0"
-//                             />
-//                             <label>
-//                               <FaRupeeSign className="me-2 text-success" /> {labels[language].pendingAmount}
-//                             </label>
-//                           </div>
-//                         </div>
-//                       </>
-//                     ) : (
-//                       <>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="farmer"
-//                               value={farmers.find((f) => f.id === formData.farmer)?.user?.first_name || formData.farmer || "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaUser className="me-2 text-success" /> {labels[language].farmer}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="taken_amount"
-//                               value={formData.taken_amount ? `₹${formData.taken_amount}` : "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaRupeeSign className="me-2 text-success" /> {labels[language].takenAmount}
-//                             </label>
-//                           </div>
-//                         </div>
-//                         <div className="col-md-6">
-//                           <div className="form-floating">
-//                             <input
-//                               type="text"
-//                               className="form-control"
-//                               name="pending_amount"
-//                               value={formData.pending_amount ? `₹${formData.pending_amount}` : "N/A"}
-//                               disabled
-//                             />
-//                             <label>
-//                               <FaRupeeSign className="me-2 text-success" /> {labels[language].pendingAmount}
-//                             </label>
-//                           </div>
-//                         </div>
-//                       </>
-//                     )}
-//                   </>
-//                 )}
-//               </div>
-//             </div>
-//             <div className="modal-footer d-flex justify-content-end gap-2">
-//               {isEditing ? (
-//                 <>
-//                   <button type="submit" className="btn btn-success btn-sm d-flex align-items-center">
-//                     <FaSave className="me-2" /> {labels[language].submit}
-//                   </button>
-//                   {formData.id && (
-//                     <button
-//                       type="button"
-//                       className="btn btn-danger btn-sm d-flex align-items-center"
-//                       onClick={() => confirmDelete(formData.id)}
-//                     >
-//                       <FaTrash className="me-2" /> {labels[language].delete}
-//                     </button>
-//                   )}
-//                 </>
-//               ) : (
-//                 <>
-//                   {onEdit && (
-//                     <button
-//                       type="button"
-//                       className="btn btn-primary btn-sm d-flex align-items-center"
-//                       onClick={onEdit}
-//                     >
-//                       <FaSave className="me-2" /> {labels[language].edit}
-//                     </button>
-//                   )}
-//                   <button
-//                     type="button"
-//                     className="btn btn-secondary btn-sm d-flex align-items-center"
-//                     onClick={onClose}
-//                   >
-//                     <FaTimes className="me-2" /> {labels[language].cancel}
-//                   </button>
-//                 </>
-//               )}
-//             </div>
-//           </form>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ModalForm;
