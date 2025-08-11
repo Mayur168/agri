@@ -1,3 +1,6 @@
+
+// // export default ManagersList;
+
 // import React, { useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 // import { FaUserTie, FaPlus, FaEye } from "react-icons/fa";
@@ -25,14 +28,12 @@
 //   const recordsPerPage = 10;
 //   const [activeButton, setActiveButton] = useState("managers");
 
-//   useEffect(() => {}, [isSuperFarmer]);
-
 //   const translations = {
 //     en: {
 //       title: isSuperFarmer ? "Admins List" : "Managers List",
 //       viewAdmin: "Admin",
 //       viewManager: "Manager",
-//       addManager: "Add   ",
+//       addManager: "Add",
 //       addAdmin: "Add New Admin",
 //       editManagerTitle: "Edit Manager",
 //       editAdminTitle: "Edit Admin",
@@ -58,7 +59,7 @@
 //       previous: "Previous",
 //       next: "Next",
 //       toast: {
-//         fetchError: "Failed to fetch data.",
+//         fetchError: "",
 //         unauthorized: "Unauthorized: Please log in again.",
 //         requiredFields: "First name and phone number are required.",
 //         passwordRequired: "Password is required to register the manager.",
@@ -71,7 +72,7 @@
 //         noChanges: "No changes detected.",
 //         emailInUse: "This email address is already in use by another user.",
 //         updateManagerError: "Failed to update manager",
-//         managerUpdatedSuccess: "updated successfully!",
+//         managerUpdatedSuccess: "Updated successfully!",
 //       },
 //     },
 //     mr: {
@@ -104,7 +105,7 @@
 //       previous: "मागील",
 //       next: "पुढील",
 //       toast: {
-//         fetchError: "डेटा आणण्यात अयशस्वी.",
+//         fetchError: "",
 //         unauthorized: "अनधिकृत: कृपया पुन्हा लॉग इन करा.",
 //         requiredFields: "प्रथम नाव आणि फोन नंबर आवश्यक आहेत.",
 //         passwordRequired: "व्यवस्थापक नोंदणीसाठी पासवर्ड आवश्यक आहे.",
@@ -114,7 +115,7 @@
 //         phoneInUse: "फोन नंबर आधीपासून वापरात आहे.",
 //         addManagerError: "व्यवस्थापक जोडण्यात अयशस्वी.",
 //         phoneRequired: "फोन नंबर आवश्यक आहे.",
-//         noChanges: "कोणतेही बदल आढळले नाहीत。",
+//         noChanges: "कोणतेही बदल आढळले नाहीत.",
 //         emailInUse:
 //           "हा ईमेल पत्ता आधीपासून दुसऱ्या वापरकर्त्याद्वारे वापरात आहे.",
 //         updateManagerError: "व्यवस्थापक अद्यतनित करण्यात अयशस्वी.",
@@ -220,7 +221,6 @@
 //   const handleAddManager = async (e) => {
 //     e.preventDefault();
 
-//     // Validate required fields
 //     if (!formData.phone.trim() || !formData.first_name.trim()) {
 //       Swal.fire({
 //         icon: "error",
@@ -235,8 +235,7 @@
 //       return;
 //     }
 
-//     // Validate phone number format
-//     const phoneRegex = /^\d+$/; // Only digits
+//     const phoneRegex = /^\d+$/;
 //     if (!phoneRegex.test(formData.phone.trim())) {
 //       Swal.fire({
 //         icon: "error",
@@ -251,7 +250,6 @@
 //       return;
 //     }
 
-//     // Validate phone number length
 //     if (formData.phone.trim().length !== 10) {
 //       Swal.fire({
 //         icon: "error",
@@ -266,12 +264,12 @@
 //       return;
 //     }
 
-//     // Validate password
 //     if (!formData.password.trim()) {
 //       Swal.fire({
 //         icon: "error",
 //         title:
-//           translations[language].toast.passwordRequired || "Password is required",
+//           translations[language].toast.passwordRequired ||
+//           "Password is required",
 //         text:
 //           language === "en"
 //             ? "Please enter a valid password."
@@ -280,7 +278,6 @@
 //       return;
 //     }
 
-//     // Validate confirm password
 //     if (formData.password.trim() !== formData.confirm_password.trim()) {
 //       Swal.fire({
 //         icon: "error",
@@ -295,7 +292,6 @@
 //       return;
 //     }
 
-//     // Confirm action
 //     const confirmResult = await Swal.fire({
 //       title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
 //       text:
@@ -364,7 +360,6 @@
 //         newUser = userResponse.data.data;
 //       }
 
-//       // Update state and local storage
 //       if (formData.role === "Manager") {
 //         const updatedManagers = [newUser, ...managers];
 //         setManagers(updatedManagers);
@@ -378,7 +373,6 @@
 //         }
 //       }
 
-//       // Show success message
 //       Swal.fire({
 //         icon: "success",
 //         title:
@@ -391,7 +385,6 @@
 //         timer: 2000,
 //       });
 
-//       // Reset form and close modal
 //       setShowModal(false);
 //       setFormData({
 //         first_name: "",
@@ -407,7 +400,6 @@
 //         manager_experience: "",
 //       });
 //     } catch (err) {
-//       // Handle specific error cases
 //       const errorMsg =
 //         err.response?.data?.error_msg?.toLowerCase() ||
 //         err.response?.data?.message?.toLowerCase() ||
@@ -432,7 +424,7 @@
 //             language === "en"
 //               ? "Phone number already exists"
 //               : translations[language].toast.phoneExists ||
-//                 "फोन नंबर आधीपासून अस्तित्वात आहे",
+//                 "फोन नंबर आधीपासून वापरात आहे",
 //           text:
 //             language === "en"
 //               ? "Please use a different phone number."
@@ -451,7 +443,6 @@
 //               : "कृपया पासवर्ड आवश्यकता पूर्ण करते याची खात्री करा.",
 //         });
 //       } else {
-//         // Handle other errors
 //         Swal.fire({
 //           icon: "error",
 //           title:
@@ -502,7 +493,7 @@
 //         farm_name: admin.farm_name || "",
 //         farm_location: admin.farm_location || "",
 //         farm_size: admin.farm_size || "",
-//         password: admin.password || "", // Include password
+//         password: admin.password || "",
 //         is_admin: admin.is_admin || true,
 //         is_manager: admin.is_manager || false,
 //         is_super_farmer: admin.is_super_farmer || false,
@@ -515,7 +506,7 @@
 //           farm_name: subFarmer.farm_name || "",
 //           farm_location: subFarmer.farm_location || "",
 //           farm_size: subFarmer.farm_size || "",
-//           password: subFarmer.password || "", // Include password for sub-farmers
+//           password: subFarmer.password || "",
 //           is_admin: true,
 //         })),
 //       }));
@@ -623,6 +614,7 @@
 //     setInitialFormData(initialData);
 //     setShowEditModal(true);
 //     setShowViewModal(false);
+//     setIsViewingEditing(true);
 //   };
 
 //   const handleViewManager = (manager) => {
@@ -658,6 +650,7 @@
 
 //     setIsViewingEditing(false);
 //     setShowViewModal(true);
+//     setShowEditModal(false);
 //   };
 
 //   const handleUpdateManager = async (e) => {
@@ -863,8 +856,29 @@
 
 //     setLoading(true);
 
+//     // Optimistic UI update
+//     let previousManagers = null;
+//     let previousAdmins = null;
+//     if (formData.role === "Manager") {
+//       previousManagers = [...managers];
+//       setManagers(managers.filter((m) => m.id !== managerId));
+//       localStorage.setItem(
+//         "managers",
+//         JSON.stringify(managers.filter((m) => m.id !== managerId))
+//       );
+//     } else {
+//       previousAdmins = [...admins];
+//       setAdmins(admins.filter((a) => a.id !== managerId));
+//       localStorage.setItem(
+//         "admins",
+//         JSON.stringify(admins.filter((a) => a.id !== managerId))
+//       );
+//     }
+
 //     try {
 //       const token = localStorage.getItem("token");
+//       if (!token) throw new Error("Unauthorized: No token found.");
+
 //       const deletePayload = {
 //         action: formData.role === "Manager" ? "delFarmManager" : "delFarmer",
 //         id: managerId,
@@ -877,16 +891,12 @@
 //       });
 
 //       if (response.status === 200 || response.status === 204) {
-//         if (formData.role === "Manager") {
-//           const updatedManagers = managers.filter((m) => m.id !== managerId);
-//           setManagers(updatedManagers);
-//           localStorage.setItem("managers", JSON.stringify(updatedManagers));
-//         } else {
-//           setViewMode("admins");
-//           if (admins.length === 1 && currentPage > 1) {
-//             setCurrentPage(currentPage - 1);
-//           }
-//           await handleViewAdmin();
+//         if (
+//           formData.role !== "Manager" &&
+//           admins.length === 1 &&
+//           currentPage > 1
+//         ) {
+//           setCurrentPage(currentPage - 1);
 //         }
 
 //         await Swal.fire({
@@ -901,11 +911,44 @@
 //           confirmButtonText: "OK",
 //         });
 
+//         // Reset form data and modal states
+//         setFormData({
+//           first_name: "",
+//           last_name: "",
+//           email: "",
+//           phone: "",
+//           password: "",
+//           confirm_password: "",
+//           role: "Manager",
+//           farm_name: "",
+//           farm_location: "",
+//           farm_size: "",
+//           manager_experience: "",
+//         });
+//         setInitialFormData(null);
+//         setEditManagerId(null);
+//         setEditAdminId(null);
 //         setShowViewModal(false);
+//         setShowEditModal(false);
+//         setIsViewingEditing(false);
+
+//         // Refresh admins only if in admin view mode
+//         if (formData.role !== "Manager" && viewMode === "admins") {
+//           await handleViewAdmin();
+//         }
 //       } else {
 //         throw new Error("Unexpected response status: " + response.status);
 //       }
 //     } catch (err) {
+//       // Revert optimistic update
+//       if (formData.role === "Manager" && previousManagers) {
+//         setManagers(previousManagers);
+//         localStorage.setItem("managers", JSON.stringify(previousManagers));
+//       } else if (previousAdmins) {
+//         setAdmins(previousAdmins);
+//         localStorage.setItem("admins", JSON.stringify(previousAdmins));
+//       }
+
 //       console.error("API Error (Delete Manager):", {
 //         message: err.message,
 //         response: err.response?.data,
@@ -935,8 +978,14 @@
 //   const handleToggleEdit = () => {
 //     if (!isViewingEditing) {
 //       setInitialFormData(formData);
+//       setShowEditModal(true);
+//       setShowViewModal(false);
+//       setIsViewingEditing(true);
+//     } else {
+//       setShowEditModal(false);
+//       setShowViewModal(true);
+//       setIsViewingEditing(false);
 //     }
-//     setIsViewingEditing((prev) => !prev);
 //   };
 
 //   const openAddManagerModal = () => {
@@ -994,6 +1043,7 @@
 //       setCurrentPage((prevPage) => prevPage + 1);
 //     }
 //   };
+
 //   const headerTitle =
 //     viewMode === "admins"
 //       ? translations[language].viewAdmin
@@ -1002,7 +1052,7 @@
 //   return (
 //     <div className="managers-container mb-5">
 //       <Header title={headerTitle} icon={FaUserTie} />
-//       <div className="container w-100 ">
+//       <div className="container w-100">
 //         <div className="d-flex flex-nowrap ms-auto align-items-center justify-content-center gap-2 flex-md-wrap">
 //           {isSuperFarmer ? (
 //             <>
@@ -1049,9 +1099,7 @@
 //                 <input
 //                   type="search"
 //                   className="form-control rounded border-success"
-//                   placeholder={
-//                     translations[language].searchPlaceholder
-//                   }
+//                   placeholder={translations[language].searchPlaceholder}
 //                   value={searchQuery}
 //                   onChange={(e) => setSearchQuery(e.target.value)}
 //                 />
@@ -1182,7 +1230,7 @@
 //         labels={translations}
 //         handleChange={handleChange}
 //         handleSave={handleUpdateManager}
-//         handleDelete={() => handleDeleteManager(editManagerId)}
+//         handleDelete={() => handleDeleteManager(editManagerId || editAdminId)}
 //         language={language}
 //         formType="manager"
 //         viewMode={viewMode}
@@ -1210,6 +1258,7 @@
 
 // export default ManagersList;
 
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserTie, FaPlus, FaEye } from "react-icons/fa";
@@ -1228,12 +1277,10 @@ const ManagersList = () => {
   const { language } = useLanguage();
 
   const user = JSON.parse(localStorage.getItem("user")) || {};
-  const [isSuperFarmer, setIsSuperFarmer] = useState(
-    user.is_super_farmer || false
-  );
+  const [isSuperFarmer, setIsSuperFarmer] = useState(user.is_super_farmer || false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const recordsPerPage = 10;
   const [activeButton, setActiveButton] = useState("managers");
 
@@ -1268,7 +1315,7 @@ const ManagersList = () => {
       previous: "Previous",
       next: "Next",
       toast: {
-        fetchError: "",
+        fetchError: "Failed to fetch data",
         unauthorized: "Unauthorized: Please log in again.",
         requiredFields: "First name and phone number are required.",
         passwordRequired: "Password is required to register the manager.",
@@ -1314,7 +1361,7 @@ const ManagersList = () => {
       previous: "मागील",
       next: "पुढील",
       toast: {
-        fetchError: "",
+        fetchError: "डेटा आणण्यात अयशस्वी",
         unauthorized: "अनधिकृत: कृपया पुन्हा लॉग इन करा.",
         requiredFields: "प्रथम नाव आणि फोन नंबर आवश्यक आहेत.",
         passwordRequired: "व्यवस्थापक नोंदणीसाठी पासवर्ड आवश्यक आहे.",
@@ -1325,8 +1372,7 @@ const ManagersList = () => {
         addManagerError: "व्यवस्थापक जोडण्यात अयशस्वी.",
         phoneRequired: "फोन नंबर आवश्यक आहे.",
         noChanges: "कोणतेही बदल आढळले नाहीत.",
-        emailInUse:
-          "हा ईमेल पत्ता आधीपासून दुसऱ्या वापरकर्त्याद्वारे वापरात आहे.",
+        emailInUse: "हा ईमेल पत्ता आधीपासून दुसऱ्या वापरकर्त्याद्वारे वापरात आहे.",
         updateManagerError: "व्यवस्थापक अद्यतनित करण्यात अयशस्वी.",
         managerUpdatedSuccess: "यशस्वीरित्या अद्यतनित केले गेले!",
       },
@@ -1369,37 +1415,18 @@ const ManagersList = () => {
         const user = JSON.parse(localStorage.getItem("user"));
         const Id = user?.id;
 
-        let managerData = [];
-        if (isSuperFarmer) {
-          const response = await api.get(
-            `/users/?action=getFarmManager&user_created=${Id}&page=${page}&records_number=${recordsPerPage}`
-          );
-          managerData = Array.isArray(response.data.data)
-            ? response.data.data
-            : [];
-          const totalCount = response.data.total_count || managerData.length;
-          setTotalPages(Math.ceil(totalCount / recordsPerPage) || 1);
-          setHasMore(
-            managerData.length === recordsPerPage &&
-              page < Math.ceil(totalCount / recordsPerPage)
-          );
-        } else {
-          const response = await api.get(
-            `/users/?action=getFarmManager&user_created=${Id}&page=${page}&records_number=${recordsPerPage}`
-          );
-          managerData = Array.isArray(response.data.data)
-            ? response.data.data
-            : [];
-          const totalCount = response.data.total_count || managerData.length;
-          setTotalPages(Math.ceil(totalCount / recordsPerPage) || 1);
-          setHasMore(
-            managerData.length === recordsPerPage &&
-              page < Math.ceil(totalCount / recordsPerPage)
-          );
-        }
+        const response = await api.get(
+          `/users/?action=getFarmManager&user_created=${Id}&page=${page}&records_number=${recordsPerPage}`
+        );
 
+        const managerData = Array.isArray(response.data.data)
+          ? response.data.data
+          : [];
         setManagers(managerData);
         localStorage.setItem("managers", JSON.stringify(managerData));
+        setTotalCount(response.data.total_count || 0);
+        setTotalPages(Math.ceil(response.data.total_count / recordsPerPage) || 1);
+
         window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (err) {
         toast.error(
@@ -1410,7 +1437,7 @@ const ManagersList = () => {
         if (err.response?.status === 401) navigate("/login");
         setManagers([]);
         localStorage.setItem("managers", JSON.stringify([]));
-        setHasMore(false);
+        setTotalCount(0);
         setTotalPages(1);
       } finally {
         setFetchLoading(false);
@@ -1433,13 +1460,8 @@ const ManagersList = () => {
     if (!formData.phone.trim() || !formData.first_name.trim()) {
       Swal.fire({
         icon: "error",
-        title:
-          translations[language].toast.requiredFields ||
-          "Please fill all required fields",
-        text:
-          language === "en"
-            ? "First name and phone number are required."
-            : "प्रथम नाव आणि फोन नंबर आवश्यक आहेत.",
+        title: translations[language].toast.requiredFields,
+        text: translations[language].toast.requiredFields,
       });
       return;
     }
@@ -1448,13 +1470,8 @@ const ManagersList = () => {
     if (!phoneRegex.test(formData.phone.trim())) {
       Swal.fire({
         icon: "error",
-        title:
-          translations[language].toast.invalidPhoneFormat ||
-          "Invalid phone number",
-        text:
-          language === "en"
-            ? "Phone number must contain only digits."
-            : "फोन नंबरमध्ये फक्त अंक असावेत.",
+        title: translations[language].toast.invalidPhoneFormat || "Invalid phone number",
+        text: translations[language].toast.invalidPhoneFormat || "Phone number must contain only digits.",
       });
       return;
     }
@@ -1462,13 +1479,8 @@ const ManagersList = () => {
     if (formData.phone.trim().length !== 10) {
       Swal.fire({
         icon: "error",
-        title:
-          translations[language].toast.invalidPhoneLength ||
-          "Invalid phone number length",
-        text:
-          language === "en"
-            ? "Phone number must be exactly 10 digits."
-            : "फोन नंबर नेमके १० अंकांचा असावा.",
+        title: translations[language].toast.invalidPhoneLength || "Invalid phone number length",
+        text: translations[language].toast.invalidPhoneLength || "Phone number must be exactly 10 digits.",
       });
       return;
     }
@@ -1476,13 +1488,8 @@ const ManagersList = () => {
     if (!formData.password.trim()) {
       Swal.fire({
         icon: "error",
-        title:
-          translations[language].toast.passwordRequired ||
-          "Password is required",
-        text:
-          language === "en"
-            ? "Please enter a valid password."
-            : "कृपया वैध पासवर्ड प्रविष्ट करा.",
+        title: translations[language].toast.passwordRequired,
+        text: translations[language].toast.passwordRequired,
       });
       return;
     }
@@ -1490,27 +1497,19 @@ const ManagersList = () => {
     if (formData.password.trim() !== formData.confirm_password.trim()) {
       Swal.fire({
         icon: "error",
-        title:
-          translations[language].toast.passwordsMismatch ||
-          "Passwords do not match",
-        text:
-          language === "en"
-            ? "The password and confirm password fields must match."
-            : "पासवर्ड आणि पुष्टीकरण पासवर्ड फील्ड जुळले पाहिजेत.",
+        title: translations[language].toast.passwordsMismatch,
+        text: translations[language].toast.passwordsMismatch,
       });
       return;
     }
 
     const confirmResult = await Swal.fire({
-      title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
-      text:
-        language === "en"
-          ? "Do you want to add this manager?"
-          : "तुम्ही हा व्यवस्थापक जोडू इच्छिता?",
+      title: translations[language].modalTitle,
+      text: translations[language].toast.addManager,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: language === "en" ? "Yes, add it!" : "होय, जोडा!",
-      cancelButtonText: language === "en" ? "No, cancel!" : "नाही, रद्द करा!",
+      confirmButtonText: translations[language].submit,
+      cancelButtonText: translations[language].cancel,
     });
 
     if (!confirmResult.isConfirmed) return;
@@ -1558,9 +1557,7 @@ const ManagersList = () => {
           },
           farm_name: formData.farm_name.trim() || "",
           farm_location: formData.farm_location.trim() || "",
-          farm_size: formData.farm_size.trim()
-            ? parseInt(formData.farm_size)
-            : 0,
+          farm_size: formData.farm_size.trim() ? parseInt(formData.farm_size) : 0,
         };
 
         const userResponse = await api.post("/users/", userPayload, {
@@ -1570,9 +1567,13 @@ const ManagersList = () => {
       }
 
       if (formData.role === "Manager") {
-        const updatedManagers = [newUser, ...managers];
-        setManagers(updatedManagers);
-        localStorage.setItem("managers", JSON.stringify(updatedManagers));
+        if (managers.length < recordsPerPage && currentPage === 1) {
+          const updatedManagers = [newUser, ...managers];
+          setManagers(updatedManagers);
+          localStorage.setItem("managers", JSON.stringify(updatedManagers));
+        }
+        setTotalCount((prev) => prev + 1);
+        setTotalPages(Math.ceil((totalCount + 1) / recordsPerPage) || 1);
       } else {
         const updatedAdmins = [newUser, ...admins];
         setAdmins(updatedAdmins);
@@ -1586,10 +1587,8 @@ const ManagersList = () => {
         icon: "success",
         title:
           formData.role === "Manager"
-            ? translations[language].toast.managerAddedSuccess ||
-              "Manager added successfully!"
-            : translations[language].toast.adminAddedSuccess ||
-              "Admin added successfully!",
+            ? translations[language].toast.managerAddedSuccess
+            : translations[language].toast.adminAddedSuccess,
         showConfirmButton: false,
         timer: 2000,
       });
@@ -1616,58 +1615,28 @@ const ManagersList = () => {
       if (errorMsg.includes("user_email_key")) {
         Swal.fire({
           icon: "error",
-          title:
-            language === "en"
-              ? "Email already exists"
-              : translations[language].toast.emailExists ||
-                "ईमेल आधीपासून अस्तित्वात आहे",
-          text:
-            language === "en"
-              ? "Please use a different email address."
-              : "कृपया वेगळा ईमेल पत्ता वापरा.",
+          title: translations[language].toast.emailInUse,
+          text: translations[language].toast.emailInUse,
         });
       } else if (errorMsg.includes("user_phone_key")) {
         Swal.fire({
           icon: "error",
-          title:
-            language === "en"
-              ? "Phone number already exists"
-              : translations[language].toast.phoneExists ||
-                "फोन नंबर आधीपासून वापरात आहे",
-          text:
-            language === "en"
-              ? "Please use a different phone number."
-              : "कृपया वेगळा फोन नंबर वापरा.",
+          title: translations[language].toast.phoneInUse,
+          text: translations[language].toast.phoneInUse,
         });
       } else if (errorMsg.includes("password")) {
         Swal.fire({
           icon: "error",
-          title:
-            language === "en"
-              ? "Invalid password"
-              : translations[language].toast.invalidPassword || "अवैध पासवर्ड",
-          text:
-            language === "en"
-              ? "Please ensure the password meets the requirements."
-              : "कृपया पासवर्ड आवश्यकता पूर्ण करते याची खात्री करा.",
+          title: translations[language].toast.invalidPassword || "Invalid password",
+          text: translations[language].toast.invalidPassword || "Please ensure the password meets the requirements.",
         });
       } else {
         Swal.fire({
           icon: "error",
-          title:
-            language === "en"
-              ? err.response?.data?.message || "Failed to add manager"
-              : err.response?.data?.message ||
-                translations[language].toast.addManagerError ||
-                "व्यवस्थापक जोडण्यात अयशस्वी",
-          text:
-            formData.role !== "Manager"
-              ? language === "en"
-                ? "You are not a super farmer."
-                : "तुम्ही सुपर शेतकरी नाही."
-              : language === "en"
-              ? "An error occurred while adding the manager."
-              : "व्यवस्थापक जोडताना त्रुटी आली.",
+          title: err.response?.data?.message || translations[language].toast.addManagerError,
+          text: formData.role !== "Manager"
+            ? translations[language].toast.notSuperFarmer || "You are not a super farmer."
+            : translations[language].toast.addManagerError,
         });
       }
     } finally {
@@ -1722,12 +1691,8 @@ const ManagersList = () => {
 
       setAdmins(normalizedAdmins);
       localStorage.setItem("admins", JSON.stringify(normalizedAdmins));
-      const totalCount = response.data.total_count || normalizedAdmins.length;
-      setTotalPages(Math.ceil(totalCount / recordsPerPage) || 1);
-      setHasMore(
-        normalizedAdmins.length === recordsPerPage &&
-          currentPage < Math.ceil(totalCount / recordsPerPage)
-      );
+      setTotalCount(response.data.total_count || normalizedAdmins.length);
+      setTotalPages(Math.ceil(response.data.total_count / recordsPerPage) || 1);
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -1739,7 +1704,7 @@ const ManagersList = () => {
       if (err.response?.status === 401) navigate("/login");
       setAdmins([]);
       localStorage.setItem("admins", JSON.stringify([]));
-      setHasMore(false);
+      setTotalCount(0);
       setTotalPages(1);
     } finally {
       setFetchLoading(false);
@@ -1767,12 +1732,8 @@ const ManagersList = () => {
 
       setManagers(managerData);
       localStorage.setItem("managers", JSON.stringify(managerData));
-      const totalCount = response.data.total_count || managerData.length;
-      setTotalPages(Math.ceil(totalCount / recordsPerPage) || 1);
-      setHasMore(
-        managerData.length === recordsPerPage &&
-          currentPage < Math.ceil(totalCount / recordsPerPage)
-      );
+      setTotalCount(response.data.total_count || managerData.length);
+      setTotalPages(Math.ceil(response.data.total_count / recordsPerPage) || 1);
 
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -1784,7 +1745,7 @@ const ManagersList = () => {
       if (err.response?.status === 401) navigate("/login");
       setManagers([]);
       localStorage.setItem("managers", JSON.stringify([]));
-      setHasMore(false);
+      setTotalCount(0);
       setTotalPages(1);
     } finally {
       setFetchLoading(false);
@@ -1883,17 +1844,12 @@ const ManagersList = () => {
     }
 
     const confirmResult = await Swal.fire({
-      title: language === "en" ? "Are you sure?" : "तुम्हाला खात्री आहे?",
-      text:
-        language === "en"
-          ? `Do you want to update this ${formData.role.toLowerCase()}?`
-          : `तुम्ही हा ${
-              formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-            } अपडेट करू इच्छिता?`,
+      title: translations[language].edit,
+      text: translations[language].toast.updateManager,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: language === "en" ? "Yes, update!" : "होय, अपडेट करा!",
-      cancelButtonText: language === "en" ? "No, cancel!" : "नाही, रद्द करा!",
+      confirmButtonText: translations[language].submit,
+      cancelButtonText: translations[language].cancel,
     });
 
     if (!confirmResult.isConfirmed) return;
@@ -2047,12 +2003,7 @@ const ManagersList = () => {
   const handleDeleteManager = async (managerId) => {
     const result = await Swal.fire({
       title: `${translations[language].delete} ${formData.role}`,
-      text:
-        language === "en"
-          ? `Are you sure you want to delete this ${formData.role.toLowerCase()}? This action cannot be undone.`
-          : `आपण खात्रीने हे ${
-              formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-            } हटवू इच्छिता का? ही क्रिया परत करता येणार नाही.`,
+      text: translations[language].toast.deleteManager,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -2065,7 +2016,6 @@ const ManagersList = () => {
 
     setLoading(true);
 
-    // Optimistic UI update
     let previousManagers = null;
     let previousAdmins = null;
     if (formData.role === "Manager") {
@@ -2101,26 +2051,28 @@ const ManagersList = () => {
 
       if (response.status === 200 || response.status === 204) {
         if (
+          formData.role === "Manager" &&
+          managers.length === 1 &&
+          currentPage > 1
+        ) {
+          setCurrentPage(currentPage - 1);
+        } else if (
           formData.role !== "Manager" &&
           admins.length === 1 &&
           currentPage > 1
         ) {
           setCurrentPage(currentPage - 1);
         }
+        setTotalCount((prev) => prev - 1);
+        setTotalPages(Math.ceil((totalCount - 1) / recordsPerPage) || 1);
 
         await Swal.fire({
-          title: language === "en" ? "Deleted!" : "हटवले!",
-          text:
-            language === "en"
-              ? `${formData.role} has been deleted successfully.`
-              : `${
-                  formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-                } यशस्वीरित्या हटवले गेले आहे.`,
+          title: translations[language].toast.deleted,
+          text: translations[language].toast.deleteSuccess,
           icon: "success",
           confirmButtonText: "OK",
         });
 
-        // Reset form data and modal states
         setFormData({
           first_name: "",
           last_name: "",
@@ -2141,7 +2093,6 @@ const ManagersList = () => {
         setShowEditModal(false);
         setIsViewingEditing(false);
 
-        // Refresh admins only if in admin view mode
         if (formData.role !== "Manager" && viewMode === "admins") {
           await handleViewAdmin();
         }
@@ -2149,7 +2100,6 @@ const ManagersList = () => {
         throw new Error("Unexpected response status: " + response.status);
       }
     } catch (err) {
-      // Revert optimistic update
       if (formData.role === "Manager" && previousManagers) {
         setManagers(previousManagers);
         localStorage.setItem("managers", JSON.stringify(previousManagers));
@@ -2158,23 +2108,14 @@ const ManagersList = () => {
         localStorage.setItem("admins", JSON.stringify(previousAdmins));
       }
 
-      console.error("API Error (Delete Manager):", {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
-      });
-
       const errorMessage =
         err.response?.data?.message ||
         err.response?.data?.error_msg ||
-        (language === "en"
-          ? `Failed to delete ${formData.role.toLowerCase()}. Please try again or contact support.`
-          : `${
-              formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-            } हटविण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा किंवा समर्थनाशी संपर्क साधा.`);
+        translations[language].toast.deleteManagerError ||
+        `Failed to delete ${formData.role.toLowerCase()}. Please try again or contact support.`;
 
       await Swal.fire({
-        title: language === "en" ? "Error!" : "त्रुटी!",
+        title: translations[language].toast.error,
         text: errorMessage,
         icon: "error",
         confirmButtonText: "OK",
@@ -2183,97 +2124,6 @@ const ManagersList = () => {
       setLoading(false);
     }
   };
-
-  // const handleDeleteManager = async (managerId) => {
-  //   const result = await Swal.fire({
-  //     title: `${translations[language].delete} ${formData.role}`,
-  //     text:
-  //       language === "en"
-  //         ? `Are you sure you want to delete this ${formData.role.toLowerCase()}? This action cannot be undone.`
-  //         : `आपण खात्रीने हे ${
-  //             formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-  //           } हटवू इच्छिता का? ही क्रिया परत करता येणार नाही.`,
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonColor: "#d33",
-  //     cancelButtonColor: "#3085d6",
-  //     confirmButtonText: translations[language].delete,
-  //     cancelButtonText: translations[language].cancel,
-  //   });
-
-  //   if (!result.isConfirmed) return;
-
-  //   setLoading(true);
-
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const deletePayload = {
-  //       action: formData.role === "Manager" ? "delFarmManager" : "delFarmer",
-  //       id: managerId,
-  //       role: formData.role === "Manager" ? undefined : "farmer",
-  //     };
-
-  //     const response = await api.delete("/users/", {
-  //       data: deletePayload,
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     if (response.status === 200 || response.status === 204) {
-  //       if (formData.role === "Manager") {
-  //         const updatedManagers = managers.filter((m) => m.id !== managerId);
-  //         setManagers(updatedManagers);
-  //         localStorage.setItem("managers", JSON.stringify(updatedManagers));
-  //       } else {
-  //         setViewMode("admins");
-  //         if (admins.length === 1 && currentPage > 1) {
-  //           setCurrentPage(currentPage - 1);
-  //         }
-  //         await handleViewAdmin();
-  //       }
-
-  //       await Swal.fire({
-  //         title: language === "en" ? "Deleted!" : "हटवले!",
-  //         text:
-  //           language === "en"
-  //             ? `${formData.role} has been deleted successfully.`
-  //             : `${
-  //                 formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-  //               } यशस्वीरित्या हटवले गेले आहे.`,
-  //         icon: "success",
-  //         confirmButtonText: "OK",
-  //       });
-
-  //       setShowViewModal(false);
-  //       setShowEditModal(false);
-  //     } else {
-  //       throw new Error("Unexpected response status: " + response.status);
-  //     }
-  //   } catch (err) {
-  //     console.error("API Error (Delete Manager):", {
-  //       message: err.message,
-  //       response: err.response?.data,
-  //       status: err.response?.status,
-  //     });
-
-  //     const errorMessage =
-  //       err.response?.data?.message ||
-  //       err.response?.data?.error_msg ||
-  //       (language === "en"
-  //         ? `Failed to delete ${formData.role.toLowerCase()}. Please try again or contact support.`
-  //         : `${
-  //             formData.role === "Manager" ? "व्यवस्थापक" : "प्रशासक"
-  //           } हटविण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा किंवा समर्थनाशी संपर्क साधा.`);
-
-  //     await Swal.fire({
-  //       title: language === "en" ? "Error!" : "त्रुटी!",
-  //       text: errorMessage,
-  //       icon: "error",
-  //       confirmButtonText: "OK",
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleToggleEdit = () => {
     if (!isViewingEditing) {
@@ -2324,23 +2174,17 @@ const ManagersList = () => {
       : managers.filter(
           (manager) =>
             manager &&
-            ((manager.phone || manager.user?.phone)
+            ((manager.user?.phone || manager.phone)
               ?.toLowerCase()
               .includes(searchQuery.toLowerCase()) ||
-              (manager.first_name || manager.user?.first_name)
+              (manager.user?.first_name || manager.first_name)
                 ?.toLowerCase()
                 .includes(searchQuery.toLowerCase()))
         );
 
-  const handlePrevious = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
-    }
-  };
-
-  const handleNext = () => {
-    if (hasMore && !fetchLoading) {
-      setCurrentPage((prevPage) => prevPage + 1);
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages && !fetchLoading) {
+      setCurrentPage(newPage);
     }
   };
 
@@ -2459,54 +2303,45 @@ const ManagersList = () => {
           )
         ) : (
           <p className="text-center text-muted mx-auto">
-            {language === "en"
-              ? viewMode === "admins"
+            {translations[language].noData ||
+              (viewMode === "admins"
                 ? "No sub-farmers found"
-                : "No managers found"
-              : viewMode === "admins"
-              ? "कोणतेही उप शेतकरी सापडले नाहीत"
-              : "कोणतेही व्यवस्थापक सापडले नाहीत"}
+                : "No managers found")}
           </p>
         )}
       </div>
 
-      <div className="d-flex justify-content-center mt-4">
-        <nav>
-          <ul className="pagination pagination-sm flex-wrap">
-            <li
-              className={`page-item ${
-                currentPage === 1 || fetchLoading ? "disabled" : ""
-              }`}
-            >
-              <button
-                className="page-link"
-                onClick={handlePrevious}
-                disabled={currentPage === 1 || fetchLoading}
-              >
-                « {translations[language].previous}
-              </button>
-            </li>
-            <li className="page-item active">
-              <span className="page-link bg-success text-white border-0">
-                {currentPage} / {totalPages}
-              </span>
-            </li>
-            <li
-              className={`page-item ${
-                currentPage >= totalPages || fetchLoading ? "disabled" : ""
-              }`}
-            >
-              <button
-                className="page-link"
-                onClick={handleNext}
-                disabled={currentPage >= totalPages || fetchLoading}
-              >
-                {translations[language].next} »
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center mt-4">
+          <nav>
+            <ul className="pagination pagination-sm flex-wrap">
+              <li className={`page-item ${currentPage === 1 || fetchLoading ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1 || fetchLoading}
+                >
+                  {translations[language].previous}
+                </button>
+              </li>
+              <li className="page-item active">
+                <span className="page-link bg-success text-white border-0">
+                  {currentPage} / {totalPages}
+                </span>
+              </li>
+              <li className={`page-item ${currentPage === totalPages || fetchLoading ? "disabled" : ""}`}>
+                <button
+                  className="page-link"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages || fetchLoading}
+                >
+                  {translations[language].next}
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      )}
 
       <ModalForm
         isOpen={showModal}
