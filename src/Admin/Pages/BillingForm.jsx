@@ -1556,7 +1556,7 @@ const Billing = () => {
 
   const translations = {
     en: {
-      exportToExcel: "Export to Excel",
+      exportToExcel: "Export",
       title: "Billing Management",
       addBilling: "Add Bill",
       editBillingTitle: "Edit Billing",
@@ -1597,7 +1597,7 @@ const Billing = () => {
       totalManagerAmount: "Total Manager Amount",
     },
     mr: {
-      exportToExcel: "एक्सेलमध्ये निर्यात करा",
+      exportToExcel: "निर्यात करा",
       title: "बिलिंग व्यवस्थापन",
       addBilling: "बिलिंग जोडा",
       editBillingTitle: "बिलिंग संपादित करा",
@@ -1786,6 +1786,7 @@ const Billing = () => {
       setIsLoadingFarms(false);
     }
   };
+  
 
   const fetchBillings = async (farmId, page = 1, year = "") => {
     const cacheKey = `${farmId}-${year}-${page}`;
@@ -1830,6 +1831,28 @@ const Billing = () => {
     }
   };
 
+   const fetchProducts = async () => {
+    // Avoids re-fetching if products are already loaded
+    if (products.length > 0) return;
+
+    setIsLoadingProducts(true);
+    try {
+      const response = await api.get("/master_data/?action=getProduct");
+      setProducts(response.data.data || []);
+    } catch (error) {
+      Swal.fire(
+        "Error",
+        error.response?.data?.message ||
+          translations[language].fetchError ||
+          "Failed to fetch products.",
+        "error"
+      );
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  };
+
+
   const handleFarmClick = (farm) => {
     setSelectedFarm(farm);
     setCurrentPage(1);
@@ -1849,6 +1872,7 @@ const Billing = () => {
   };
 
   const handleAdd = () => {
+    fetchProducts();
     setFormData({
       farm_id: selectedFarm?.id || "",
       product_id: "",
