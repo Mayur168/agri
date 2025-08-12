@@ -1527,7 +1527,14 @@
 import React, { useState, useEffect } from "react";
 import ModalForm from "../../Admin/Components/ModelForm";
 import Swal from "sweetalert2";
-import { FaTrash, FaEye, FaFileAlt, FaPlus, FaArrowLeft, FaFileExcel } from "react-icons/fa";
+import {
+  FaTrash,
+  FaEye,
+  FaFileAlt,
+  FaPlus,
+  FaArrowLeft,
+  FaFileExcel,
+} from "react-icons/fa";
 import api from "../../Api/axiosInstance";
 import Spinner from "../Spinner/Spinner";
 import { useLanguage } from "../../contexts/LanguageContext";
@@ -1786,7 +1793,6 @@ const Billing = () => {
       setIsLoadingFarms(false);
     }
   };
-  
 
   const fetchBillings = async (farmId, page = 1, year = "") => {
     const cacheKey = `${farmId}-${year}-${page}`;
@@ -1831,7 +1837,7 @@ const Billing = () => {
     }
   };
 
-   const fetchProducts = async () => {
+  const fetchProducts = async () => {
     // Avoids re-fetching if products are already loaded
     if (products.length > 0) return;
 
@@ -1851,7 +1857,6 @@ const Billing = () => {
       setIsLoadingProducts(false);
     }
   };
-
 
   const handleFarmClick = (farm) => {
     setSelectedFarm(farm);
@@ -2176,11 +2181,11 @@ const Billing = () => {
               </div>
             )}
             <div className="flex-grow-1 overflow-auto">
-              {fetchLoading && displayedBillings.length === 0 ? (
+              {fetchLoading ? (
                 <div className="text-center my-5">
                   <Spinner />
                 </div>
-              ) : (
+              ) : displayedBillings.length > 0 ? (
                 <div className="table-responsive" style={{ height: "100%" }}>
                   <table
                     className="table table-striped table-bordered mb-0"
@@ -2200,51 +2205,47 @@ const Billing = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {displayedBillings.length > 0 ? (
-                        displayedBillings.map((billing) => (
-                          <tr key={billing.id}>
-                            <td className="text-nowrap">
-                              {billing.bill_date || "N/A"}
-                            </td>
-                            <td
-                              className="text-nowrap"
-                              style={{ cursor: "pointer" }}
-                              onClick={() => handleView(billing)}
-                            >
-                              {billing.farm?.name || "N/A"}
-                            </td>
-                            <td style={styles.expenseActions}>
-                              <div className="d-flex gap-2 justify-content-center flex-wrap">
-                                <button
-                                  className="btn btn-info btn-sm d-flex align-items-center"
-                                  onClick={() => handleView(billing)}
-                                  title={
-                                    translations[language].viewBilling ||
-                                    "View Billing"
-                                  }
-                                >
-                                  <FaEye />
-                                </button>
-                                <button
-                                  className="btn btn-danger btn-sm d-flex align-items-center"
-                                  onClick={() => handleDelete(billing.id)}
-                                  title={translations[language].delete}
-                                >
-                                  <FaTrash />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan="5" className="text-center">
-                            {translations[language].noBillingsFound}
+                      {displayedBillings.map((billing) => (
+                        <tr key={billing.id}>
+                          <td className="text-nowrap">
+                            {billing.bill_date || "N/A"}
+                          </td>
+                          <td
+                            className="text-nowrap"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => handleView(billing)}
+                          >
+                            {billing.farm?.name || "N/A"}
+                          </td>
+                          <td style={styles.expenseActions}>
+                            <div className="d-flex gap-2 justify-content-center flex-wrap">
+                              <button
+                                className="btn btn-info btn-sm d-flex align-items-center"
+                                onClick={() => handleView(billing)}
+                                title={
+                                  translations[language].viewBilling ||
+                                  "View Billing"
+                                }
+                              >
+                                <FaEye />
+                              </button>
+                              <button
+                                className="btn btn-danger btn-sm d-flex align-items-center"
+                                onClick={() => handleDelete(billing.id)}
+                                title={translations[language].delete}
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
                           </td>
                         </tr>
-                      )}
+                      ))}
                     </tbody>
                   </table>
+                </div>
+              ) : (
+                <div className="text-center my-5">
+                  {translations[language].noBillingsFound}
                 </div>
               )}
             </div>
